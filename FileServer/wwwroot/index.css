@@ -1,0 +1,12 @@
+table,
+td {
+    border: 1px solid #333;
+}
+
+.error {
+    color: red;
+}
+
+.header {
+    font-weight: bold;
+}
