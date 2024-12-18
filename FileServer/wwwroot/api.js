@@ -1,40 +1,48 @@
 class Api {
     static getFileLink(filePath) {
-        return `/api/download/${filePath}`;
+        const urlEncodedFilePath = filePath.split("/").map(x => encodeURIComponent(x)).join("/");
+        return `/api/files/download/${urlEncodedFilePath}`;
     }
 
     static async getFilesList() {
-        await this.#sleep(2000);
-        const fakeResponse = {
-            files: [
-                { path: "file1", size: 11 },
-                { path: "somedir/file2", size: 22 },
-            ]
-        }
-
-        if (this.#randomIntFromInterval(1, 2) === 1)
-            return [undefined, "Error get files list."];
-        else
-            return [fakeResponse, undefined];
+        const url = "api/files/list";
+        const params = Api.#createParams("GET");
+        return await Api.#send(url, params);
     }
 
-    static async uploadFile(file) {
-        await this.#sleep(2000);
-        const fakeResponse = {
-            fileName: file.name
-        }
-
-        if (this.#randomIntFromInterval(1, 2) === 1)
-            return [undefined, "Error upload file."];
-        else
-            return [fakeResponse, undefined];
+    static async uploadFile(fileFormData) {
+        const url = "api/files/upload";
+        const params = Api.#createParams("POST", fileFormData);
+        return await Api.#send(url, params);
     }
 
-    static #randomIntFromInterval(min, max) {
-        return Math.floor(Math.random() * (max - min + 1) + min);
+    static #createParams(method, body) {
+        const params = {
+            method: method,
+            headers: {},
+            body: body
+        };
+        return params;
     }
 
-    static #sleep(ms) {
-        return new Promise(resolve => setTimeout(resolve, ms));
+    static async #send(url, params) {
+        var errorText;
+        const responseData = await fetch(url, params)
+            .then(async response => {
+                if (response.status === 200) {
+                    const contentType = response.headers.get("Content-Type");
+                    if (contentType && contentType.trim().startsWith("application/json"))
+                        return await response.json();
+                    else
+                        return await response.text();
+                } else {
+                    const text = await response.text();
+                    throw new Error(`Response status: ${response.status} ${response.statusText}. Response body: ${text}`);
+                }
+            })
+            .catch(error => {
+                errorText = `Fetch error: ${error}`;
+            });
+        return [responseData, errorText];
     }
 }
