@@ -66,6 +66,16 @@ public static class Utility
         sb.Append($"-{nameof(Settings.CertKeyPath)}: {settings.CertKeyPath}").Append('\n');
         sb.Append($"-{nameof(Settings.DownloadDir)}: {settings.DownloadDir}").Append('\n');
         sb.Append($"-{nameof(Settings.UploadDir)}: {settings.UploadDir}").Append('\n');
+        sb.Append($"-{nameof(Settings.SigningKey)}: {DisplayKey(settings.SigningKey)}").Append('\n');
+        sb.Append($"-{nameof(Settings.LoginKey)}: {DisplayKey(settings.LoginKey)}").Append('\n');
+        sb.Append($"-{nameof(Settings.TokensTtlSeconds)}: {settings.TokensTtlSeconds}").Append('\n');
         return sb.ToString();
+
+        static string DisplayKey(string? key)
+        {
+            if (string.IsNullOrWhiteSpace(key))
+                return "EMPTY";
+            return "*****";
+        }
     }
 }

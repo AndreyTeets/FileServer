@@ -1,4 +1,5 @@
-﻿using System.Text.Json;
+﻿using FileServer;
+using FileServer.Auth;
 using FileServer.Configuration;
 using FileServer.Services;
 
@@ -9,10 +10,15 @@ builder.ConfigureLogging();
 builder.ConfigureKestrel();
 
 builder.Services.AddSingleton<FileService>();
+builder.Services.AddSingleton<TokenService>();
+
+builder.Services.AddAuthentication()
+    .AddScheme<DoubleTokenAuthenticationSchemeOptions, DoubleTokenAuthenticationHandler>(
+        Constants.DoubleTokenAuthenticationSchemeName, options => { });
 
 builder.Services.AddControllers().AddJsonOptions(options =>
 {
-    options.JsonSerializerOptions.PropertyNamingPolicy = JsonNamingPolicy.CamelCase;
+    options.JsonSerializerOptions.PropertyNamingPolicy = StaticSettings.JsonOptions.PropertyNamingPolicy;
 });
 
 WebApplication app = builder.Build();
@@ -32,7 +38,10 @@ app.UseStaticFiles(new StaticFileOptions()
     },
 });
 
-app.MapControllers();
+app.UseAuthentication();
+app.UseAuthorization();
+
+app.MapControllers().RequireAuthorization();
 
 app.Use(async (context, next) =>
 {

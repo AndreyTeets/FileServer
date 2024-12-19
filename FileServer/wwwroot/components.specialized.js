@@ -67,3 +67,32 @@ class FileUploadComponent {
         return div;
     }
 }
+
+class LoginFormComponent {
+    loginFunc;
+
+    constructor(loginFunc) {
+        this.loginFunc = loginFunc;
+    }
+
+    create() {
+        const div = document.createElement("div");
+
+        const passwordInput = document.createElement("input");
+        passwordInput.type = "password";
+        passwordInput.name = "key";
+        div.append("Key:");
+        div.appendChild(passwordInput);
+
+        const buttonInput = document.createElement("input");
+        buttonInput.type = "submit";
+        buttonInput.value = "Login";
+        buttonInput.onclick = () => this.loginFunc(passwordInput.value);
+        buttonInput.disabled = true;
+        div.appendChild(buttonInput);
+
+        passwordInput.addEventListener("input", () => { buttonInput.disabled = !passwordInput.value; });
+
+        return div;
+    }
+}

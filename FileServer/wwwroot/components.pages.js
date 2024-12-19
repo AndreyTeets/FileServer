@@ -44,3 +44,32 @@ class UploadPageComponent {
         return div;
     }
 }
+
+class AuthPageComponent {
+    #loginFormComponent;
+    data;
+
+    constructor(data) {
+        this.data = data
+    }
+
+    create() {
+        const div = document.createElement("div");
+        div.appendChild(new HeaderComponent("AuthPage:").create());
+
+        if (this.data.state.loggedIn) {
+            div.appendChild(new ButtonComponent("Logout", this.data.logoutFunc).create());
+        } else {
+            if (!this.#loginFormComponent)
+                this.#loginFormComponent = new LoginFormComponent(this.data.loginFunc).create();
+            div.appendChild(this.#loginFormComponent);
+        }
+
+        if (this.data.state.status.text)
+            div.appendChild(new TextComponent(this.data.state.status.text).create());
+        if (this.data.state.status.error)
+            div.appendChild(new ErrorComponent(this.data.state.status.error).create());
+
+        return div;
+    }
+}

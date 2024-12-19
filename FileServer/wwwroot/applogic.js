@@ -1,6 +1,7 @@
 class AppLogic {
     static #downloadPage;
     static #uploadPage;
+    static #authPage;
 
     static async setDownloadPage() {
         if (!AppLogic.#downloadPage) {
@@ -43,6 +44,40 @@ class AppLogic {
 
         AppLogic.#uploadPage.data.state = { status: {} };
         App.page = AppLogic.#uploadPage;
+    }
+
+    static setAuthPage() {
+        if (!AppLogic.#authPage) {
+            const pageData = AppLogic.#createProxifiedPageData(AuthPageComponent);
+            pageData.loginFunc = async (password) => {
+                const credentials = { password: password };
+
+                pageData.state.status = { text: "Authenticating..." };
+                const [response, errorText] = await Api.login(credentials);
+                if (errorText) {
+                    pageData.state.status = { error: errorText };
+                }
+                else {
+                    Auth.set(response.loginInfo, response.antiforgeryToken);
+                    pageData.state = { loggedIn: true, status: {} };
+                }
+            };
+            pageData.logoutFunc = async () => {
+                pageData.state.status = { text: "Logging out..." };
+                const [_, errorText] = await Api.logout();
+                if (errorText) {
+                    pageData.state = { loggedIn: !!Auth.get(), status: { error: errorText } };
+                }
+                else {
+                    Auth.clear();
+                    pageData.state = { loggedIn: false, status: {} };
+                }
+            };
+            AppLogic.#authPage = new AuthPageComponent(pageData);
+        }
+
+        AppLogic.#authPage.data.state = { loggedIn: !!Auth.get(), status: {} };
+        App.page = AppLogic.#authPage;
     }
 
     static #createProxifiedPageData(pageClass) {
