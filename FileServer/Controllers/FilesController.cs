@@ -13,15 +13,12 @@ namespace FileServer.Controllers;
 [Route("api/files")]
 public class FilesController : ControllerBase
 {
-    private readonly IOptions<Settings> _options;
+    private readonly IOptionsMonitor<Settings> _options;
     private readonly FileService _fileService;
 
-    public FilesController(IOptions<Settings> options, FileService fileService)
+    public FilesController(IOptionsMonitor<Settings> options, FileService fileService)
     {
         _options = options;
-        // TODO Load settings from env variables with full paths using MSBuildProjectDirectory
-        _options.Value.DownloadDir = Path.GetFullPath(_options.Value.DownloadDir!);
-        _options.Value.UploadDir = Path.GetFullPath(_options.Value.UploadDir!);
         _fileService = fileService;
     }
 
@@ -41,7 +38,7 @@ public class FilesController : ControllerBase
     [Produces("application/octet-stream", "application/json")]
     public ActionResult GetFile([FromRoute] string filePath)
     {
-        PhysicalFileProvider fileProvider = new(_options.Value.DownloadDir!);
+        PhysicalFileProvider fileProvider = new(_options.CurrentValue.DownloadDir!);
         IFileInfo file = fileProvider.GetFileInfo(filePath);
         if (!file.Exists)
             return BadRequest("File not found.");

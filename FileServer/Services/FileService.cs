@@ -8,19 +8,16 @@ namespace FileServer.Services;
 
 public class FileService
 {
-    private readonly IOptions<Settings> _options;
+    private readonly IOptionsMonitor<Settings> _options;
 
-    public FileService(IOptions<Settings> options)
+    public FileService(IOptionsMonitor<Settings> options)
     {
         _options = options;
-        // TODO Load settings from env variables with full paths using MSBuildProjectDirectory
-        _options.Value.DownloadDir = Path.GetFullPath(_options.Value.DownloadDir!);
-        _options.Value.UploadDir = Path.GetFullPath(_options.Value.UploadDir!);
     }
 
     public List<FileInfo> GetDownloadableFilesList()
     {
-        PhysicalFileProvider fileProvider = new(_options.Value.DownloadDir!);
+        PhysicalFileProvider fileProvider = new(_options.CurrentValue.DownloadDir!);
         List<FileInfo> files = new();
         FillFilesListRecursive(files, fileProvider, "");
         return files;
@@ -29,7 +26,7 @@ public class FileService
     public async Task<(string trustedFileName, bool saved)> SaveFileIfNotExists(string originalFileName, Stream fileContent)
     {
         string trustedFileName = SanitizeFileName(originalFileName);
-        string saveToPath = Path.Combine(_options.Value.UploadDir!, trustedFileName);
+        string saveToPath = Path.Combine(_options.CurrentValue.UploadDir!, trustedFileName);
 
         if (!File.Exists(saveToPath))
         {
@@ -45,12 +42,12 @@ public class FileService
         IEnumerable<IFileInfo> dirItems = fileProvider.GetDirectoryContents(subPath);
         foreach (IFileInfo dir in dirItems.Where(f => f.IsDirectory))
         {
-            string relativeDirPath = Path.GetRelativePath(_options.Value.DownloadDir!, dir.PhysicalPath!);
+            string relativeDirPath = Path.GetRelativePath(_options.CurrentValue.DownloadDir!, dir.PhysicalPath!);
             FillFilesListRecursive(files, fileProvider, relativeDirPath);
         }
         foreach (IFileInfo file in dirItems.Where(f => !f.IsDirectory))
         {
-            string relativeFilePath = Path.GetRelativePath(_options.Value.DownloadDir!, file.PhysicalPath!);
+            string relativeFilePath = Path.GetRelativePath(_options.CurrentValue.DownloadDir!, file.PhysicalPath!);
             FileInfo fileInfo = new()
             {
                 Name = file.Name,

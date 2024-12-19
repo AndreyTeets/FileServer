@@ -5,11 +5,18 @@
     <Nullable>enable</Nullable>
     <ImplicitUsings>enable</ImplicitUsings>
     <DockerDefaultTargetOS>Linux</DockerDefaultTargetOS>
-    <DockerfileRunArguments>-p 127.0.0.1:8080:8080</DockerfileRunArguments>
+    <DockerfileRunArguments>-p 127.0.0.1:8080:8080 -v "$(MSBuildProjectDirectory)\bin\settings:/app/settings" -v "$(MSBuildProjectDirectory)\bin\fs_data:/fs_data"</DockerfileRunArguments>
   </PropertyGroup>
 
   <ItemGroup>
     <PackageReference Include="Microsoft.VisualStudio.Azure.Containers.Tools.Targets" Version="1.21.0" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Content Remove="appsettings.template.json" />
+    <None Include="appsettings.template.json">
+      <CopyToOutputDirectory>Never</CopyToOutputDirectory>
+    </None>
   </ItemGroup>
 
 </Project>

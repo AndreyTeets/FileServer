@@ -4,7 +4,8 @@ using FileServer.Services;
 
 WebApplicationBuilder builder = WebApplication.CreateBuilder(args);
 
-builder.Services.Configure<Settings>(builder.Configuration.GetSection(nameof(Settings)));
+builder.ConfigureSettings();
+
 builder.Services.AddSingleton<FileService>();
 builder.Services.AddControllers().AddJsonOptions(options =>
 {
@@ -12,6 +13,7 @@ builder.Services.AddControllers().AddJsonOptions(options =>
 });
 
 WebApplication app = builder.Build();
+app.SetupSettingsMonitor();
 
 app.Use(async (context, next) =>
 {

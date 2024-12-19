@@ -1,5 +1,7 @@
 FROM mcr.microsoft.com/dotnet/aspnet:8.0-alpine3.20 AS base
 ENV ASPNETCORE_URLS=""
+ENV DOTNET_USE_POLLING_FILE_WATCHER=1
+ENV FileServer_SettingsFilePath="/app/settings/appsettings.json"
 WORKDIR /app
 
 FROM mcr.microsoft.com/dotnet/sdk:8.0-alpine3.20 AS build

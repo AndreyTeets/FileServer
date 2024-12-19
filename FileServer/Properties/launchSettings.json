@@ -5,7 +5,10 @@
       "launchBrowser": false,
       "environmentVariables": {
         "ASPNETCORE_URLS": "",
-        "ASPNETCORE_ENVIRONMENT": "Development"
+        "ASPNETCORE_ENVIRONMENT": "Development",
+        "FileServer_SettingsFilePath": "$(MSBuildProjectDirectory)\\bin\\settings\\appsettings.json",
+        "FileServer__Settings__DownloadDir": "$(MSBuildProjectDirectory)\\bin\\fs_data\\download",
+        "FileServer__Settings__UploadDir": "$(MSBuildProjectDirectory)\\bin\\fs_data\\upload"
       },
       "dotnetRunMessages": true
     },
