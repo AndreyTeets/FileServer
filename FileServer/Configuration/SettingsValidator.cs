@@ -34,7 +34,7 @@ public class SettingsValidator : IValidateOptions<Settings>
         error = problems.Count == 0
             ? null
             : $"Invalid Settings:\n" +
-                $"{settings.GetDisplayString()}\n" +
+                $"{Utility.GetSettingsDisplayString(settings)}\n" +
                 $"Problems:\n" +
                 $"-{string.Join("\n-", problems)}\n";
         return error is null;

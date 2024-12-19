@@ -1,2 +1,4 @@
+openssl req -x509 -newkey rsa:4096 -sha256 -days 3650 -nodes -keyout cert.key -out cert.crt -subj "/CN=localhost"
+
 docker build . -f ./FileServer/Dockerfile -t fs:latest
-docker run --rm -it --name fs -p 127.0.0.1:7080:8080/tcp -v "$pwd\FileServer\bin\settings:/app/settings" -v "$pwd\FileServer\bin\fs_data:/fs_data" fs:latest
+docker run --rm -it --name fs -p 127.0.0.1:7443:8443/tcp -v "$pwd\FileServer\bin\settings:/app/settings" -v "$pwd\FileServer\bin\fs_data:/fs_data" fs:latest

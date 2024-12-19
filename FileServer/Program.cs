@@ -5,8 +5,11 @@ using FileServer.Services;
 WebApplicationBuilder builder = WebApplication.CreateBuilder(args);
 
 builder.ConfigureSettings();
+builder.ConfigureLogging();
+builder.ConfigureKestrel();
 
 builder.Services.AddSingleton<FileService>();
+
 builder.Services.AddControllers().AddJsonOptions(options =>
 {
     options.JsonSerializerOptions.PropertyNamingPolicy = JsonNamingPolicy.CamelCase;

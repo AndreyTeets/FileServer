@@ -1,4 +1,7 @@
-﻿using System.Text;
+﻿using System.Net;
+using System.Security.Authentication;
+using System.Security.Cryptography.X509Certificates;
+using FileServer.Configuration;
 using Microsoft.Extensions.Options;
 
 namespace FileServer.Configuration;
@@ -18,23 +21,42 @@ public static class Extensions
         builder.Services.AddSingleton<IValidateOptions<Settings>, SettingsValidator>();
     }
 
+    public static void ConfigureLogging(this WebApplicationBuilder builder)
+    {
+        builder.Logging.ClearProviders();
+        builder.Logging.AddConsole();
+    }
+
+    public static void ConfigureKestrel(this WebApplicationBuilder builder)
+    {
+        ILogger logger = Utility.CreateConsoleLogger<Program>();
+        Settings settings = builder.Configuration.GetSection(nameof(Settings)).Get<Settings>()!;
+
+        X509Certificate2 cert = Utility.LoadCertificate(settings);
+        logger.LogInformation($"Using Certificate:\n{Utility.GetCertificateDisplayString(cert)}");
+
+        builder.WebHost.ConfigureKestrel(options =>
+        {
+            options.Listen(IPAddress.Parse(settings.ListenAddress!), settings.ListenPort!.Value, listenOptions =>
+            {
+                listenOptions.UseHttps(httpsOptions =>
+                {
+                    httpsOptions.ServerCertificate = cert;
+                    httpsOptions.SslProtocols = SslProtocols.Tls12 | SslProtocols.Tls13;
+                });
+            });
+        });
+    }
+
     public static void SetupSettingsMonitor(this WebApplication app)
     {
         ILogger logger = app.Services.GetRequiredService<ILogger<Program>>();
         IOptionsMonitor<Settings> settingsMonitor = app.Services.GetRequiredService<IOptionsMonitor<Settings>>();
 
-        logger.LogInformation($"Using Settings:\n{settingsMonitor.CurrentValue.GetDisplayString()}");
+        logger.LogInformation($"Using Settings:\n{Utility.GetSettingsDisplayString(settingsMonitor.CurrentValue)}");
         settingsMonitor.OnChange(settings =>
         {
-            logger.LogInformation($"Settings changed. New Settings:\n{settings.GetDisplayString()}");
+            logger.LogInformation($"Settings changed. New Settings:\n{Utility.GetSettingsDisplayString(settings)}");
         });
-    }
-
-    public static string GetDisplayString(this Settings settings)
-    {
-        StringBuilder sb = new();
-        sb.Append($"-{nameof(Settings.DownloadDir)}: {settings.DownloadDir}").Append('\n');
-        sb.Append($"-{nameof(Settings.UploadDir)}: {settings.UploadDir}").Append('\n');
-        return sb.ToString();
     }
 }

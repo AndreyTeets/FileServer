@@ -1,12 +1,16 @@
 {
   "profiles": {
-    "http": {
+    "https": {
       "commandName": "Project",
       "launchBrowser": false,
       "environmentVariables": {
         "ASPNETCORE_URLS": "",
         "ASPNETCORE_ENVIRONMENT": "Development",
         "FileServer_SettingsFilePath": "$(MSBuildProjectDirectory)\\bin\\settings\\appsettings.json",
+        "FileServer__Settings__ListenAddress": "127.0.0.1",
+        "FileServer__Settings__ListenPort": "9443",
+        "FileServer__Settings__CertFilePath": "$(MSBuildProjectDirectory)\\bin\\settings\\cert.crt",
+        "FileServer__Settings__CertKeyPath": "$(MSBuildProjectDirectory)\\bin\\settings\\cert.key",
         "FileServer__Settings__DownloadDir": "$(MSBuildProjectDirectory)\\bin\\fs_data\\download",
         "FileServer__Settings__UploadDir": "$(MSBuildProjectDirectory)\\bin\\fs_data\\upload"
       },
