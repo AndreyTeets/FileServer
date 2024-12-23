@@ -9,17 +9,19 @@ public class SettingsValidator : IValidateOptions<Settings>
     private const int MaxSigningKeyLength = 64;
 
     private readonly ILogger<Program> _logger;
+    private readonly Debouncer _onSettingsValidationErrorDebouncer;
 
-    public SettingsValidator(IServiceProvider serviceProvider)
+    public SettingsValidator(IServiceProvider serviceProvider, Debouncer debouncer)
     {
         _logger = serviceProvider.GetRequiredService<ILogger<Program>>();
+        _onSettingsValidationErrorDebouncer = debouncer;
     }
 
     public ValidateOptionsResult Validate(string? name, Settings settings)
     {
         if (!SettingsAreValid(settings, out string? error))
         {
-            _logger.LogCritical(error);
+            _onSettingsValidationErrorDebouncer.Debounce(() => _logger.LogCritical(error));
             return ValidateOptionsResult.Fail(error!);
         }
 
