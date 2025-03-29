@@ -39,7 +39,7 @@ public class SetupTestServerFixture
                 .ConfigureServices(services =>
                 {
                     services.Configure<Settings>(configuration.GetSection(nameof(Settings)));
-                    services.AddTransient<IDebouncer, NoopDebouncer>();
+                    services.AddSingleton<IDebouncer, NoopDebouncer>();
                     services.AddSingleton<IValidateOptions<Settings>, SettingsValidator>();
                     services.AddAndConfigureServices();
                     services.AddMvc().AddApplicationPart(typeof(Constants).Assembly);
@@ -84,9 +84,13 @@ public class SetupTestServerFixture
 
     public class NoopDebouncer : IDebouncer
     {
-        public void Debounce(Action action)
+        public void Debounce(string category, Action action)
         {
             action();
+        }
+
+        public void Dispose()
+        {
         }
     }
 }

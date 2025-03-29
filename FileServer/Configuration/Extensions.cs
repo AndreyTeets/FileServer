@@ -20,7 +20,7 @@ public static class Extensions
             .AddEnvironmentVariables("FileServer__");
 
         builder.Services.Configure<Settings>(builder.Configuration.GetSection(nameof(Settings)));
-        builder.Services.AddTransient<IDebouncer, Debouncer>();
+        builder.Services.AddSingleton<IDebouncer, Debouncer>();
         builder.Services.AddSingleton<IValidateOptions<Settings>, SettingsValidator>();
     }
 
@@ -71,15 +71,24 @@ public static class Extensions
     {
         ILogger logger = app.Services.GetRequiredService<ILogger<Program>>();
         IOptionsMonitor<Settings> settingsMonitor = app.Services.GetRequiredService<IOptionsMonitor<Settings>>();
-        IDebouncer onSettingsChangeDebouncer = app.Services.GetRequiredService<IDebouncer>();
+        IDebouncer debouncer = app.Services.GetRequiredService<IDebouncer>();
 
-        logger.LogInformation($"Using Settings:{Environment.NewLine}" +
-            $"{Utility.GetSettingsDisplayString(settingsMonitor.CurrentValue)}");
-        settingsMonitor.OnChange(settings => onSettingsChangeDebouncer.Debounce(() =>
+        try
         {
-            logger.LogInformation($"Settings changed. New Settings:{Environment.NewLine}" +
-                $"{Utility.GetSettingsDisplayString(settings)}");
-        }));
+            Settings currentSettings = settingsMonitor.CurrentValue;
+            logger.LogInformation($"Using Settings:{Environment.NewLine}" +
+                $"{Utility.GetSettingsDisplayString(currentSettings)}");
+            settingsMonitor.OnChange(settings => debouncer.Debounce("SettingsChanged", () =>
+            {
+                logger.LogInformation($"Settings changed. New Settings:{Environment.NewLine}" +
+                    $"{Utility.GetSettingsDisplayString(settings)}");
+            }));
+        }
+        catch (OptionsValidationException)
+        {
+            debouncer.Dispose();
+            throw new Exception("Invalid settings during startup.");
+        }
     }
 
     public static void UseToIndexPageRedirect(this IApplicationBuilder app)
