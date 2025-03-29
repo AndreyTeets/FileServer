@@ -1,6 +1,6 @@
 ﻿namespace FileServer.Configuration;
 
-public class Debouncer : IDisposable
+public class Debouncer : IDebouncer, IDisposable
 {
     private long _counter;
     private readonly CancellationTokenSource _cts = new();
@@ -26,4 +26,9 @@ public class Debouncer : IDisposable
     {
         _cts.Cancel();
     }
+}
+
+public interface IDebouncer
+{
+    public void Debounce(Action action);
 }

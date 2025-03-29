@@ -20,7 +20,7 @@ public static class Extensions
             .AddEnvironmentVariables("FileServer__");
 
         builder.Services.Configure<Settings>(builder.Configuration.GetSection(nameof(Settings)));
-        builder.Services.AddTransient<Debouncer>();
+        builder.Services.AddTransient<IDebouncer, Debouncer>();
         builder.Services.AddSingleton<IValidateOptions<Settings>, SettingsValidator>();
     }
 
@@ -70,7 +70,7 @@ public static class Extensions
     {
         ILogger logger = app.Services.GetRequiredService<ILogger<Program>>();
         IOptionsMonitor<Settings> settingsMonitor = app.Services.GetRequiredService<IOptionsMonitor<Settings>>();
-        Debouncer onSettingsChangeDebouncer = app.Services.GetRequiredService<Debouncer>();
+        IDebouncer onSettingsChangeDebouncer = app.Services.GetRequiredService<IDebouncer>();
 
         logger.LogInformation($"Using Settings:\n{Utility.GetSettingsDisplayString(settingsMonitor.CurrentValue)}");
         settingsMonitor.OnChange(settings => onSettingsChangeDebouncer.Debounce(() =>

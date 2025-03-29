@@ -9,9 +9,9 @@ public class SettingsValidator : IValidateOptions<Settings>
     private const int MaxSigningKeyLength = 64;
 
     private readonly ILogger<Program> _logger;
-    private readonly Debouncer _onSettingsValidationErrorDebouncer;
+    private readonly IDebouncer _onSettingsValidationErrorDebouncer;
 
-    public SettingsValidator(IServiceProvider serviceProvider, Debouncer debouncer)
+    public SettingsValidator(IServiceProvider serviceProvider, IDebouncer debouncer)
     {
         _logger = serviceProvider.GetRequiredService<ILogger<Program>>();
         _onSettingsValidationErrorDebouncer = debouncer;
