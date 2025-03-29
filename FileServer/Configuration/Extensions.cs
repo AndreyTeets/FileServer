@@ -36,7 +36,8 @@ public static class Extensions
         Settings settings = builder.Configuration.GetSection(nameof(Settings)).Get<Settings>()!;
 
         X509Certificate2 cert = Utility.LoadCertificate(settings);
-        logger.LogInformation($"Using Certificate:\n{Utility.GetCertificateDisplayString(cert)}");
+        logger.LogInformation($"Using Certificate:{Environment.NewLine}" +
+            $"{Utility.GetCertificateDisplayString(cert)}");
 
         builder.WebHost.ConfigureKestrel(options =>
         {
@@ -72,10 +73,12 @@ public static class Extensions
         IOptionsMonitor<Settings> settingsMonitor = app.Services.GetRequiredService<IOptionsMonitor<Settings>>();
         IDebouncer onSettingsChangeDebouncer = app.Services.GetRequiredService<IDebouncer>();
 
-        logger.LogInformation($"Using Settings:\n{Utility.GetSettingsDisplayString(settingsMonitor.CurrentValue)}");
+        logger.LogInformation($"Using Settings:{Environment.NewLine}" +
+            $"{Utility.GetSettingsDisplayString(settingsMonitor.CurrentValue)}");
         settingsMonitor.OnChange(settings => onSettingsChangeDebouncer.Debounce(() =>
         {
-            logger.LogInformation($"Settings changed. New Settings:\n{Utility.GetSettingsDisplayString(settings)}");
+            logger.LogInformation($"Settings changed. New Settings:{Environment.NewLine}" +
+                $"{Utility.GetSettingsDisplayString(settings)}");
         }));
     }
 

@@ -29,12 +29,12 @@ public static class Utility
     public static string GetCertificateDisplayString(X509Certificate2 cert)
     {
         StringBuilder sb = new();
-        sb.Append($"-Subject: {cert.Subject}").Append('\n');
-        sb.Append($"-Issuer: {cert.Issuer}").Append('\n');
-        sb.Append($"-ValidFrom: {FormatDate(cert.NotBefore)}").Append('\n');
-        sb.Append($"-ValidTo: {FormatDate(cert.NotAfter)}").Append('\n');
-        sb.Append($"-SHA256: {GetSha256(cert)}").Append('\n');
-        sb.Append($"-SHA1: {GetSha1(cert)}").Append('\n');
+        sb.Append($"-Subject: {cert.Subject}").AppendLine();
+        sb.Append($"-Issuer: {cert.Issuer}").AppendLine();
+        sb.Append($"-ValidFrom: {FormatDate(cert.NotBefore)}").AppendLine();
+        sb.Append($"-ValidTo: {FormatDate(cert.NotAfter)}").AppendLine();
+        sb.Append($"-SHA256: {GetSha256(cert)}").AppendLine();
+        sb.Append($"-SHA1: {GetSha1(cert)}").AppendLine();
         return sb.ToString();
 
         static string GetSha256(X509Certificate2 cert)
@@ -60,15 +60,15 @@ public static class Utility
     public static string GetSettingsDisplayString(Settings settings)
     {
         StringBuilder sb = new();
-        sb.Append($"-{nameof(Settings.ListenAddress)}: {settings.ListenAddress}").Append('\n');
-        sb.Append($"-{nameof(Settings.ListenPort)}: {settings.ListenPort}").Append('\n');
-        sb.Append($"-{nameof(Settings.CertFilePath)}: {settings.CertFilePath}").Append('\n');
-        sb.Append($"-{nameof(Settings.CertKeyPath)}: {settings.CertKeyPath}").Append('\n');
-        sb.Append($"-{nameof(Settings.DownloadDir)}: {settings.DownloadDir}").Append('\n');
-        sb.Append($"-{nameof(Settings.UploadDir)}: {settings.UploadDir}").Append('\n');
-        sb.Append($"-{nameof(Settings.SigningKey)}: {DisplayKey(settings.SigningKey)}").Append('\n');
-        sb.Append($"-{nameof(Settings.LoginKey)}: {DisplayKey(settings.LoginKey)}").Append('\n');
-        sb.Append($"-{nameof(Settings.TokensTtlSeconds)}: {settings.TokensTtlSeconds}").Append('\n');
+        sb.Append($"-{nameof(Settings.ListenAddress)}: {settings.ListenAddress}").AppendLine();
+        sb.Append($"-{nameof(Settings.ListenPort)}: {settings.ListenPort}").AppendLine();
+        sb.Append($"-{nameof(Settings.CertFilePath)}: {settings.CertFilePath}").AppendLine();
+        sb.Append($"-{nameof(Settings.CertKeyPath)}: {settings.CertKeyPath}").AppendLine();
+        sb.Append($"-{nameof(Settings.DownloadDir)}: {settings.DownloadDir}").AppendLine();
+        sb.Append($"-{nameof(Settings.UploadDir)}: {settings.UploadDir}").AppendLine();
+        sb.Append($"-{nameof(Settings.SigningKey)}: {DisplayKey(settings.SigningKey)}").AppendLine();
+        sb.Append($"-{nameof(Settings.LoginKey)}: {DisplayKey(settings.LoginKey)}").AppendLine();
+        sb.Append($"-{nameof(Settings.TokensTtlSeconds)}: {settings.TokensTtlSeconds}").AppendLine();
         return sb.ToString();
 
         static string DisplayKey(string? key)

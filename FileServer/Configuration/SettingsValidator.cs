@@ -52,10 +52,10 @@ public class SettingsValidator : IValidateOptions<Settings>
 
         error = problems.Count == 0
             ? null
-            : $"Invalid Settings:\n" +
-                $"{Utility.GetSettingsDisplayString(settings)}\n" +
-                $"Problems:\n" +
-                $"-{string.Join("\n-", problems)}\n";
+            : $"Invalid Settings:{Environment.NewLine}" +
+                $"{Utility.GetSettingsDisplayString(settings)}{Environment.NewLine}" +
+                $"Problems:{Environment.NewLine}" +
+                $"-{string.Join($"{Environment.NewLine}-", problems)}{Environment.NewLine}";
         return error is null;
     }
 }
