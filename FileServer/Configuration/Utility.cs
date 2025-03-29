@@ -35,7 +35,7 @@ public static class Utility
         sb.Append($"-ValidTo: {FormatDate(cert.NotAfter)}").AppendLine();
         sb.Append($"-SHA256: {GetSha256(cert)}").AppendLine();
         sb.Append($"-SHA1: {GetSha1(cert)}").AppendLine();
-        return sb.ToString();
+        return sb.ToString().Trim();
 
         static string GetSha256(X509Certificate2 cert)
         {
@@ -69,7 +69,7 @@ public static class Utility
         sb.Append($"-{nameof(Settings.SigningKey)}: {DisplayKey(settings.SigningKey)}").AppendLine();
         sb.Append($"-{nameof(Settings.LoginKey)}: {DisplayKey(settings.LoginKey)}").AppendLine();
         sb.Append($"-{nameof(Settings.TokensTtlSeconds)}: {settings.TokensTtlSeconds}").AppendLine();
-        return sb.ToString();
+        return sb.ToString().Trim();
 
         static string DisplayKey(string? key)
         {

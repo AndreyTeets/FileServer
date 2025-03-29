@@ -55,7 +55,7 @@ public class SettingsValidator : IValidateOptions<Settings>
             : $"Invalid Settings:{Environment.NewLine}" +
                 $"{Utility.GetSettingsDisplayString(settings)}{Environment.NewLine}" +
                 $"Problems:{Environment.NewLine}" +
-                $"-{string.Join($"{Environment.NewLine}-", problems)}{Environment.NewLine}";
+                $"-{string.Join($"{Environment.NewLine}-", problems)}";
         return error is null;
     }
 }
