@@ -1,7 +1,9 @@
 ﻿using System.Net;
 using System.Security.Authentication;
 using System.Security.Cryptography.X509Certificates;
+using FileServer.Auth;
 using FileServer.Configuration;
+using FileServer.Services;
 using Microsoft.Extensions.Options;
 
 namespace FileServer.Configuration;
@@ -49,6 +51,21 @@ public static class Extensions
         });
     }
 
+    public static void AddAndConfigureServices(this IServiceCollection services)
+    {
+        services.AddSingleton<FileService>();
+        services.AddSingleton<TokenService>();
+
+        services.AddAuthentication()
+            .AddScheme<DoubleTokenAuthenticationSchemeOptions, DoubleTokenAuthenticationHandler>(
+                Constants.DoubleTokenAuthenticationSchemeName, options => { });
+
+        services.AddControllers().AddJsonOptions(options =>
+        {
+            options.JsonSerializerOptions.PropertyNamingPolicy = StaticSettings.JsonOptions.PropertyNamingPolicy;
+        });
+    }
+
     public static void SetupSettingsMonitor(this WebApplication app)
     {
         ILogger logger = app.Services.GetRequiredService<ILogger<Program>>();
@@ -60,5 +77,41 @@ public static class Extensions
         {
             logger.LogInformation($"Settings changed. New Settings:\n{Utility.GetSettingsDisplayString(settings)}");
         }));
+    }
+
+    public static void UseToIndexPageRedirect(this IApplicationBuilder app)
+    {
+        app.Use(async (context, next) =>
+        {
+            if (context.Request.Path.Value == "/")
+                context.Request.Path = "/index.html";
+            await next();
+        });
+    }
+
+    public static void UseStaticFilesWithNoCacheHeaders(this IApplicationBuilder app)
+    {
+        app.UseStaticFiles(new StaticFileOptions()
+        {
+            OnPrepareResponse = sfrContext =>
+            {
+                sfrContext.Context.Response.Headers["Cache-Control"] = "no-cache, no-store";
+            },
+        });
+    }
+
+    public static void UseControllersWithAuthorization(this IEndpointRouteBuilder endpoints)
+    {
+        endpoints.MapControllers().RequireAuthorization();
+    }
+
+    public static void UseNoCacheHeaders(this IApplicationBuilder app)
+    {
+        app.Use(async (context, next) =>
+        {
+            if (context.Request.Method == HttpMethod.Get.Method)
+                context.Response.Headers["Cache-Control"] = "no-cache, no-store, private";
+            await next();
+        });
     }
 }
