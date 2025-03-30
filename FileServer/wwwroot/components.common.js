@@ -2,9 +2,9 @@ class TextComponent {
     text;
     cssClass;
 
-    constructor(text, cssClass) {
+    constructor(text) {
         this.text = text;
-        this.cssClass = cssClass;
+        this.cssClass = "text";
     }
 
     create() {
