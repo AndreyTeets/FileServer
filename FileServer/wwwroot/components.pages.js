@@ -10,7 +10,7 @@ class DownloadPageComponent {
         div.appendChild(new HeaderComponent("DownloadPage:").create());
 
         if (this.data.state.files)
-            div.appendChild(new FilesListComponent(this.data.state.files, this.data.downloadFunc).create());
+            div.appendChild(new FilesListComponent(this.data.state.files, this.data.fileActionFunc).create());
         if (this.data.state.status.text)
             div.appendChild(new TextComponent(this.data.state.status.text).create());
         if (this.data.state.status.error)

@@ -64,12 +64,14 @@ public static class SnapshotValues
               - cell "Path"
               - cell "Size"
           - rowgroup:
-            - row "yes anonfile1.txt 22 Download":
+            - row "yes anonfile1.txt 22 Download View":
               - cell "yes"
               - cell "anonfile1.txt"
               - cell "22"
               - cell "Download":
                 - button "Download"
+              - cell "View":
+                - button "View"
         """;
 
     public static readonly string After_OpenDownloadPageWithAuth = """
@@ -85,17 +87,21 @@ public static class SnapshotValues
               - cell "Path"
               - cell "Size"
           - rowgroup:
-            - row "yes anonfile1.txt 22 Download":
+            - row "yes anonfile1.txt 22 Download View":
               - cell "yes"
               - cell "anonfile1.txt"
               - cell "22"
               - cell "Download":
                 - button "Download"
-            - row "no file1.txt 18 Download":
+              - cell "View":
+                - button "View"
+            - row "no file1.txt 18 Download View":
               - cell "no"
               - cell "file1.txt"
               - cell "18"
               - cell "Download":
                 - button "Download"
+              - cell "View":
+                - button "View"
         """;
 }

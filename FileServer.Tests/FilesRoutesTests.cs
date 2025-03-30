@@ -51,10 +51,27 @@ public class FilesRoutesTests : TestsBase
     }
 
     [Test]
+    public async Task ViewAnonFile_Without_Auth_Works()
+    {
+        using HttpResponseMessage response = await FsTestClient.Get("/api/files/viewanon/anonfile1.txt");
+        Assert.That(response.StatusCode, Is.EqualTo(HttpStatusCode.OK));
+        Assert.That(await GetContent(response), Is.EqualTo("test_anonfile1_content"));
+    }
+
+    [Test]
     public async Task DownloadAnonFile_With_Auth_Works()
     {
         await FsTestClient.Login();
         using HttpResponseMessage response = await FsTestClient.Get("/api/files/downloadanon/anonfile1.txt");
+        Assert.That(response.StatusCode, Is.EqualTo(HttpStatusCode.OK));
+        Assert.That(await GetContent(response), Is.EqualTo("test_anonfile1_content"));
+    }
+
+    [Test]
+    public async Task ViewAnonFile_With_Auth_Works()
+    {
+        await FsTestClient.Login();
+        using HttpResponseMessage response = await FsTestClient.Get("/api/files/viewanon/anonfile1.txt");
         Assert.That(response.StatusCode, Is.EqualTo(HttpStatusCode.OK));
         Assert.That(await GetContent(response), Is.EqualTo("test_anonfile1_content"));
     }
@@ -67,10 +84,26 @@ public class FilesRoutesTests : TestsBase
     }
 
     [Test]
+    public async Task ViewFile_Without_Auth_IsForbidden()
+    {
+        using HttpResponseMessage response = await FsTestClient.Get("/api/files/view/file1.txt");
+        Assert.That(response.StatusCode, Is.EqualTo(HttpStatusCode.Unauthorized));
+    }
+
+    [Test]
     public async Task DownloadFile_With_Auth_Works()
     {
         await FsTestClient.Login();
         using HttpResponseMessage response = await FsTestClient.Get("/api/files/download/file1.txt");
+        Assert.That(response.StatusCode, Is.EqualTo(HttpStatusCode.OK));
+        Assert.That(await GetContent(response), Is.EqualTo("test_file1_content"));
+    }
+
+    [Test]
+    public async Task ViewFile_With_Auth_Works()
+    {
+        await FsTestClient.Login();
+        using HttpResponseMessage response = await FsTestClient.Get("/api/files/view/file1.txt");
         Assert.That(response.StatusCode, Is.EqualTo(HttpStatusCode.OK));
         Assert.That(await GetContent(response), Is.EqualTo("test_file1_content"));
     }

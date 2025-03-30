@@ -2,13 +2,13 @@ class Api {
     static #antiforgeryTokenHeaderName = "FileServer-AntiforgeryToken";
     static #antiforgeryTokenQueryParamName = "antiforgeryToken";
 
-    static createFileLink(filePath, fileAnon) {
+    static createFileLink(filePath, action, fileAnon) {
         const urlEncodedFilePath = filePath.split("/").map(x => encodeURIComponent(x)).join("/");
         const authData = Auth.get();
         if (fileAnon === 'yes')
-            return `/api/files/downloadanon/${urlEncodedFilePath}`;
+            return `/api/files/${action}anon/${urlEncodedFilePath}`;
         else if (authData && fileAnon === 'no')
-            return `/api/files/download/${urlEncodedFilePath}?${Api.#antiforgeryTokenQueryParamName}=${authData.antiforgeryToken}`;
+            return `/api/files/${action}/${urlEncodedFilePath}?${Api.#antiforgeryTokenQueryParamName}=${authData.antiforgeryToken}`;
         else
             throw new Error(`No auth data or bad anon='${fileAnon}' while creating file link.`);
     }

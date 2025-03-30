@@ -1,10 +1,10 @@
 class FilesListComponent {
     filesList;
-    downloadFunc;
+    fileActionFunc;
 
-    constructor(filesList, downloadFunc) {
+    constructor(filesList, fileActionFunc) {
         this.filesList = filesList;
-        this.downloadFunc = downloadFunc;
+        this.fileActionFunc = fileActionFunc;
     }
 
     create() {
@@ -18,12 +18,17 @@ class FilesListComponent {
 
         thead.append(this.#createTableRow(["Anon", "Path", "Size"]));
         for (const file of this.filesList) {
-            const button = document.createElement("input");
-            button.type = "submit";
-            button.value = "Download";
-            button.onclick = () => this.downloadFunc(file, 'download');
+            const downloadButton = document.createElement("input");
+            downloadButton.type = "submit";
+            downloadButton.value = "Download";
+            downloadButton.onclick = () => this.fileActionFunc(file, 'download');
 
-            tbody.appendChild(this.#createTableRow([file.anon, file.path, file.size, button]));
+            const viewButton = document.createElement("input");
+            viewButton.type = "submit";
+            viewButton.value = "View";
+            viewButton.onclick = () => this.fileActionFunc(file, 'view');
+
+            tbody.appendChild(this.#createTableRow([file.anon, file.path, file.size, downloadButton, viewButton]));
         }
 
         div.appendChild(table);

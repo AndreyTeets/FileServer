@@ -59,11 +59,26 @@ public class FilesController : ControllerBase
         return CreateGetFileResult(_options.CurrentValue.DownloadAnonDir!, "application/octet-stream", filePath);
     }
 
+    [HttpGet($"viewanon/{{*{nameof(filePath)}}}")]
+    [Produces("text/plain", "application/json")]
+    [AllowAnonymous]
+    public ActionResult ViewFileAnon([FromRoute] string filePath)
+    {
+        return CreateGetFileResult(_options.CurrentValue.DownloadAnonDir!, "text/plain", filePath);
+    }
+
     [HttpGet($"download/{{*{nameof(filePath)}}}")]
     [Produces("application/octet-stream", "application/json")]
     public ActionResult DownloadFile([FromRoute] string filePath)
     {
         return CreateGetFileResult(_options.CurrentValue.DownloadDir!, "application/octet-stream", filePath);
+    }
+
+    [HttpGet($"view/{{*{nameof(filePath)}}}")]
+    [Produces("text/plain", "application/json")]
+    public ActionResult ViewFile([FromRoute] string filePath)
+    {
+        return CreateGetFileResult(_options.CurrentValue.DownloadDir!, "text/plain", filePath);
     }
 
     [HttpPost("upload")]

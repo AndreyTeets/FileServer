@@ -6,9 +6,9 @@ class AppLogic {
     static async setDownloadPage() {
         if (!AppLogic.#downloadPage) {
             const pageData = AppLogic.#createProxifiedPageData(DownloadPageComponent);
-            pageData.downloadFunc = async (file) => {
+            pageData.fileActionFunc = async (file, action) => {
                 const a = document.createElement("a");
-                a.href = Api.createFileLink(file.path, file.anon);
+                a.href = Api.createFileLink(file.path, action, file.anon);
                 a.target = `_blank`;
                 a.click();
             };
