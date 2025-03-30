@@ -32,6 +32,8 @@ public class SettingsValidator : IValidateOptions<Settings>
     {
         List<string> problems = new();
 
+        if (settings.DownloadAnonDir is null)
+            problems.Add($"{nameof(Settings.DownloadAnonDir)} is null");
         if (settings.DownloadDir is null)
             problems.Add($"{nameof(Settings.DownloadDir)} is null");
         if (settings.UploadDir is null)

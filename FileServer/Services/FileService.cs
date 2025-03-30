@@ -15,11 +15,11 @@ public class FileService
         _options = options;
     }
 
-    public List<FileInfo> GetDownloadableFilesList()
+    public List<FileInfo> GetDownloadableFilesList(string rootDir)
     {
-        PhysicalFileProvider fileProvider = new(_options.CurrentValue.DownloadDir!);
+        PhysicalFileProvider fileProvider = new(rootDir);
         List<FileInfo> files = new();
-        FillFilesListRecursive(files, fileProvider, "");
+        FillFilesListRecursive(rootDir, files, fileProvider, "");
         return files;
     }
 
@@ -37,17 +37,17 @@ public class FileService
         return (trustedFileName, false);
     }
 
-    private void FillFilesListRecursive(List<FileInfo> files, PhysicalFileProvider fileProvider, string subPath)
+    private void FillFilesListRecursive(string rootDir, List<FileInfo> files, PhysicalFileProvider fileProvider, string subPath)
     {
         IEnumerable<IFileInfo> dirItems = fileProvider.GetDirectoryContents(subPath);
         foreach (IFileInfo dir in dirItems.Where(f => f.IsDirectory))
         {
-            string relativeDirPath = Path.GetRelativePath(_options.CurrentValue.DownloadDir!, dir.PhysicalPath!);
-            FillFilesListRecursive(files, fileProvider, relativeDirPath);
+            string relativeDirPath = Path.GetRelativePath(rootDir, dir.PhysicalPath!);
+            FillFilesListRecursive(rootDir, files, fileProvider, relativeDirPath);
         }
         foreach (IFileInfo file in dirItems.Where(f => !f.IsDirectory))
         {
-            string relativeFilePath = Path.GetRelativePath(_options.CurrentValue.DownloadDir!, file.PhysicalPath!);
+            string relativeFilePath = Path.GetRelativePath(rootDir, file.PhysicalPath!);
             FileInfo fileInfo = new()
             {
                 Name = file.Name,

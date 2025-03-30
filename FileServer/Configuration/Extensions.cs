@@ -4,6 +4,7 @@ using System.Security.Cryptography.X509Certificates;
 using FileServer.Auth;
 using FileServer.Configuration;
 using FileServer.Services;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.Extensions.Options;
 
 namespace FileServer.Configuration;
@@ -54,6 +55,7 @@ public static class Extensions
 
     public static void AddAndConfigureServices(this IServiceCollection services)
     {
+        services.AddHttpContextAccessor();
         services.AddSingleton<FileService>();
         services.AddSingleton<TokenService>();
 
@@ -114,7 +116,12 @@ public static class Extensions
 
     public static void UseControllersWithAuthorization(this IEndpointRouteBuilder endpoints)
     {
-        endpoints.MapControllers().RequireAuthorization();
+        endpoints.MapControllers()
+            .RequireAuthorization(
+                new AuthorizationPolicyBuilder()
+                    .AddAuthenticationSchemes(Constants.DoubleTokenAuthenticationSchemeName)
+                    .RequireUserName(Constants.MainUserName)
+                    .Build());
     }
 
     public static void UseNoCacheHeaders(this IApplicationBuilder app)

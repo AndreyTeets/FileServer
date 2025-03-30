@@ -37,6 +37,9 @@ public class ClientSideTests : PageTest
         await Expect(Page).ToHaveTitleAsync("Files");
         await Expect(Page.Locator("body")).ToMatchAriaSnapshotAsync(S.After_OpenInitialPage);
 
+        Assert.That(await GetContentForLastFileOnDownloadPage(), Is.EqualTo("test_anonfile1_content"));
+        await Expect(Page.Locator("body")).ToMatchAriaSnapshotAsync(S.After_OpenDownloadPageNoAuth);
+
         await Login();
         await Expect(Page.Locator("body")).ToMatchAriaSnapshotAsync(S.After_Login);
 
@@ -47,7 +50,7 @@ public class ClientSideTests : PageTest
         await Expect(Page.Locator("body")).ToMatchAriaSnapshotAsync(S.After_UploadFileWithError);
 
         Assert.That(await GetContentForLastFileOnDownloadPage(), Is.EqualTo("test_file1_content"));
-        await Expect(Page.Locator("body")).ToMatchAriaSnapshotAsync(S.After_OpenDownloadPage);
+        await Expect(Page.Locator("body")).ToMatchAriaSnapshotAsync(S.After_OpenDownloadPageWithAuth);
 
         await Logout();
         await Expect(Page.Locator("body")).ToMatchAriaSnapshotAsync(S.After_Logout);
@@ -82,7 +85,7 @@ public class ClientSideTests : PageTest
         await Page.GetByRole(AriaRole.Button, new() { Name = "DownloadPage" }).ClickAsync();
         IDownload download = await Page.RunAndWaitForDownloadAsync(async () =>
         {
-            await Page.Locator("#app table tbody tr").Last.Locator("td").Nth(2).ClickAsync();
+            await Page.Locator("#app table tbody tr").Last.Locator("td").Nth(3).ClickAsync();
         });
         using StreamReader sr = new(await download.CreateReadStreamAsync());
         return await sr.ReadToEndAsync();

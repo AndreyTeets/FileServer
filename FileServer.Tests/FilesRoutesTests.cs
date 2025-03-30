@@ -1,15 +1,62 @@
 ﻿using System.Net;
+using System.Net.Http.Json;
 using System.Text;
+using FileServer.Models;
+using Microsoft.AspNetCore.Http;
 
 namespace FileServer.Tests;
 
 public class FilesRoutesTests : TestsBase
 {
     [Test]
-    public async Task GetFilesList_Without_Auth_IsForbidden()
+    public async Task GetFileEndpoints_CorrectlyHandle_RelativeDirs_And_NotFoundFiles()
+    {
+        HttpContext context = await TestServer.SendAsync(c =>
+        {
+            c.Request.Method = HttpMethods.Get;
+            c.Request.Path = "/api/files/downloadanon/../download/file1.txt";
+        });
+
+        Assert.That(context.Response.StatusCode, Is.EqualTo(400));
+        Assert.That(GetContent(context), Is.EqualTo(@"""File not found."""));
+    }
+
+    [Test]
+    public async Task GetFilesList_Without_Auth_ReturnsOnlyAnonFiles()
     {
         using HttpResponseMessage response = await FsTestClient.Get("/api/files/list");
-        Assert.That(response.StatusCode, Is.EqualTo(HttpStatusCode.Unauthorized));
+        Assert.That(response.StatusCode, Is.EqualTo(HttpStatusCode.OK));
+        GetFilesListResponse? files = await response.Content.ReadFromJsonAsync<GetFilesListResponse>();
+        Assert.That(files, Is.Not.Null);
+        Assert.That(files.Files!.Select(x => x.Name), Is.EquivalentTo(["anonfile1.txt"]));
+    }
+
+    [Test]
+    public async Task GetFilesList_With_Auth_ReturnsAllFiles()
+    {
+        await FsTestClient.Login();
+        using HttpResponseMessage response = await FsTestClient.Get("/api/files/list");
+        Assert.That(response.StatusCode, Is.EqualTo(HttpStatusCode.OK));
+        GetFilesListResponse? files = await response.Content.ReadFromJsonAsync<GetFilesListResponse>();
+        Assert.That(files, Is.Not.Null);
+        Assert.That(files.Files!.Select(x => x.Name), Is.EquivalentTo(["anonfile1.txt", "file1.txt"]));
+    }
+
+    [Test]
+    public async Task DownloadAnonFile_Without_Auth_Works()
+    {
+        using HttpResponseMessage response = await FsTestClient.Get("/api/files/downloadanon/anonfile1.txt");
+        Assert.That(response.StatusCode, Is.EqualTo(HttpStatusCode.OK));
+        Assert.That(await GetContent(response), Is.EqualTo("test_anonfile1_content"));
+    }
+
+    [Test]
+    public async Task DownloadAnonFile_With_Auth_Works()
+    {
+        await FsTestClient.Login();
+        using HttpResponseMessage response = await FsTestClient.Get("/api/files/downloadanon/anonfile1.txt");
+        Assert.That(response.StatusCode, Is.EqualTo(HttpStatusCode.OK));
+        Assert.That(await GetContent(response), Is.EqualTo("test_anonfile1_content"));
     }
 
     [Test]
@@ -52,6 +99,12 @@ public class FilesRoutesTests : TestsBase
         using HttpResponseMessage _ = await FsTestClient.Post("/api/files/upload", CreateTestFileContent());
         using HttpResponseMessage response = await FsTestClient.Post("/api/files/upload", CreateTestFileContent());
         Assert.That(await GetContent(response), Is.EqualTo(@"""File with name 'upl.uplfile1.txt.oad' already exists."""));
+    }
+
+    private static string GetContent(HttpContext context)
+    {
+        using StreamReader reader = new(context.Response.Body, Encoding.UTF8);
+        return reader.ReadToEnd();
     }
 
     private static MultipartFormDataContent CreateTestFileContent()

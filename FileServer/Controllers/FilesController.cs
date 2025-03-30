@@ -1,6 +1,8 @@
-﻿using FileServer.Configuration;
+﻿using System.Security.Claims;
+using FileServer.Configuration;
 using FileServer.Models;
 using FileServer.Services;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.WebUtilities;
 using Microsoft.Extensions.FileProviders;
@@ -13,20 +15,35 @@ namespace FileServer.Controllers;
 [Route("api/files")]
 public class FilesController : ControllerBase
 {
+    private readonly IHttpContextAccessor _httpContextAccessor;
     private readonly IOptionsMonitor<Settings> _options;
     private readonly FileService _fileService;
 
-    public FilesController(IOptionsMonitor<Settings> options, FileService fileService)
+    public FilesController(
+        IHttpContextAccessor httpContextAccessor,
+        IOptionsMonitor<Settings> options,
+        FileService fileService)
     {
+        _httpContextAccessor = httpContextAccessor;
         _options = options;
         _fileService = fileService;
     }
 
     [HttpGet("list")]
     [Produces("application/json")]
+    [AllowAnonymous]
     public ActionResult<GetFilesListResponse> GetFilesList()
     {
-        List<FileInfo> files = _fileService.GetDownloadableFilesList();
+        List<FileInfo> files = _fileService.GetDownloadableFilesList(_options.CurrentValue.DownloadAnonDir!);
+        files.ForEach(x => x.Anon = "yes");
+
+        if (IsAuthenticated())
+        {
+            List<FileInfo> authFiles = _fileService.GetDownloadableFilesList(_options.CurrentValue.DownloadDir!);
+            authFiles.ForEach(x => x.Anon = "no");
+            files.AddRange(authFiles);
+        }
+
         return new GetFilesListResponse()
         {
             Files = files,
@@ -34,15 +51,19 @@ public class FilesController : ControllerBase
         };
     }
 
+    [HttpGet($"downloadanon/{{*{nameof(filePath)}}}")]
+    [Produces("application/octet-stream", "application/json")]
+    [AllowAnonymous]
+    public ActionResult DownloadFileAnon([FromRoute] string filePath)
+    {
+        return CreateGetFileResult(_options.CurrentValue.DownloadAnonDir!, "application/octet-stream", filePath);
+    }
+
     [HttpGet($"download/{{*{nameof(filePath)}}}")]
     [Produces("application/octet-stream", "application/json")]
-    public ActionResult GetFile([FromRoute] string filePath)
+    public ActionResult DownloadFile([FromRoute] string filePath)
     {
-        PhysicalFileProvider fileProvider = new(_options.CurrentValue.DownloadDir!);
-        IFileInfo file = fileProvider.GetFileInfo(filePath);
-        if (!file.Exists)
-            return BadRequest("File not found.");
-        return PhysicalFile(file.PhysicalPath!, "application/octet-stream");
+        return CreateGetFileResult(_options.CurrentValue.DownloadDir!, "application/octet-stream", filePath);
     }
 
     [HttpPost("upload")]
@@ -65,6 +86,25 @@ public class FilesController : ControllerBase
         }
 
         return BadRequest("No files in request.");
+    }
+
+    private bool IsAuthenticated()
+    {
+        ClaimsPrincipal user = _httpContextAccessor.HttpContext!.User;
+        bool isAuthenticated = user.Identities.Any(x =>
+            x.IsAuthenticated == true
+            && x.AuthenticationType == Constants.DoubleTokenAuthenticationSchemeAuthenticationType
+            && x.Name == Constants.MainUserName);
+        return isAuthenticated;
+    }
+
+    private ActionResult CreateGetFileResult(string rootDir, string mimeType, string filePath)
+    {
+        PhysicalFileProvider fileProvider = new(rootDir);
+        IFileInfo file = fileProvider.GetFileInfo(filePath);
+        if (!file.Exists)
+            return BadRequest("File not found.");
+        return PhysicalFile(file.PhysicalPath!, mimeType);
     }
 
     private string? TryGetFormDataBoundary()

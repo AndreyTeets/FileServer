@@ -27,8 +27,10 @@ public class StartServerFixture
         if (Directory.Exists($"{ServerProjDir}/bin/e2etests"))
             Directory.Delete($"{ServerProjDir}/bin/e2etests", true);
         Directory.CreateDirectory($"{ServerProjDir}/bin/e2etests/settings");
+        Directory.CreateDirectory($"{ServerProjDir}/bin/e2etests/fs_data/download_anon");
         Directory.CreateDirectory($"{ServerProjDir}/bin/e2etests/fs_data/download");
         Directory.CreateDirectory($"{ServerProjDir}/bin/e2etests/fs_data/upload");
+        File.WriteAllText($"{ServerProjDir}/bin/e2etests/fs_data/download_anon/anonfile1.txt", "test_anonfile1_content");
         File.WriteAllText($"{ServerProjDir}/bin/e2etests/fs_data/download/file1.txt", "test_file1_content");
         File.WriteAllText("test_upload_file.txt", "test_upload_file_content");
         File.Copy($"{ServerProjDir}/appsettings.template.json", $"{ServerProjDir}/bin/e2etests/settings/appsettings.json");
@@ -74,6 +76,7 @@ public class StartServerFixture
         env["FileServer__Settings__ListenPort"] = Port.ToString();
         env["FileServer__Settings__CertFilePath"] = Path.GetFullPath($"{ServerProjDir}/bin/e2etests/settings/cert.crt");
         env["FileServer__Settings__CertKeyPath"] = Path.GetFullPath($"{ServerProjDir}/bin/e2etests/settings/cert.key");
+        env["FileServer__Settings__DownloadAnonDir"] = Path.GetFullPath($"{ServerProjDir}/bin/e2etests/fs_data/download_anon");
         env["FileServer__Settings__DownloadDir"] = Path.GetFullPath($"{ServerProjDir}/bin/e2etests/fs_data/download");
         env["FileServer__Settings__UploadDir"] = Path.GetFullPath($"{ServerProjDir}/bin/e2etests/fs_data/upload");
         env["FileServer__Settings__SigningKey"] = "01234567890123456789";

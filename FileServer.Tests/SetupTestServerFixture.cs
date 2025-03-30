@@ -73,6 +73,7 @@ public class SetupTestServerFixture
             { $"Logging:LogLevel:Microsoft.AspNetCore", "Error" },
             { $"Logging:LogLevel:FileServer.Auth.DoubleTokenAuthenticationHandler", "Error" },
             { $"Logging:LogLevel:Microsoft.AspNetCore.Hosting.Diagnostics", "Information" },
+            { $"{nameof(Settings)}:{nameof(Settings.DownloadAnonDir)}", Path.GetFullPath("fs_data/download_anon") },
             { $"{nameof(Settings)}:{nameof(Settings.DownloadDir)}", Path.GetFullPath("fs_data/download") },
             { $"{nameof(Settings)}:{nameof(Settings.UploadDir)}", Path.GetFullPath("fs_data/upload") },
             { $"{nameof(Settings)}:{nameof(Settings.SigningKey)}", "01234567890123456789" },

@@ -64,6 +64,7 @@ public static class Utility
         sb.Append($"-{nameof(Settings.ListenPort)}: {settings.ListenPort}").AppendLine();
         sb.Append($"-{nameof(Settings.CertFilePath)}: {settings.CertFilePath}").AppendLine();
         sb.Append($"-{nameof(Settings.CertKeyPath)}: {settings.CertKeyPath}").AppendLine();
+        sb.Append($"-{nameof(Settings.DownloadAnonDir)}: {settings.DownloadAnonDir}").AppendLine();
         sb.Append($"-{nameof(Settings.DownloadDir)}: {settings.DownloadDir}").AppendLine();
         sb.Append($"-{nameof(Settings.UploadDir)}: {settings.UploadDir}").AppendLine();
         sb.Append($"-{nameof(Settings.SigningKey)}: {DisplayKey(settings.SigningKey)}").AppendLine();

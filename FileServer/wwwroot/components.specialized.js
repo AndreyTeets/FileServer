@@ -16,14 +16,14 @@ class FilesListComponent {
         table.append(thead);
         table.append(tbody);
 
-        thead.append(this.#createTableRow(["Path", "Size"]));
+        thead.append(this.#createTableRow(["Anon", "Path", "Size"]));
         for (const file of this.filesList) {
             const button = document.createElement("input");
             button.type = "submit";
             button.value = "Download";
-            button.onclick = () => this.downloadFunc(file);
+            button.onclick = () => this.downloadFunc(file, 'download');
 
-            tbody.appendChild(this.#createTableRow([file.path, file.size, button]));
+            tbody.appendChild(this.#createTableRow([file.anon, file.path, file.size, button]));
         }
 
         div.appendChild(table);

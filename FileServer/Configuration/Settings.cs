@@ -6,6 +6,7 @@ public class Settings
     public int? ListenPort { get; set; }
     public string? CertFilePath { get; set; }
     public string? CertKeyPath { get; set; }
+    public string? DownloadAnonDir { get; set; }
     public string? DownloadDir { get; set; }
     public string? UploadDir { get; set; }
     public string? SigningKey { get; set; }

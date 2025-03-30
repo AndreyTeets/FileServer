@@ -68,10 +68,10 @@ public class DoubleTokenAuthenticationHandler : AuthenticationHandler<DoubleToke
 
     private static AuthenticationTicket CreateAuthTicket(string userName)
     {
-        System.Security.Claims.Claim[] claims = new[]
-        {
-            new System.Security.Claims.Claim("UserName", userName),
-        };
+        System.Security.Claims.Claim[] claims =
+        [
+            new System.Security.Claims.Claim(ClaimTypes.Name, userName),
+        ];
         ClaimsIdentity identity = new(claims, Constants.DoubleTokenAuthenticationSchemeAuthenticationType);
         ClaimsPrincipal principal = new(identity);
         return new(principal, Constants.DoubleTokenAuthenticationSchemeName);
