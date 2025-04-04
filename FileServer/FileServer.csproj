@@ -5,7 +5,8 @@
     <Nullable>enable</Nullable>
     <ImplicitUsings>enable</ImplicitUsings>
     <DockerDefaultTargetOS>Linux</DockerDefaultTargetOS>
-    <DockerfileRunArguments>-p 127.0.0.1:8443:8443 -v "$(MSBuildProjectDirectory)\bin\settings:/app/settings" -v "$(MSBuildProjectDirectory)\bin\fs_data:/fs_data"</DockerfileRunArguments>
+    <DockerfileTag>fs:dev</DockerfileTag>
+    <DockerfileRunArguments>-p 127.0.0.1:8443:8443 -v "$(MSBuildProjectDirectory)\bin\fs_data:/fs_data"</DockerfileRunArguments>
   </PropertyGroup>
 
   <ItemGroup>
@@ -14,9 +15,7 @@
 
   <ItemGroup>
     <Content Remove="appsettings.template.json" />
-    <None Include="appsettings.template.json">
-      <CopyToOutputDirectory>Never</CopyToOutputDirectory>
-    </None>
+    <None Include="appsettings.template.json" CopyToOutputDirectory="Never" />
   </ItemGroup>
 
 </Project>

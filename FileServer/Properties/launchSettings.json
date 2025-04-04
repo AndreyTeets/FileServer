@@ -22,7 +22,10 @@
       "launchBrowser": false,
       "environmentVariables": {
         "ASPNETCORE_URLS": "",
-        "ASPNETCORE_ENVIRONMENT": "Development"
+        "ASPNETCORE_ENVIRONMENT": "Development",
+        "FileServer_SettingsFilePath": "/app/bin/settings/appsettings.json",
+        "FileServer__Settings__CertFilePath": "/app/bin/settings/cert.crt",
+        "FileServer__Settings__CertKeyPath": "/app/bin/settings/cert.key"
       },
       "dotnetRunMessages": true,
       "publishAllPorts": false
