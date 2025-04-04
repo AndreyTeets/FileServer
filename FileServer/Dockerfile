@@ -15,7 +15,19 @@ RUN dotnet build "FileServer/FileServer.csproj" -c Release --no-restore
 RUN dotnet build "FileServer.Tests/FileServer.Tests.csproj" -c Release --no-restore
 RUN dotnet test "FileServer.Tests/FileServer.Tests.csproj" -c Release --no-build
 
+FROM mcr.microsoft.com/playwright/dotnet:v1.51.0-noble AS e2etests
+WORKDIR /src
+COPY ["FileServer/FileServer.csproj", "FileServer/"]
+RUN dotnet restore "FileServer/FileServer.csproj"
+COPY ["FileServer.E2ETests/FileServer.E2ETests.csproj", "FileServer.E2ETests/"]
+RUN dotnet restore "FileServer.E2ETests/FileServer.E2ETests.csproj"
+COPY . .
+RUN dotnet build "FileServer/FileServer.csproj" -c Release --no-restore
+RUN dotnet build "FileServer.E2ETests/FileServer.E2ETests.csproj" -c Release --no-restore
+RUN dotnet test "FileServer.E2ETests/FileServer.E2ETests.csproj" -c Release --no-build
+
 FROM build AS publish
+COPY --from=e2etests /src/commands.txt /src/not_used.txt
 RUN dotnet publish "FileServer/FileServer.csproj" -c Release --no-build -o /app/publish /p:UseAppHost=false
 
 FROM base AS final
