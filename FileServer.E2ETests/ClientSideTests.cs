@@ -58,7 +58,7 @@ public class ClientSideTests : PageTest
 
     private async Task OpenInitialPage()
     {
-        await Page.GotoAsync("https://localhost:7443");
+        await Page.GotoAsync("https://localhost:9443");
     }
 
     private async Task Login()
