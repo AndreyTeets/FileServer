@@ -1,5 +1,5 @@
 # FileServer
-Is a minimalistic https file server with a simple password-only authentication. It provides a simple, secure, universal, cross-patform method for transfering files over network (or just viewing them in text mode in browser).
+Is a minimalistic https file server with a simple password-only authentication. It provides a simple, secure, universal, cross-patform method to transfer files over network (or just view them in text mode in a browser).
 
 It's useful, for example, to transfer files over LAN directly between 2 devices if enabling/installing things like SSH, Samba, FTP, Windows folder sharing, e.t.c. on them is undesired. Also mobile devices often miss the client tools necessary to use those, but they do have a browser.
 
@@ -21,7 +21,7 @@ It starts an https server at the specified `listen address` and `listen port` us
 + The server won't accept an upload if a file with the same (sanitized) name already exists.
 + Some browsers on mobile devices (e.g. Safari on IPhone/IPad) ignore "Content-Type" header and may try to interpret the content based on the file name extension, which may lead to "Download" button viewing the file or "View" button downloading the file. This can be solved by renaming the file on the server to a name without extension.
 
-## Authentication system description
+## Authentication system
 To get authenticated on an incoming request that requires authorization, the server expects a client to provide 2 tokens: an auth token in the request's http-only cookie and an antiforgery token in the request's header/query-parameter. The antiforgery token is kept by the SPA client in a browser's local storage (which is scoped to protocol://host:port) and the cookie is managed by the browser. Both tokens have to be a HMACSHA256-signed-claim for [user name, corresponding token type, expiration time]. Authentication succeeds only if both tokens are valid (that is, they are signed by the server's `signing key` and are not expired) and have the same user name (the server issues tokens during a login operation only for one hardcoded `Main` user).
 
 For a login operation to succeed, the server expects a client to provide a login request with the same password as the server's `login key`. The auth token ensures that the client has performed a successful login operation (and thus knows the `login key`). And the antiforgery token ensures that the incoming request was initiated by the SPA client's site (protocol://host:port). The latter is necessary because browsers may automatically send cookies to the target site even if the request was initiated by another site.
@@ -31,7 +31,7 @@ To perform a logout operation the SPA client sends a logout request to the serve
 As for authorization - the server requires the authenticated user name to be `Main`, but it's kind of redundant since the server doesn't issue tokens for any other users.
 
 ## Configuration
-Server settings are configured using the `appsettings.json` file. The file must exist at the path specified in the `FileServer_SettingsFilePath` environmental variable (which is by default set to `/app/settings/appsettings.json` in the docker image) or in the working directory of the application if this environmental variable is unset. The file is hot-reloaded on change (including the logging configuration section).
+Server settings are configured using the `appsettings.json` file. The file must exist at the path specified in the `FileServer_SettingsFilePath` environmental variable (which is by default set to `/app/settings/appsettings.json` in the container image) or in the working directory of the application if this environmental variable is unset. The file is hot-reloaded on change (including the logging configuration section).
 
 It's also possible to override the settings specified in the file using environmental variables. For example, setting `FileServer__Settings__ListenAddress` environmental variable will override `Settings.ListenAddress` specified in the `appsettings.json` file.
 
@@ -48,20 +48,21 @@ Settings that can be configured:
 + `Settings.TokensTtlSeconds` which is referred to in this readme file as `tokens ttl`.
 
 ## Usage requirements
-+ To build a docker image and/or run it - just docker (or any other alternative, e.g. podman).
++ To build the container image and/or run it - docker or an alternative container engine (e.g. podman).
 + To build (publish) as a dotnet application - dotnet sdk 8.0 or higher.
 + To run as a non-self-contained dotnet application - aspnetcore runtime 8.0.
 + To run as a self-contained dotnet application on linux - dotnet runtime dependencies.
 + To run as a self-contained dotnet application on windows - nothing.
 
-## Usage (docker)
+## Usage (container image)
 1. ###### Clone the repo.
     ```
     git clone https://github.com/AndreyTeets/FileServer.git
     cd FileServer
     ```
 
-2. ###### Build the docker image.
+2. ###### Build the container image.
+    For example, using docker:
     ```
     docker build . -f ./FileServer/Dockerfile -t my_file_server:latest
     ```
@@ -82,7 +83,7 @@ Settings that can be configured:
     mkdir fs_data/downloads
     mkdir fs_data/uploads
     ```
-    On linux setup their permissions if necessary (obviously `uploads folder` has to be writable).
+    On linux setup permissions if necessary.
 
 5. ###### Create/prepare the settings file.
     Template settings file can be found here [FileServer/appsettings.template.json](FileServer/appsettings.template.json). At a bare minimum the `signing key` and `login key` have to be changed, as they are empty in the template and the server will refuse to start with invalid settings.
@@ -97,12 +98,14 @@ Settings that can be configured:
     with the rest left as is in the template.
 
 6. ###### Start the server.
+    For example, using docker:
     ```
-    docker run --security-opt no-new-privileges --pull=never \
-        --rm -it --name my_file_server -p 8443:8443/tcp \
+    docker run --rm -it --pull=never --name my_file_server \
+        --security-opt no-new-privileges \
+        -p 8443:8443/tcp \
         -e "FileServer_SettingsFilePath=/app/appsettings.json" \
-        -v "`pwd`/appsettings.json:/app/appsettings.json" \
-        -v "`pwd`/server_cert:/server_cert" \
+        -v "`pwd`/appsettings.json:/app/appsettings.json:ro" \
+        -v "`pwd`/server_cert:/server_cert:ro" \
         -v "`pwd`/fs_data:/fs_data" \
         my_file_server:latest
     ```
@@ -110,15 +113,23 @@ Settings that can be configured:
     + Replace `\` with `^` or ``` ` ``` when using windows cmd or pwsh respectively.
     + To run in non-interactive (detached) mode use `-d --restart=unless-stopped` instead of `--rm -it`.
 
+    Permissions:
+    + To avoid confusion: "root-ness outside the container" is referred to as "rootful mode"/"rootless mode", and "root-ness inside the container" as "root user"/"non-root user".
+    + The container image doesn't set any custom users and will run as the root user unless it's explicitly specified in the run command otherwise.
+    + The server does not require root permissions and may run as any user UID. The only requirement is for it to have read access to the settings file, all the files and directories specified in settings, and, if upload functionality is to be used, write access to the uploads directory (from the perspective of the user running inside the container). Neither does it require any capabilities and `--cap-drop=all` option can be added if the previous condition is met.
+    + When running as the root user in rootful mode (which docker by default does), uploaded files will be owned by the root user on the host, which is at least inconvenient. It also poses additional security risks. So it is highly recommended to add `-u $(id -u):$(id -g)` option, which will make uploaded files being owned by the same user who launched the container.
+    + When running as the root user in rootless mode (which e.g. podman by default does), there may be no problem with uploaded files ownership (e.g. with podman, there isn't, as it by default maps the host user who launched the container to the root user inside the container). But chaning to a non-root user is still recommended to reduce security risks. For podman it can be done using `--userns=keep-id` option, which will change the previously mentioned mapping to the same UID inside the container as on host, or `--userns=keep-id:uid=12345,gid=12345` option, which will change it to the specified UID.
+    + On systems with SELinux it may be necessary to add `:z` to the volume mount options (with `!care!`, as it will recursively relabel the mapped directory on the host, which may break the host system if used on directories that are used elsewhere besides the container). In case of relabeling, uploaded files will have "system_u:object_r:container_file_t:s0" context. To restore default context `restorecon -RFv /path/to/fs_data` can be used. If relabeling is an issue and has to be avoided `--security-opt label=disable` option can be added instead (which will basically disable SELinux for the containerized process).
+
 7. ###### Open the corresponding tcp port in firewall if necessary.
 
 8. ###### Visit the site using a browser.
     In this example to do it from the same machine the address will be https://127.0.0.1:8443 or https://localhost:8443
 
 ## Usage (dotnet application directly)
-Note: This is not recommended as it does not provide an extra layer of security through file-system and process isolation like docker does, and it is also much easier to misconfigure.
+Note: This is not recommended as it does not provide an extra layer of security through file-system and process isolation like containers do, and it is also much easier to misconfigure.
 
-Replace these steps from the docker usage example:
+Replace these steps from the container image usage example:
 + ###### Step 2.
     ```
     dotnet publish "FileServer/FileServer.csproj" -c Release -o bin/publish
@@ -128,7 +139,7 @@ Replace these steps from the docker usage example:
     Commonly used RIDs: `win-x64`, `linux-x64`, `linux-musl-x64`.
 
 + ###### Step 5.
-    Place the `appsettings.json` file from the docker example to bin/publish and set correct full paths for:
+    Place the `appsettings.json` file from the container image usage example to bin/publish and set correct full paths for:
     ```
     "CertFilePath": "/full/path/to/server_cert/cert.crt",
     "CertKeyPath": "/full/path/to/server_cert/cert.key",
