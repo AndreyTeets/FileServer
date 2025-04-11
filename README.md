@@ -17,7 +17,7 @@ It starts an https server at the specified `listen address` and `listen port` us
 
 ## Nuances
 + There are no file size restrictions for downloading and uploading.
-+ Uploaded files names are sanitized before the server saves them (any non ASCII printable character is repaced with `_`, then the name is shortened to the first 120 symbols, and then the result is prefixed and postfixed with "upl." and ".oad" respectively).
++ Uploaded files names are sanitized before the server saves them: any characters except the whitelisted (which are any ASCII letter, any digit, space and any of ``` !#$%&'()+,-.;=@[]^_`{}~ ```) are repaced with `_`, then the name is shortened to the first 120 symbols, and then the result is prefixed and postfixed with "upl." and ".oad" respectively.
 + The server won't accept an upload if a file with the same (sanitized) name already exists.
 + Some browsers on mobile devices (e.g. Safari on IPhone/IPad) ignore "Content-Type" header and may try to interpret the content based on the file name extension, which may lead to "Download" button viewing the file or "View" button downloading the file. This can be solved by renaming the file on the server to a name without extension.
 
@@ -55,9 +55,10 @@ Settings that can be configured:
 + To run as a self-contained dotnet application on windows - nothing.
 
 ## Usage (container image)
-1. ###### Clone the repo.
+1. ###### Get the source code.
+    For example, to get the latest stable sources:
     ```
-    git clone https://github.com/AndreyTeets/FileServer.git
+    git clone -b stable https://github.com/AndreyTeets/FileServer.git
     cd FileServer
     ```
 
@@ -154,6 +155,11 @@ Replace these steps from the container image usage example:
     + `"./FileServer.exe"` for self-contained when using windows cmd.
     + `./FileServer.exe` for self-contained when using windows pwsh.
     + `./FileServer` for self-contained when using linux.
+
+## Additional information
+The `master` branch is where the development happens, it may be unstable. Use the `stable` branch or one of the `v*` tags (releases) to build from the source code (the `stable` branch always points to the latest release, so it is essentially an analog to the "latest" tag for container images).
+
+Pre-built container images can be found [here](https://hub.docker.com/r/andreyteets/fileserver) on Docker Hub.
 
 # Licence
 MIT License. See [LICENSE](LICENSE) file.
