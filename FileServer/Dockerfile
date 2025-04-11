@@ -1,20 +1,26 @@
-FROM mcr.microsoft.com/dotnet/aspnet:8.0.14-alpine3.21 AS base
+FROM mcr.microsoft.com/dotnet/aspnet:8.0.14-alpine3.21 AS app-base
 
-FROM mcr.microsoft.com/dotnet/sdk:8.0.407-alpine3.21 AS build
+FROM --platform=$BUILDPLATFORM mcr.microsoft.com/dotnet/sdk:8.0.407-alpine3.21 AS build
+ARG TARGETARCH
+ARG APP_VERSION
 WORKDIR /src
+COPY ["Directory.Build.props", "global.json", ".editorconfig", "./"]
 COPY ["FileServer/FileServer.csproj", "FileServer/"]
-RUN dotnet restore "FileServer/FileServer.csproj"
+RUN dotnet restore "FileServer/FileServer.csproj" -a $TARGETARCH
 COPY ["FileServer.Tests/FileServer.Tests.csproj", "FileServer.Tests/"]
-RUN dotnet restore "FileServer.Tests/FileServer.Tests.csproj"
-COPY . .
-RUN dotnet build "FileServer/FileServer.csproj" -c Release --no-restore
-RUN dotnet build "FileServer.Tests/FileServer.Tests.csproj" -c Release --no-restore
-RUN dotnet test "FileServer.Tests/FileServer.Tests.csproj" -c Release --no-build
+RUN dotnet restore "FileServer.Tests/FileServer.Tests.csproj" -a $TARGETARCH
+COPY ["FileServer/", "FileServer/"]
+RUN dotnet build "FileServer/FileServer.csproj" -a $TARGETARCH -c Release --no-restore
 
 FROM build AS publish
-RUN dotnet publish "FileServer/FileServer.csproj" -c Release --no-build -o /app/publish /p:UseAppHost=false
+RUN dotnet publish "FileServer/FileServer.csproj" -a $TARGETARCH -c Release --no-build -o /app/publish -p:UseAppHost=false
 
-FROM base AS final
+FROM build AS tests
+COPY ["FileServer.Tests/", "FileServer.Tests/"]
+RUN dotnet build "FileServer.Tests/FileServer.Tests.csproj" -a $TARGETARCH -c Release --no-restore
+RUN dotnet test "FileServer.Tests/FileServer.Tests.csproj" -a $TARGETARCH -c Release --no-build
+
+FROM app-base AS app
 WORKDIR /app
 COPY --from=publish /app/publish .
 ENV ASPNETCORE_URLS=""
