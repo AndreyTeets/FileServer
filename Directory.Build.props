@@ -12,4 +12,9 @@
     <InvariantGlobalization>true</InvariantGlobalization>
   </PropertyGroup>
 
+  <PropertyGroup Condition="'$(APP_VERSION)' != ''">
+    <Version>$(APP_VERSION)</Version>
+    <FileVersion>$(APP_VERSION)</FileVersion>
+  </PropertyGroup>
+
 </Project>

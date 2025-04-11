@@ -1,4 +1,5 @@
-﻿using System.Runtime.InteropServices;
+﻿using System.Reflection;
+using System.Runtime.InteropServices;
 using System.Security.Cryptography.X509Certificates;
 using System.Text;
 
@@ -78,5 +79,20 @@ public static class Utility
                 return "EMPTY";
             return "*****";
         }
+    }
+
+    public static void ShowVersionAndUsage()
+    {
+        string? version = typeof(Program).Assembly.GetCustomAttribute<AssemblyFileVersionAttribute>()?.Version;
+
+        string msg = $"""
+            Version: {version}
+            Usage:
+                <no arguments>                Start the server.
+                <any other argument(s)>       Show version and usage and exit.
+            """;
+
+        msg = msg.Replace("\r", "").Replace("\n", Environment.NewLine);
+        Console.WriteLine(msg);
     }
 }
