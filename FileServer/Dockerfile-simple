@@ -1,0 +1,13 @@
+FROM mcr.microsoft.com/dotnet/sdk:8.0.407-alpine3.21 AS build
+WORKDIR /src
+COPY . .
+RUN dotnet publish "FileServer/FileServer.csproj" -c Release -o /app/publish -p:UseAppHost=false
+
+FROM mcr.microsoft.com/dotnet/aspnet:8.0.14-alpine3.21 AS app
+WORKDIR /app
+COPY --from=build /app/publish .
+ENV ASPNETCORE_URLS=""
+ENV DOTNET_USE_POLLING_FILE_WATCHER=1
+ENV FileServer_SettingsFilePath="/app/settings/appsettings.json"
+ENTRYPOINT ["dotnet", "FileServer.dll"]
+CMD []

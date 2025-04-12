@@ -2,5 +2,7 @@ openssl req -x509 -newkey rsa:4096 -sha256 -days 3650 -nodes -keyout cert.key -o
 
 docker build . -f ./FileServer.E2ETests/Dockerfile -t fs_e2etests:latest
 docker build . -f ./FileServer/Dockerfile -t fs_tests:latest --target tests
-docker build . -f ./FileServer/Dockerfile -t fs:latest
+docker build . -f ./FileServer/Dockerfile -t fs:latest --target app --build-arg APP_VERSION=0.0.1 --platform linux/amd64
+
+docker build . -f ./FileServer/Dockerfile-simple -t fs:latest
 docker run --rm -it --name fs -p 127.0.0.1:7443:8443/tcp -v "$pwd\FileServer\bin\settings:/app/settings" -v "$pwd\FileServer\bin\fs_data:/fs_data" fs:latest
