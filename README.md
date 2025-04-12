@@ -65,7 +65,7 @@ Settings that can be configured:
 2. ###### Build the container image.
     For example, using docker:
     ```
-    docker build . -f ./FileServer/Dockerfile -t my_file_server:latest
+    docker build . -f ./FileServer/Dockerfile-simple -t my_file_server:latest
     ```
 
 3. ###### Create/prepare the `server certificate` in PEM format.
