@@ -1,0 +1,66 @@
+name: scan-codeql
+
+on:
+  push:
+    branches: ['master']
+    paths: ['FileServer**', 'Directory.Build.props', '.editorconfig', 'global.json', '.github/workflows/scan-codeql.yml']
+  pull_request:
+    branches: ['master']
+    paths: ['FileServer**', 'Directory.Build.props', '.editorconfig', 'global.json', '.github/workflows/scan-codeql.yml']
+
+concurrency: # head_ref is only defined on pull_request events, run_id is unique for each workflow run
+  group: ${{ github.workflow }}-${{ github.head_ref || github.run_id }}
+  cancel-in-progress: true
+
+jobs:
+  scan-codeql:
+    name: scan-codeql (${{ matrix.language }})
+    runs-on: ubuntu-latest
+    permissions:
+      security-events: write
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - language: actions
+            build-mode: none
+          - language: csharp
+            build-mode: manual
+          - language: javascript-typescript
+            build-mode: none
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup .NET SDK
+        uses: actions/setup-dotnet@v4
+
+      - name: Initialize CodeQL
+        uses: github/codeql-action/init@v3
+        with:
+          languages: ${{ matrix.language }}
+          build-mode: ${{ matrix.build-mode }}
+          config: |
+            queries:
+              - uses: security-and-quality
+            query-filters:
+              - exclude:
+                  problem.severity:
+                    - recommendation
+              - exclude:
+                  id:
+                    - actions/unpinned-tag
+
+      - name: Build csharp
+        if: ${{ matrix.language == 'csharp' && matrix.build-mode == 'manual' }}
+        shell: bash
+        run: |
+          echo "Building all csharp projects separetely and consecutively"
+          dotnet build ./FileServer -c Release
+          dotnet build ./FileServer.Tests -c Release
+          dotnet build ./FileServer.E2ETests -c Release
+
+      - name: Perform CodeQL Analysis
+        uses: github/codeql-action/analyze@v3
+        with:
+          category: 'scan-codeql (${{ matrix.language }})'
