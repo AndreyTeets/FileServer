@@ -83,7 +83,10 @@ public static class Utility
 
     public static void ShowVersionAndUsage()
     {
-        string? version = typeof(Program).Assembly.GetCustomAttribute<AssemblyFileVersionAttribute>()?.Version;
+        string? version = typeof(Program).Assembly
+            .GetCustomAttribute<AssemblyInformationalVersionAttribute>()
+            ?.InformationalVersion
+            ?.Split("+")[0];
 
         string msg = $"""
             Version: {version}
