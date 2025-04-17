@@ -82,6 +82,7 @@ jobs:
           tags: |
             type=semver,pattern={{version}}
             type=semver,pattern={{major}}.{{minor}}
+          flavor: latest=${{ startsWith(steps.vars.outputs.app_version, format('{0}.', vars.LATEST_MAJOR_MINOR)) }}
 
       - name: Login to DockerHub
         if: ${{ github.event_name == 'push' && startsWith(github.ref, 'refs/tags/v') }}
