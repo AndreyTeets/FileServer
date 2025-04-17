@@ -96,6 +96,7 @@ jobs:
           exit-code: ${{ matrix.event == 'schedule' && 1 || 0 }}
           skip-setup-trivy: true
           version: v0.61.0
+          cache: ${{ (matrix.target == 'vuln-os' || matrix.target == 'vuln-library') && true || false }}
           trivyignores: '.github/.trivyignore'
 
       - name: Upload Trivy scan results to GitHub Security tab
