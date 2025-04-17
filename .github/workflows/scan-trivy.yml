@@ -1,0 +1,106 @@
+name: scan-trivy
+
+on:
+  push:
+    branches: ['master']
+    paths: ['FileServer**', 'Directory.Build.props', '.editorconfig', 'global.json', '.github/workflows/scan-trivy.yml', '.github/.trivyignore']
+  pull_request:
+    branches: ['master']
+    paths: ['FileServer**', 'Directory.Build.props', '.editorconfig', 'global.json', '.github/workflows/scan-trivy.yml', '.github/.trivyignore']
+  schedule:
+    - cron: '30 15 * * *'
+
+concurrency: # head_ref is only defined on pull_request events, run_id is unique for each workflow run
+  group: ${{ github.workflow }}-${{ github.head_ref || github.run_id }}
+  cancel-in-progress: true
+
+jobs:
+  scan-trivy:
+    name: scan-trivy (${{ matrix.target }})
+    runs-on: ubuntu-latest
+    permissions:
+      security-events: write
+    strategy:
+      fail-fast: false
+      matrix:
+        target: ['vuln-os', 'vuln-library', 'misconfig', 'secret']
+        scan-type: ['image', 'repo']
+        event:
+          - ${{ github.event_name != 'schedule' && 'commit' || 'schedule' }}
+        exclude:
+          - target: 'vuln-os'
+            scan-type: 'repo'
+          - target: 'vuln-library'
+            scan-type: 'image'
+            event: 'commit'
+          - target: 'vuln-library'
+            scan-type: 'repo'
+            event: 'schedule'
+          - target: 'misconfig'
+            scan-type: 'image'
+          - target: 'misconfig'
+            event: 'schedule'
+          - target: 'secret'
+            scan-type: 'image'
+          - target: 'secret'
+            event: 'schedule'
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Prepare docker image
+        if: ${{ matrix.scan-type == 'image' }}
+        id: prep-image
+        shell: bash
+        run: |
+          echo "Preparing docker image for event '${{ matrix.event }}'"
+          if [ "${{ matrix.event }}" == "commit" ]; then
+            image="app-base-image:${{ github.sha }}"
+            docker build . -f ./FileServer/Dockerfile --target app-base -t $image
+          else
+            image="${{ vars.DOCKERHUB_NAMESPACE }}/${{ vars.DOCKERHUB_REPOSITORY }}:latest"
+            docker pull $image
+          fi
+          echo "image-ref=${image}" >> $GITHUB_OUTPUT
+
+      - name: Setup .NET SDK
+        if: ${{ matrix.scan-type == 'repo' && matrix.target == 'vuln-library' }}
+        uses: actions/setup-dotnet@v4
+
+      - name: Generate lock files for all csharp projects
+        if: ${{ matrix.scan-type == 'repo' && matrix.target == 'vuln-library' }}
+        run: dotnet restore . -p:RestorePackagesWithLockFile=True
+
+      - name: Setup Trivy
+        uses: aquasecurity/setup-trivy@v0.2.3
+        with:
+          version: v0.61.0
+          cache: true
+
+      - name: Run Trivy scan
+        uses: aquasecurity/trivy-action@0.30.0
+        env:
+          TRIVY_FILE_PATTERNS: 'dockerfile:Dockerfile.*'
+        with:
+          scan-type: ${{ matrix.scan-type }}
+          scan-ref: ${{ matrix.scan-type == 'repo' && '.' || '' }}
+          image-ref: ${{ steps.prep-image.outputs.image-ref }}
+          scanners: ${{ (matrix.target == 'vuln-os' || matrix.target == 'vuln-library') && 'vuln' || matrix.target }}
+          vuln-type: ${{ matrix.target == 'vuln-os' && 'os' || matrix.target == 'vuln-library' && 'library' || '' }}
+          skip-dirs: ${{ matrix.target == 'vuln-library' && matrix.scan-type == 'repo' && '**/bin,**/obj' || '' }}
+          severity: ${{ (matrix.target == 'vuln-os' || matrix.target == 'vuln-library') && vars.TRIVY_VULN_SEVERITY || 'CRITICAL,HIGH,MEDIUM' }}
+          ignore-unfixed: ${{ (matrix.target == 'vuln-os' || matrix.target == 'vuln-library') && vars.TRIVY_VULN_IGNORE_UNFIXED || false }}
+          format: ${{ matrix.event == 'commit' && 'sarif' || 'table' }}
+          output: ${{ matrix.event == 'commit' && 'trivy-results.sarif' || '' }}
+          limit-severities-for-sarif: true
+          exit-code: ${{ matrix.event == 'schedule' && 1 || 0 }}
+          skip-setup-trivy: true
+          version: v0.61.0
+          trivyignores: '.github/.trivyignore'
+
+      - name: Upload Trivy scan results to GitHub Security tab
+        if: ${{ matrix.event == 'commit' }}
+        uses: github/codeql-action/upload-sarif@v3
+        with:
+          sarif_file: 'trivy-results.sarif'
+          category: 'scan-trivy (${{ matrix.target }})'

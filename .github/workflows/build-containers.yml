@@ -2,17 +2,16 @@ name: build-containers
 
 on:
   push:
-    tags:
-      - 'v*.*.*'
-    branches:
-      - 'master'
-    paths-ignore:
-      - '**/README.md'
+    tags: ['v*.*.*']
+    branches: ['master']
+    paths: ['FileServer**', 'Directory.Build.props', '.editorconfig', 'global.json', '.github/workflows/build-containers.yml']
   pull_request:
-    branches:
-      - 'master'
-    paths-ignore:
-      - '**/README.md'
+    branches: ['master']
+    paths: ['FileServer**', 'Directory.Build.props', '.editorconfig', 'global.json', '.github/workflows/build-containers.yml']
+
+concurrency: # head_ref is only defined on pull_request events, run_id is unique for each workflow run
+  group: ${{ github.workflow }}-${{ github.head_ref || github.run_id }}
+  cancel-in-progress: true
 
 env:
   IMAGE_NAME_APP: fileserver_app
@@ -28,6 +27,7 @@ jobs:
 
       - name: Set vars
         id: vars
+        shell: bash
         run: |
           tag_version="${GITHUB_REF#refs/tags/v}"
           [ "${tag_version:0:5}" == "refs/" ] && app_version='1.0.0' || app_version="$tag_version"
