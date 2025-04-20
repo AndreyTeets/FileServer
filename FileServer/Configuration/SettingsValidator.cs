@@ -16,17 +16,20 @@ public class SettingsValidator(
 
     public ValidateOptionsResult Validate(string? name, Settings settings)
     {
-        if (!SettingsAreValid(settings, out string? error))
+        if (!SettingsAreValid(settings, out List<string> problems))
         {
-            _debouncer.Debounce("InvalidSettings", () => _logger.LogError(error));
-            return ValidateOptionsResult.Fail(error!);
+            _debouncer.Debounce(nameof(LogMessages.InvalidSettings), () =>
+                _logger.LogError(LogMessages.InvalidSettings,
+                    Utility.GetSettingsDisplayString(settings),
+                    Utility.GetSettingsProblemsDisplayString(problems)));
+            return ValidateOptionsResult.Fail(problems);
         }
         return ValidateOptionsResult.Success;
     }
 
-    private static bool SettingsAreValid(Settings settings, out string? error)
+    private static bool SettingsAreValid(Settings settings, out List<string> problems)
     {
-        List<string> problems = [];
+        problems = [];
 
         if (settings.DownloadAnonDir is null)
             problems.Add($"{nameof(Settings.DownloadAnonDir)} is null");
@@ -48,12 +51,6 @@ public class SettingsValidator(
         if (settings.SigningKey!.Length > MaxSigningKeyLength)
             problems.Add($"{nameof(Settings.SigningKey)} length > {MaxSigningKeyLength}");
 
-        error = problems.Count == 0
-            ? null
-            : $"Invalid Settings:{Environment.NewLine}" +
-                $"{Utility.GetSettingsDisplayString(settings)}{Environment.NewLine}" +
-                $"Problems:{Environment.NewLine}" +
-                $"-{string.Join($"{Environment.NewLine}-", problems)}";
-        return error is null;
+        return problems.Count == 0;
     }
 }

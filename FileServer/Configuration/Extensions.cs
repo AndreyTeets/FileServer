@@ -39,8 +39,7 @@ public static class Extensions
 #pragma warning disable CA2000 // Dispose objects before losing scope
         X509Certificate2 cert = Utility.LoadCertificate(settings);
 #pragma warning restore CA2000 // Responsibility of the server
-        logger.LogInformation($"Using Certificate:{Environment.NewLine}" +
-            $"{Utility.GetCertificateDisplayString(cert)}");
+        logger.LogInformation(LogMessages.UsingCertificate, Utility.GetCertificateDisplayString(cert));
 
         builder.WebHost.ConfigureKestrel(options =>
         {
@@ -80,12 +79,10 @@ public static class Extensions
         try
         {
             Settings currentSettings = settingsMonitor.CurrentValue;
-            logger.LogInformation($"Using Settings:{Environment.NewLine}" +
-                $"{Utility.GetSettingsDisplayString(currentSettings)}");
-            settingsMonitor.OnChange(settings => debouncer.Debounce("SettingsChanged", () =>
+            logger.LogInformation(LogMessages.UsingSettings, Utility.GetSettingsDisplayString(currentSettings));
+            settingsMonitor.OnChange(settings => debouncer.Debounce(nameof(LogMessages.SettingsChanged), () =>
             {
-                logger.LogInformation($"Settings changed. New Settings:{Environment.NewLine}" +
-                    $"{Utility.GetSettingsDisplayString(settings)}");
+                logger.LogInformation(LogMessages.SettingsChanged, Utility.GetSettingsDisplayString(settings));
             }));
         }
         catch (OptionsValidationException ove)
