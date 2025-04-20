@@ -5,7 +5,7 @@ using Microsoft.AspNetCore.TestHost;
 namespace FileServer.Tests;
 
 #pragma warning disable CA1001 // Types that own disposable fields should be disposable
-public abstract class TestsBase : ILoggedTest
+internal abstract class TestsBase : ILoggedTest
 #pragma warning restore CA1001 // Responsibility of NUnit to call the teardown method
 {
 #pragma warning disable CS8618 // Non-nullable variable must contain a non-null value when exiting constructor. Consider declaring it as nullable.

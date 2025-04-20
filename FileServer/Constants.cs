@@ -1,6 +1,6 @@
 ﻿namespace FileServer;
 
-public static class Constants
+internal static class Constants
 {
     public const string MainUserName = "Main";
 

@@ -8,7 +8,7 @@ using Microsoft.Extensions.Options;
 
 namespace FileServer.Auth;
 
-public class DoubleTokenAuthenticationHandler(
+internal sealed class DoubleTokenAuthenticationHandler(
     IOptionsMonitor<DoubleTokenAuthenticationSchemeOptions> options,
     ILoggerFactory logger,
     UrlEncoder encoder,

@@ -2,7 +2,7 @@
 
 namespace FileServer.Configuration;
 
-public static class StaticSettings
+internal static class StaticSettings
 {
     public static JsonSerializerOptions JsonOptions => new()
     {

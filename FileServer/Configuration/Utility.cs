@@ -4,7 +4,7 @@ using System.Text;
 
 namespace FileServer.Configuration;
 
-public static class Utility
+internal static class Utility
 {
     public static ILogger CreateConsoleLogger<T>() where T : class
     {

@@ -5,7 +5,7 @@ using Microsoft.Extensions.DependencyInjection;
 
 namespace FileServer.Tests;
 
-public class AuthSystemTests : TestsBase
+internal sealed class AuthSystemTests : TestsBase
 {
     [Test]
     public async Task AntiforgeryToken_UsingQueryString_Works()
