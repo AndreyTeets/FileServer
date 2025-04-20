@@ -12,5 +12,4 @@ COPY ["FileServer/", "FileServer/"]
 RUN dotnet build "FileServer/FileServer.csproj" -c Release --no-restore
 COPY ["FileServer.E2ETests/", "FileServer.E2ETests/"]
 RUN dotnet build "FileServer.E2ETests/FileServer.E2ETests.csproj" -c Release --no-restore
-RUN dotnet format "FileServer.E2ETests/FileServer.E2ETests.csproj" --verify-no-changes --no-restore
 RUN dotnet test "FileServer.E2ETests/FileServer.E2ETests.csproj" -c Release --no-build

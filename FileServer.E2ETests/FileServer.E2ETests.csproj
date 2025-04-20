@@ -7,7 +7,6 @@
     <IsPackable>false</IsPackable>
     <IsTestProject>true</IsTestProject>
     <RunSettingsFilePath>$(MSBuildProjectDirectory)\tests.runsettings</RunSettingsFilePath>
-    <PlaywrightPlatform>win;linux</PlaywrightPlatform>
   </PropertyGroup>
 
   <ItemGroup>
