@@ -17,7 +17,7 @@ public class FileService
 
     public List<FileInfo> GetDownloadableFilesList(string rootDir)
     {
-        PhysicalFileProvider fileProvider = new(rootDir);
+        using PhysicalFileProvider fileProvider = new(rootDir);
         List<FileInfo> files = [];
         FillFilesListRecursive(rootDir, files, fileProvider, "");
         return files;

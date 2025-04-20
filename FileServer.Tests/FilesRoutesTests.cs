@@ -140,6 +140,7 @@ public class FilesRoutesTests : TestsBase
         return reader.ReadToEnd();
     }
 
+#pragma warning disable CA2000 // Dispose objects before losing scope
     private static MultipartFormDataContent CreateTestFileContent()
     {
         return new()
@@ -147,4 +148,5 @@ public class FilesRoutesTests : TestsBase
             { new ByteArrayContent(Encoding.UTF8.GetBytes("test_uplfile1_content")), "not_used", "uplfile1.txt" },
         };
     }
+#pragma warning restore CA2000 // Responsibility of the types containing it
 }

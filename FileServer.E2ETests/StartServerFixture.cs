@@ -39,7 +39,9 @@ public class StartServerFixture
 
     private static Process StartServerProcess(out StringBuilder serverOutput)
     {
+#pragma warning disable CA2000 // Dispose objects before losing scope
         Process process = new();
+#pragma warning restore CA2000 // Ignore missing dispose on exception in the setup method
         process.StartInfo.FileName = "dotnet";
         process.StartInfo.WorkingDirectory = Path.GetFullPath(ServerProjDir);
         process.StartInfo.Arguments = $"bin/{Configuration}/net8.0/FileServer.dll";
@@ -132,7 +134,7 @@ public class StartServerFixture
 
     private static void GenerateCertInDir(string dir)
     {
-        Process process = new();
+        using Process process = new();
         process.StartInfo.FileName = "openssl";
         process.StartInfo.WorkingDirectory = dir;
         process.StartInfo.Arguments = @"req -x509 -newkey rsa:2048 -sha256 -days 1 -nodes -keyout cert.key -out cert.crt -subj ""/CN=localhost""";

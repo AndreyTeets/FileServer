@@ -36,7 +36,9 @@ public static class Extensions
         ILogger logger = Utility.CreateConsoleLogger<Program>();
         Settings settings = builder.Configuration.GetSection(nameof(Settings)).Get<Settings>()!;
 
+#pragma warning disable CA2000 // Dispose objects before losing scope
         X509Certificate2 cert = Utility.LoadCertificate(settings);
+#pragma warning restore CA2000 // Responsibility of the server
         logger.LogInformation($"Using Certificate:{Environment.NewLine}" +
             $"{Utility.GetCertificateDisplayString(cert)}");
 
