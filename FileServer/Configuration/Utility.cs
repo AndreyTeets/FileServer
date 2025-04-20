@@ -28,13 +28,14 @@ public static class Utility
     public static string GetCertificateDisplayString(X509Certificate2 cert)
     {
         StringBuilder sb = new();
-        sb.Append($"-Subject: {cert.Subject}").AppendLine()
-            .Append($"-Issuer: {cert.Issuer}").AppendLine()
-            .Append($"-ValidFrom: {FormatDate(cert.NotBefore)}").AppendLine()
-            .Append($"-ValidTo: {FormatDate(cert.NotAfter)}").AppendLine()
-            .Append($"-SHA256: {GetSha256(cert)}").AppendLine()
-            .Append($"-SHA1: {GetSha1(cert)}").AppendLine();
-        return sb.ToString().Trim();
+        return sb
+            .AppendLine($"-Subject: {cert.Subject}")
+            .AppendLine($"-Issuer: {cert.Issuer}")
+            .AppendLine($"-ValidFrom: {FormatDate(cert.NotBefore)}")
+            .AppendLine($"-ValidTo: {FormatDate(cert.NotAfter)}")
+            .AppendLine($"-SHA256: {GetSha256(cert)}")
+            .AppendLine($"-SHA1: {GetSha1(cert)}")
+            .ToString().Trim();
 
         static string GetSha256(X509Certificate2 cert)
         {
@@ -57,17 +58,18 @@ public static class Utility
     public static string GetSettingsDisplayString(Settings settings)
     {
         StringBuilder sb = new();
-        sb.Append($"-{nameof(Settings.ListenAddress)}: {settings.ListenAddress}").AppendLine()
-            .Append($"-{nameof(Settings.ListenPort)}: {settings.ListenPort}").AppendLine()
-            .Append($"-{nameof(Settings.CertFilePath)}: {settings.CertFilePath}").AppendLine()
-            .Append($"-{nameof(Settings.CertKeyPath)}: {settings.CertKeyPath}").AppendLine()
-            .Append($"-{nameof(Settings.DownloadAnonDir)}: {settings.DownloadAnonDir}").AppendLine()
-            .Append($"-{nameof(Settings.DownloadDir)}: {settings.DownloadDir}").AppendLine()
-            .Append($"-{nameof(Settings.UploadDir)}: {settings.UploadDir}").AppendLine()
-            .Append($"-{nameof(Settings.SigningKey)}: {DisplayKey(settings.SigningKey)}").AppendLine()
-            .Append($"-{nameof(Settings.LoginKey)}: {DisplayKey(settings.LoginKey)}").AppendLine()
-            .Append($"-{nameof(Settings.TokensTtlSeconds)}: {settings.TokensTtlSeconds}").AppendLine();
-        return sb.ToString().Trim();
+        return sb
+            .AppendLine($"-{nameof(Settings.ListenAddress)}: {settings.ListenAddress}")
+            .AppendLine($"-{nameof(Settings.ListenPort)}: {settings.ListenPort}")
+            .AppendLine($"-{nameof(Settings.CertFilePath)}: {settings.CertFilePath}")
+            .AppendLine($"-{nameof(Settings.CertKeyPath)}: {settings.CertKeyPath}")
+            .AppendLine($"-{nameof(Settings.DownloadAnonDir)}: {settings.DownloadAnonDir}")
+            .AppendLine($"-{nameof(Settings.DownloadDir)}: {settings.DownloadDir}")
+            .AppendLine($"-{nameof(Settings.UploadDir)}: {settings.UploadDir}")
+            .AppendLine($"-{nameof(Settings.SigningKey)}: {DisplayKey(settings.SigningKey)}")
+            .AppendLine($"-{nameof(Settings.LoginKey)}: {DisplayKey(settings.LoginKey)}")
+            .AppendLine($"-{nameof(Settings.TokensTtlSeconds)}: {settings.TokensTtlSeconds}")
+            .ToString().Trim();
 
         static string DisplayKey(string? key) =>
             string.IsNullOrWhiteSpace(key) ? "EMPTY" : "*****";
