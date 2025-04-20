@@ -75,6 +75,9 @@ public static class Utility
             string.IsNullOrWhiteSpace(key) ? "EMPTY" : "*****";
     }
 
+    public static string GetSettingsProblemsDisplayString(IEnumerable<string> problems) =>
+        $"-{string.Join($"{Environment.NewLine}-", problems)}";
+
     public static void ShowVersionAndUsage()
     {
         string? version = typeof(Program).Assembly
