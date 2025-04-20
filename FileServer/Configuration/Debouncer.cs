@@ -32,7 +32,7 @@ public class Debouncer(
         long current;
         lock (_actionLock)
         {
-            if (!_counter.ContainsKey(category) || _counter[category] == long.MaxValue)
+            if (!_counter.TryGetValue(category, out long counter) || counter == long.MaxValue)
                 _counter[category] = 0;
             current = ++_counter[category];
 
