@@ -782,7 +782,6 @@ dotnet_diagnostic.NUnit2045.severity = silent
 #### Overrides to remove when code is fixed appropriately ####
 
 csharp_style_prefer_primary_constructors = false
-csharp_style_prefer_top_level_statements = true
 
 #### Special files overrieds ####
 
