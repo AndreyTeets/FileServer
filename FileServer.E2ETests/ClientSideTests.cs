@@ -7,13 +7,10 @@ namespace FileServer.E2ETests;
 [TestFixture]
 public class ClientSideTests : PageTest
 {
-    public override BrowserNewContextOptions ContextOptions()
+    public override BrowserNewContextOptions ContextOptions() => new()
     {
-        return new()
-        {
-            IgnoreHTTPSErrors = true,
-        };
-    }
+        IgnoreHTTPSErrors = true,
+    };
 
     [SetUp]
     public void SetupTimeouts()

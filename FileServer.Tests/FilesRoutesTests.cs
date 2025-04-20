@@ -141,12 +141,9 @@ public class FilesRoutesTests : TestsBase
     }
 
 #pragma warning disable CA2000 // Dispose objects before losing scope
-    private static MultipartFormDataContent CreateTestFileContent()
+    private static MultipartFormDataContent CreateTestFileContent() => new()
     {
-        return new()
-        {
-            { new ByteArrayContent(Encoding.UTF8.GetBytes("test_uplfile1_content")), "not_used", "uplfile1.txt" },
-        };
-    }
+        { new ByteArrayContent(Encoding.UTF8.GetBytes("test_uplfile1_content")), "not_used", "uplfile1.txt" },
+    };
 #pragma warning restore CA2000 // Responsibility of the types containing it
 }

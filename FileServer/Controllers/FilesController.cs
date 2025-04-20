@@ -48,32 +48,24 @@ public class FilesController(
     [HttpGet($"downloadanon/{{*{nameof(filePath)}}}")]
     [Produces("application/octet-stream", "application/json")]
     [AllowAnonymous]
-    public ActionResult DownloadFileAnon([FromRoute] string filePath)
-    {
-        return CreateGetFileResult(_options.CurrentValue.DownloadAnonDir!, "application/octet-stream", filePath);
-    }
+    public ActionResult DownloadFileAnon([FromRoute] string filePath) =>
+        CreateGetFileResult(_options.CurrentValue.DownloadAnonDir!, "application/octet-stream", filePath);
 
     [HttpGet($"viewanon/{{*{nameof(filePath)}}}")]
     [Produces("text/plain", "application/json")]
     [AllowAnonymous]
-    public ActionResult ViewFileAnon([FromRoute] string filePath)
-    {
-        return CreateGetFileResult(_options.CurrentValue.DownloadAnonDir!, "text/plain", filePath);
-    }
+    public ActionResult ViewFileAnon([FromRoute] string filePath) =>
+        CreateGetFileResult(_options.CurrentValue.DownloadAnonDir!, "text/plain", filePath);
 
     [HttpGet($"download/{{*{nameof(filePath)}}}")]
     [Produces("application/octet-stream", "application/json")]
-    public ActionResult DownloadFile([FromRoute] string filePath)
-    {
-        return CreateGetFileResult(_options.CurrentValue.DownloadDir!, "application/octet-stream", filePath);
-    }
+    public ActionResult DownloadFile([FromRoute] string filePath) =>
+        CreateGetFileResult(_options.CurrentValue.DownloadDir!, "application/octet-stream", filePath);
 
     [HttpGet($"view/{{*{nameof(filePath)}}}")]
     [Produces("text/plain", "application/json")]
-    public ActionResult ViewFile([FromRoute] string filePath)
-    {
-        return CreateGetFileResult(_options.CurrentValue.DownloadDir!, "text/plain", filePath);
-    }
+    public ActionResult ViewFile([FromRoute] string filePath) =>
+        CreateGetFileResult(_options.CurrentValue.DownloadDir!, "text/plain", filePath);
 
     [HttpPost("upload")]
     [Produces("application/json")]
@@ -88,42 +80,30 @@ public class FilesController(
         if (fileName is not null)
         {
             (string targetFileName, bool saved) = await _fileService.SaveFileIfNotExists(fileName, fileContent);
-            if (saved)
-                return new UploadFileResponse() { CreatedFileName = targetFileName };
-            return BadRequest($"File with name '{targetFileName}' already exists.");
+            return saved
+                ? new UploadFileResponse() { CreatedFileName = targetFileName }
+                : BadRequest($"File with name '{targetFileName}' already exists.");
         }
 
         return BadRequest("No files in request.");
-    }
-
-    private bool IsAuthenticated()
-    {
-        ClaimsPrincipal user = _httpContextAccessor.HttpContext!.User;
-        bool isAuthenticated = user.Identities.Any(x =>
-            x.IsAuthenticated
-            && x.AuthenticationType == Constants.DoubleTokenAuthenticationSchemeAuthenticationType
-            && x.Name == Constants.MainUserName);
-        return isAuthenticated;
     }
 
     private ActionResult CreateGetFileResult(string rootDir, string mimeType, string filePath)
     {
         using PhysicalFileProvider fileProvider = new(rootDir);
         IFileInfo file = fileProvider.GetFileInfo(filePath);
-        if (!file.Exists)
-            return BadRequest("File not found.");
-        return PhysicalFile(file.PhysicalPath!, mimeType);
+        return !file.Exists
+            ? BadRequest("File not found.")
+            : PhysicalFile(file.PhysicalPath!, mimeType);
     }
 
     private string? TryGetFormDataBoundary()
     {
-        if (Request.HasFormContentType
-            && MediaTypeHeaderValue.TryParse(Request.ContentType, out MediaTypeHeaderValue? mediaTypeHeader)
-            && !string.IsNullOrEmpty(mediaTypeHeader.Boundary.Value))
-        {
-            return mediaTypeHeader.Boundary.Value;
-        }
-        return null;
+        return Request.HasFormContentType
+                && MediaTypeHeaderValue.TryParse(Request.ContentType, out MediaTypeHeaderValue? mediaTypeHeader)
+                && !string.IsNullOrEmpty(mediaTypeHeader.Boundary.Value)
+            ? mediaTypeHeader.Boundary.Value
+            : null;
     }
 
     private async Task<(string? fileName, Stream fileContent)> TryGetFirstFormDataFile(string formDataBoundary)
@@ -146,5 +126,14 @@ public class FilesController(
             section = await reader.ReadNextSectionAsync();
         }
         return (null, Stream.Null);
+    }
+
+    private bool IsAuthenticated()
+    {
+        ClaimsPrincipal user = _httpContextAccessor.HttpContext!.User;
+        return user.Identities.Any(x =>
+            x.IsAuthenticated
+            && x.AuthenticationType == Constants.DoubleTokenAuthenticationSchemeAuthenticationType
+            && x.Name == Constants.MainUserName);
     }
 }

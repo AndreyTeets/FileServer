@@ -19,7 +19,8 @@ public class FileService(
         return files;
     }
 
-    public async Task<(string trustedFileName, bool saved)> SaveFileIfNotExists(string originalFileName, Stream fileContent)
+    public async Task<(string targetFileName, bool saved)> SaveFileIfNotExists(
+        string originalFileName, Stream fileContent)
     {
         string trustedFileName = SanitizeFileName(originalFileName);
         string saveToPath = Path.Combine(_options.CurrentValue.UploadDir!, trustedFileName);
@@ -33,7 +34,8 @@ public class FileService(
         return (trustedFileName, false);
     }
 
-    private static void FillFilesListRecursive(string rootDir, List<FileInfo> files, PhysicalFileProvider fileProvider, string subPath)
+    private static void FillFilesListRecursive(
+        string rootDir, List<FileInfo> files, PhysicalFileProvider fileProvider, string subPath)
     {
         IEnumerable<IFileInfo> dirItems = fileProvider.GetDirectoryContents(subPath);
         foreach (IFileInfo dir in dirItems.Where(f => f.IsDirectory))

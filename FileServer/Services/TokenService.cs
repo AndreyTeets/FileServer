@@ -13,15 +13,11 @@ public class TokenService(
 {
     private readonly IOptionsMonitor<Settings> _options = options;
 
-    public Token CreateToken(Claim claim)
+    public Token CreateToken(Claim claim) => new()
     {
-        Token token = new()
-        {
-            Claim = claim,
-            Signature = ComputeClaimSignature(claim),
-        };
-        return token;
-    }
+        Claim = claim,
+        Signature = ComputeClaimSignature(claim),
+    };
 
     public bool TokenIsValid(Token token)
     {
