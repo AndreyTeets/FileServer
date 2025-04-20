@@ -7,19 +7,23 @@ namespace FileServer.Tests.Util;
 
 public class FileServerTestClient : IDisposable
 {
+#pragma warning disable CA2213 // Disposable fields should be disposed
+    private readonly CookieProcessingHttpMessageHandler _cpHandler;
+#pragma warning restore CA2213 // Responsibility of the HttpClient
     private readonly HttpClient _httpClient;
-    private readonly CookieProcessingHttpMessageHandler _handler;
     private LoginResponse? _loginResponse;
 
     public CookieContainer CookieContainer
     {
-        get => _handler.CookieContainer; set => _handler.CookieContainer = value;
+        get => _cpHandler.CookieContainer;
+        set => _cpHandler.CookieContainer = value;
     }
 
-    public FileServerTestClient(HttpClient httpClient, CookieProcessingHttpMessageHandler handler)
+    public FileServerTestClient(HttpMessageHandler handler, Uri? baseAddress)
     {
-        _httpClient = httpClient;
-        _handler = handler;
+        _cpHandler = new(handler);
+        _httpClient = new(_cpHandler);
+        _httpClient.BaseAddress = baseAddress;
     }
 
     public void Dispose()

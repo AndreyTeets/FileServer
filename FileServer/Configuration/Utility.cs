@@ -20,9 +20,8 @@ public static class Utility
         X509Certificate2 cert = X509Certificate2.CreateFromPemFile(settings.CertFilePath!, settings.CertKeyPath);
         if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
         {
-            X509Certificate2 originalCert = cert;
+            using X509Certificate2 originalCert = cert;
             cert = new X509Certificate2(originalCert.Export(X509ContentType.Pkcs12));
-            originalCert.Dispose();
         }
         return cert;
     }

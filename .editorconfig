@@ -785,10 +785,6 @@ csharp_style_prefer_primary_constructors = false
 csharp_style_prefer_top_level_statements = true
 # Add missing cases to switch expression
 dotnet_diagnostic.IDE0072.severity = suggestion
-# Types that own disposable fields should be disposable
-dotnet_diagnostic.CA1001.severity = suggestion
-# Dispose objects before losing scope
-dotnet_diagnostic.CA2000.severity = suggestion
 # Do not raise reserved exception types
 dotnet_diagnostic.CA2201.severity = suggestion
 # Implement the functionality instead of throwing NotImplementedException

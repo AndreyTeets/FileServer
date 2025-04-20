@@ -114,7 +114,7 @@ public class FilesController : ControllerBase
 
     private ActionResult CreateGetFileResult(string rootDir, string mimeType, string filePath)
     {
-        PhysicalFileProvider fileProvider = new(rootDir);
+        using PhysicalFileProvider fileProvider = new(rootDir);
         IFileInfo file = fileProvider.GetFileInfo(filePath);
         if (!file.Exists)
             return BadRequest("File not found.");
