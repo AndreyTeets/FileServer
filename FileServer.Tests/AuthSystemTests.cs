@@ -79,6 +79,10 @@ public class AuthSystemTests : TestsBase
     [Test]
     public async Task Logout_RemovesCookieToken_WithError_WhenUnauthorized()
     {
+        await Login();
+        await GetFileThatRequiresAuth();
+
+        async Task Login()
         {
             await _fsTestClient.Login();
             using HttpResponseMessage response = await _fsTestClient.Post(
@@ -88,6 +92,7 @@ public class AuthSystemTests : TestsBase
                 @"""Failed to authenticate: Antiforgery token absent."""));
         }
 
+        async Task GetFileThatRequiresAuth()
         {
             using HttpResponseMessage response = await _fsTestClient.Get("/api/files/download/file1.txt");
             Assert.That(response.StatusCode, Is.EqualTo(HttpStatusCode.Unauthorized));

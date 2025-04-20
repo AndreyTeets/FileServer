@@ -82,7 +82,7 @@ public class DoubleTokenAuthenticationHandler : AuthenticationHandler<DoubleToke
             return TryGetEncodedAuthTokenString();
         if (tokenType == Constants.AntiforgeryClaimType)
             return TryGetEncodedAntiforgeryTokenString();
-        throw new Exception($"Invalid token type '{tokenType}'.");
+        throw new AuthException($"Invalid token type '{tokenType}'.");
     }
 
     private string? TryGetEncodedAuthTokenString()
