@@ -19,9 +19,7 @@ public abstract class TestsBase : ILoggedTest
     [SetUp]
     public void SetUpTestClients()
     {
-        foreach (FileInfo file in new DirectoryInfo(Path.GetFullPath("fs_data/upload")).GetFiles())
-            file.Delete();
-
+        ClearUploadDir();
         _testClient = SetupTestServerFixture.Host!.GetTestClient();
         _fsTestClient = new FileServerTestClient(TestServer.CreateHandler(), _testClient.BaseAddress);
     }
@@ -36,5 +34,11 @@ public abstract class TestsBase : ILoggedTest
     protected static async Task<string> GetContent(HttpResponseMessage response)
     {
         return await response.Content.ReadAsStringAsync();
+    }
+
+    private static void ClearUploadDir()
+    {
+        foreach (FileInfo file in new DirectoryInfo(Path.GetFullPath("fs_data/upload")).GetFiles())
+            file.Delete();
     }
 }
