@@ -26,7 +26,8 @@ public class AuthController(
             return BadRequest("Invalid password.");
 
         const string user = Constants.MainUserName;
-        DateTime tokensExpire = GetUtcNowWithoutFractionalSeconds().AddSeconds(_options.CurrentValue.TokensTtlSeconds!.Value);
+        DateTime tokensExpire = GetUtcNowWithoutFractionalSeconds()
+            .AddSeconds(_options.CurrentValue.TokensTtlSeconds!.Value);
         Token authToken = _tokenService.CreateToken(
             new Claim()
             {
@@ -43,7 +44,7 @@ public class AuthController(
             });
 
         SetAuthTokenCookie(authToken);
-        LoginResponse response = new()
+        return new LoginResponse()
         {
             LoginInfo = new()
             {
@@ -52,7 +53,6 @@ public class AuthController(
             },
             AntiforgeryToken = _tokenService.EncodeToken(antiforgeryToken),
         };
-        return response;
     }
 
     [HttpPost("logout")]

@@ -38,8 +38,7 @@ public class FileServerTestClient : IDisposable
         using HttpRequestMessage request = new(HttpMethod.Get, requestUri);
         if (_loginResponse is not null && !skipAntiforgeryTokenHeader)
             request.Headers.Add(Constants.AntiforgeryTokenHeaderName, _loginResponse.AntiforgeryToken);
-        HttpResponseMessage response = await _httpClient.SendAsync(request);
-        return response;
+        return await _httpClient.SendAsync(request);
     }
 
     public async Task<HttpResponseMessage> Post(
@@ -51,8 +50,7 @@ public class FileServerTestClient : IDisposable
         if (_loginResponse is not null && !skipAntiforgeryTokenHeader)
             request.Headers.Add(Constants.AntiforgeryTokenHeaderName, _loginResponse.AntiforgeryToken);
         request.Content = content;
-        HttpResponseMessage response = await _httpClient.SendAsync(request);
-        return response;
+        return await _httpClient.SendAsync(request);
     }
 
     public async Task<LoginResponse> Login()

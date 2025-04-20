@@ -50,10 +50,8 @@ public static class Utility
             return BitConverter.ToString(bytes);
         }
 
-        static string FormatDate(DateTime date)
-        {
-            return date.ToString("yyyy-MM-dd HH:mm:ss");
-        }
+        static string FormatDate(DateTime date) =>
+            date.ToString("yyyy-MM-dd HH:mm:ss");
     }
 
     public static string GetSettingsDisplayString(Settings settings)
@@ -71,12 +69,8 @@ public static class Utility
             .Append($"-{nameof(Settings.TokensTtlSeconds)}: {settings.TokensTtlSeconds}").AppendLine();
         return sb.ToString().Trim();
 
-        static string DisplayKey(string? key)
-        {
-            if (string.IsNullOrWhiteSpace(key))
-                return "EMPTY";
-            return "*****";
-        }
+        static string DisplayKey(string? key) =>
+            string.IsNullOrWhiteSpace(key) ? "EMPTY" : "*****";
     }
 
     public static void ShowVersionAndUsage()

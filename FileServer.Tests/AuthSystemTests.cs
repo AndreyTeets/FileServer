@@ -111,7 +111,6 @@ public class AuthSystemTests : TestsBase
                 Type = type,
                 Expires = DateTime.UtcNow.AddSeconds(-60),
             });
-        string encodedToken = tokenService.EncodeToken(token);
-        return encodedToken;
+        return tokenService.EncodeToken(token);
     }
 }

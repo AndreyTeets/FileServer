@@ -65,33 +65,23 @@ public class SetupTestServerFixture
         Host?.Dispose();
     }
 
-    private Dictionary<string, string?> CreateAppSettings()
+    private Dictionary<string, string?> CreateAppSettings() => new()
     {
-        Dictionary<string, string?> appSettings = new()
-        {
-            { "Logging:LogLevel:Default", "Trace" },
-            { "Logging:LogLevel:Microsoft.AspNetCore", "Error" },
-            { "Logging:LogLevel:FileServer.Auth.DoubleTokenAuthenticationHandler", "Error" },
-            { "Logging:LogLevel:Microsoft.AspNetCore.Hosting.Diagnostics", "Information" },
-            { $"{nameof(Settings)}:{nameof(Settings.DownloadAnonDir)}", Path.GetFullPath("fs_data/download_anon") },
-            { $"{nameof(Settings)}:{nameof(Settings.DownloadDir)}", Path.GetFullPath("fs_data/download") },
-            { $"{nameof(Settings)}:{nameof(Settings.UploadDir)}", Path.GetFullPath("fs_data/upload") },
-            { $"{nameof(Settings)}:{nameof(Settings.SigningKey)}", "01234567890123456789" },
-            { $"{nameof(Settings)}:{nameof(Settings.LoginKey)}", "012345678912" },
-            { $"{nameof(Settings)}:{nameof(Settings.TokensTtlSeconds)}", "30" },
-        };
-        return appSettings;
-    }
+        { "Logging:LogLevel:Default", "Trace" },
+        { "Logging:LogLevel:Microsoft.AspNetCore", "Error" },
+        { "Logging:LogLevel:FileServer.Auth.DoubleTokenAuthenticationHandler", "Error" },
+        { "Logging:LogLevel:Microsoft.AspNetCore.Hosting.Diagnostics", "Information" },
+        { $"{nameof(Settings)}:{nameof(Settings.DownloadAnonDir)}", Path.GetFullPath("fs_data/download_anon") },
+        { $"{nameof(Settings)}:{nameof(Settings.DownloadDir)}", Path.GetFullPath("fs_data/download") },
+        { $"{nameof(Settings)}:{nameof(Settings.UploadDir)}", Path.GetFullPath("fs_data/upload") },
+        { $"{nameof(Settings)}:{nameof(Settings.SigningKey)}", "01234567890123456789" },
+        { $"{nameof(Settings)}:{nameof(Settings.LoginKey)}", "012345678912" },
+        { $"{nameof(Settings)}:{nameof(Settings.TokensTtlSeconds)}", "30" },
+    };
 
     public class NoopDebouncer : IDebouncer
     {
-        public void Debounce(string category, Action action)
-        {
-            action();
-        }
-
-        public void Dispose()
-        {
-        }
+        public void Debounce(string category, Action action) => action();
+        public void Dispose() { }
     }
 }

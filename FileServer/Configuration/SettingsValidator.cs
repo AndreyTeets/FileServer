@@ -21,7 +21,6 @@ public class SettingsValidator(
             _debouncer.Debounce("InvalidSettings", () => _logger.LogError(error));
             return ValidateOptionsResult.Fail(error!);
         }
-
         return ValidateOptionsResult.Success;
     }
 

@@ -11,14 +11,10 @@ public class StringBuilderLoggerProvider(
     private static readonly SemaphoreSlim s_sbSemaphoreSlim = new(1, 1);
     private readonly StringBuilder _sb = sb;
 
-    public ILogger CreateLogger(string name)
-    {
-        return new StringBuilderLogger(name, _sb);
-    }
+    public ILogger CreateLogger(string name) =>
+        new StringBuilderLogger(name, _sb);
 
-    public void Dispose()
-    {
-    }
+    public void Dispose() { }
 
     public class StringBuilderLogger(
         string name,
@@ -73,27 +69,19 @@ public class StringBuilderLoggerProvider(
                 };
             }
 
-            static string Indent(string input)
-            {
-                return Regex.Replace(input, "^", "      ", RegexOptions.Multiline);
-            }
+            static string Indent(string input) =>
+                Regex.Replace(input, "^", "      ", RegexOptions.Multiline);
         }
 
-        public bool IsEnabled(LogLevel logLevel)
-        {
-            return logLevel != LogLevel.None;
-        }
+        public bool IsEnabled(LogLevel logLevel) =>
+            logLevel != LogLevel.None;
 
-        public IDisposable? BeginScope<TState>(TState state) where TState : notnull
-        {
-            return new NoopDisposable();
-        }
+        public IDisposable? BeginScope<TState>(TState state) where TState : notnull =>
+            new NoopDisposable();
 
         private sealed class NoopDisposable : IDisposable
         {
-            public void Dispose()
-            {
-            }
+            public void Dispose() { }
         }
     }
 }

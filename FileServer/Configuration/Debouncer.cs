@@ -6,8 +6,8 @@ public class Debouncer(
     TimeSpan? waitTime = null)
     : IDebouncer
 {
-    private readonly CancellationTokenSource _cts = new();
     private readonly TimeSpan _waitTime = waitTime ?? TimeSpan.FromMilliseconds(1000);
+    private readonly CancellationTokenSource _cts = new();
     private readonly ConcurrentDictionary<string, long> _counter = new();
     private readonly ConcurrentDictionary<string, int> _tasksCount = new();
     private readonly object _actionLock = new();

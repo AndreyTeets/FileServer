@@ -28,10 +28,9 @@ public class DoubleTokenAuthenticationHandler(
         }
         return Task.FromResult(AuthenticateResult.Fail(CreateAuthErrorMessage()));
 
-        string CreateAuthErrorMessage()
-        {
-            return string.Join(" ", new string?[] { authTokenError, antiforgeryTokenError }.Where(x => x is not null));
-        }
+        string CreateAuthErrorMessage() => string.Join(" ",
+            new string?[] { authTokenError, antiforgeryTokenError }
+                .Where(x => x is not null));
     }
 
     protected override async Task HandleChallengeAsync(AuthenticationProperties properties)
