@@ -30,7 +30,7 @@ public class SettingsValidator : IValidateOptions<Settings>
 
     private static bool SettingsAreValid(Settings settings, out string? error)
     {
-        List<string> problems = new();
+        List<string> problems = [];
 
         if (settings.DownloadAnonDir is null)
             problems.Add($"{nameof(Settings.DownloadAnonDir)} is null");

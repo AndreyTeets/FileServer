@@ -13,8 +13,7 @@ public class FileServerTestClient : IDisposable
 
     public CookieContainer CookieContainer
     {
-        get => _handler.CookieContainer;
-        set { _handler.CookieContainer = value; }
+        get => _handler.CookieContainer; set => _handler.CookieContainer = value;
     }
 
     public FileServerTestClient(HttpClient httpClient, CookieProcessingHttpMessageHandler handler)

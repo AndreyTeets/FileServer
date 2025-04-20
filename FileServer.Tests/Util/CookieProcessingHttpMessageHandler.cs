@@ -5,13 +5,7 @@ namespace FileServer.Tests.Util;
 
 public class CookieProcessingHttpMessageHandler : DelegatingHandler
 {
-    private CookieContainer _cookieContainer = new();
-
-    public CookieContainer CookieContainer
-    {
-        get => _cookieContainer;
-        set { _cookieContainer = value; }
-    }
+    public CookieContainer CookieContainer { get; set; } = new();
 
     public CookieProcessingHttpMessageHandler(HttpMessageHandler innerHandler)
         : base(innerHandler) { }
@@ -27,7 +21,7 @@ public class CookieProcessingHttpMessageHandler : DelegatingHandler
 
     private void SetCookieToHeadersFromContainer(HttpRequestMessage request, Uri requestUri)
     {
-        string uriCookie = _cookieContainer.GetCookieHeader(requestUri);
+        string uriCookie = CookieContainer.GetCookieHeader(requestUri);
         if (uriCookie != "")
             request.Headers.Add(HeaderNames.Cookie, uriCookie);
     }
@@ -36,12 +30,12 @@ public class CookieProcessingHttpMessageHandler : DelegatingHandler
     {
         if (response.Headers.TryGetValues(HeaderNames.SetCookie, out IEnumerable<string>? setCookieHeaders))
         {
-            foreach (SetCookieHeaderValue cookieHeader in SetCookieHeaderValue.ParseList(setCookieHeaders.ToList()))
+            foreach (SetCookieHeaderValue cookieHeader in SetCookieHeaderValue.ParseList([.. setCookieHeaders]))
             {
                 Cookie cookie = new(cookieHeader.Name.Value!, cookieHeader.Value.Value, cookieHeader.Path.Value);
                 if (cookieHeader.Expires.HasValue)
                     cookie.Expires = cookieHeader.Expires.Value.DateTime;
-                _cookieContainer.Add(requestUri, cookie);
+                CookieContainer.Add(requestUri, cookie);
             }
         }
     }

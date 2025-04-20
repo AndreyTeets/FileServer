@@ -6,9 +6,9 @@ namespace FileServer.Tests;
 
 public abstract class TestsBase : ILoggedTest
 {
-    protected HttpClient TestClient;
+    protected HttpClient _testClient;
     protected TestServer TestServer => SetupTestServerFixture.Host.GetTestServer();
-    protected FileServerTestClient FsTestClient;
+    protected FileServerTestClient _fsTestClient;
 
     public StringBuilder LogsSb => SetupTestServerFixture.LogsSb;
 
@@ -18,18 +18,18 @@ public abstract class TestsBase : ILoggedTest
         foreach (FileInfo file in new DirectoryInfo(Path.GetFullPath("fs_data/upload")).GetFiles())
             file.Delete();
 
-        TestClient = SetupTestServerFixture.Host.GetTestClient();
+        _testClient = SetupTestServerFixture.Host.GetTestClient();
         CookieProcessingHttpMessageHandler cpHttpClientHandler = new(TestServer.CreateHandler());
         HttpClient cpHttpClient = new(cpHttpClientHandler);
-        cpHttpClient.BaseAddress = TestClient.BaseAddress;
-        FsTestClient = new FileServerTestClient(cpHttpClient, cpHttpClientHandler);
+        cpHttpClient.BaseAddress = _testClient.BaseAddress;
+        _fsTestClient = new FileServerTestClient(cpHttpClient, cpHttpClientHandler);
     }
 
     [TearDown]
     public void TearDownTestClients()
     {
-        FsTestClient?.Dispose();
-        TestClient?.Dispose();
+        _fsTestClient?.Dispose();
+        _testClient?.Dispose();
     }
 
     protected static async Task<string> GetContent(HttpResponseMessage response)
