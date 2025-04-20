@@ -28,7 +28,7 @@ public class AuthController : ControllerBase
         if (request.Password != _options.CurrentValue.LoginKey)
             return BadRequest("Invalid password.");
 
-        string user = Constants.MainUserName;
+        const string user = Constants.MainUserName;
         DateTime tokensExpire = GetUtcNowWithoutFractionalSeconds().AddSeconds(_options.CurrentValue.TokensTtlSeconds!.Value);
         Token authToken = _tokenService.CreateToken(
             new Claim()

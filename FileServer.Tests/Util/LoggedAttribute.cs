@@ -4,7 +4,7 @@ using NUnit.Framework.Interfaces;
 namespace FileServer.Tests.Util;
 
 [AttributeUsage(AttributeTargets.Class | AttributeTargets.Interface, AllowMultiple = false)]
-public class LoggedAttribute : Attribute, ITestAction
+public sealed class LoggedAttribute : Attribute, ITestAction
 {
     public ActionTargets Targets => ActionTargets.Suite | ActionTargets.Test;
 
@@ -23,8 +23,10 @@ public class LoggedAttribute : Attribute, ITestAction
     }
 }
 
+#pragma warning disable MA0048 // File name must match type name
 [Logged]
 public interface ILoggedTest
 {
     public StringBuilder LogsSb { get; }
 }
+#pragma warning restore MA0048 // File name must match type name

@@ -22,7 +22,7 @@ public class AuthSystemTests : TestsBase
     {
         await _fsTestClient.Login();
         _fsTestClient.CookieContainer = new();
-        using HttpResponseMessage response = await _fsTestClient.Get($"/api/files/download/file1.txt");
+        using HttpResponseMessage response = await _fsTestClient.Get("/api/files/download/file1.txt");
         Assert.That(response.StatusCode, Is.EqualTo(HttpStatusCode.Unauthorized));
         Assert.That(await GetContent(response), Is.EqualTo(
             @"""Failed to authenticate: Auth token absent."""));
@@ -33,7 +33,7 @@ public class AuthSystemTests : TestsBase
     {
         await _fsTestClient.Login();
         using HttpResponseMessage response = await _fsTestClient.Get(
-            $"/api/files/download/file1.txt", skipAntiforgeryTokenHeader: true);
+            "/api/files/download/file1.txt", skipAntiforgeryTokenHeader: true);
         Assert.That(response.StatusCode, Is.EqualTo(HttpStatusCode.Unauthorized));
         Assert.That(await GetContent(response), Is.EqualTo(
             @"""Failed to authenticate: Antiforgery token absent."""));
@@ -47,7 +47,7 @@ public class AuthSystemTests : TestsBase
             _testClient.BaseAddress!,
             $"{Constants.AuthTokenCookieName}={CreateInvalidEncodedToken(Constants.AuthClaimType)}");
 
-        using HttpResponseMessage response = await _fsTestClient.Get($"/api/files/download/file1.txt");
+        using HttpResponseMessage response = await _fsTestClient.Get("/api/files/download/file1.txt");
         Assert.That(response.StatusCode, Is.EqualTo(HttpStatusCode.Unauthorized));
         Assert.That(await GetContent(response), Is.EqualTo(
             @"""Failed to authenticate: Auth token not valid."""));
@@ -58,7 +58,7 @@ public class AuthSystemTests : TestsBase
     {
         LoginResponse loginReponse = await _fsTestClient.Login();
         loginReponse.AntiforgeryToken = CreateInvalidEncodedToken(Constants.AntiforgeryClaimType);
-        using HttpResponseMessage response = await _fsTestClient.Get($"/api/files/download/file1.txt");
+        using HttpResponseMessage response = await _fsTestClient.Get("/api/files/download/file1.txt");
         Assert.That(response.StatusCode, Is.EqualTo(HttpStatusCode.Unauthorized));
         Assert.That(await GetContent(response), Is.EqualTo(
             @"""Failed to authenticate: Antiforgery token not valid."""));
@@ -82,21 +82,21 @@ public class AuthSystemTests : TestsBase
         {
             await _fsTestClient.Login();
             using HttpResponseMessage response = await _fsTestClient.Post(
-                "/api/auth/logout", null, skipAntiforgeryTokenHeader: true);
+                "/api/auth/logout", content: null, skipAntiforgeryTokenHeader: true);
             Assert.That(response.StatusCode, Is.EqualTo(HttpStatusCode.Unauthorized));
             Assert.That(await GetContent(response), Is.EqualTo(
                 @"""Failed to authenticate: Antiforgery token absent."""));
         }
 
         {
-            using HttpResponseMessage response = await _fsTestClient.Get($"/api/files/download/file1.txt");
+            using HttpResponseMessage response = await _fsTestClient.Get("/api/files/download/file1.txt");
             Assert.That(response.StatusCode, Is.EqualTo(HttpStatusCode.Unauthorized));
             Assert.That(await GetContent(response), Is.EqualTo(
                 @"""Failed to authenticate: Auth token absent."""));
         }
     }
 
-    private string CreateInvalidEncodedToken(string type)
+    private static string CreateInvalidEncodedToken(string type)
     {
         TokenService tokenService = TestServer.Services.GetService<TokenService>()!;
         Token token = tokenService.CreateToken(

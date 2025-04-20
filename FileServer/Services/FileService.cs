@@ -30,14 +30,14 @@ public class FileService
 
         if (!File.Exists(saveToPath))
         {
-            using FileStream targetStream = File.Create(saveToPath);
+            await using FileStream targetStream = File.Create(saveToPath);
             await fileContent.CopyToAsync(targetStream);
             return (trustedFileName, true);
         }
         return (trustedFileName, false);
     }
 
-    private void FillFilesListRecursive(string rootDir, List<FileInfo> files, PhysicalFileProvider fileProvider, string subPath)
+    private static void FillFilesListRecursive(string rootDir, List<FileInfo> files, PhysicalFileProvider fileProvider, string subPath)
     {
         IEnumerable<IFileInfo> dirItems = fileProvider.GetDirectoryContents(subPath);
         foreach (IFileInfo dir in dirItems.Where(f => f.IsDirectory))

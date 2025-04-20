@@ -22,5 +22,4 @@ app.UseAuthentication();
 app.UseAuthorization();
 app.UseControllersWithAuthorization();
 app.UseNoCacheHeaders();
-
-app.Run();
+await app.RunAsync();

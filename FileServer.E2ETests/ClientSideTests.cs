@@ -11,7 +11,7 @@ public class ClientSideTests : PageTest
     {
         return new()
         {
-            IgnoreHTTPSErrors = true
+            IgnoreHTTPSErrors = true,
         };
     }
 

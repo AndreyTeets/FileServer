@@ -2,14 +2,15 @@
 
 public static class SnapshotValues
 {
-    public static readonly string After_OpenInitialPage = """
+#pragma warning disable MA0136 // Raw String contains an implicit end of line character
+    public const string After_OpenInitialPage = """
         - paragraph: "Menu:"
         - button "DownloadPage"
         - button "UploadPage"
         - button "AuthPage"
         """;
 
-    public static readonly string After_Login = """
+    public const string After_Login = """
         - paragraph: "Menu:"
         - button "DownloadPage"
         - button "UploadPage"
@@ -18,7 +19,7 @@ public static class SnapshotValues
         - button "Logout"
         """;
 
-    public static readonly string After_Logout = """
+    public const string After_Logout = """
         - paragraph: "Menu:"
         - button "DownloadPage"
         - button "UploadPage"
@@ -29,7 +30,7 @@ public static class SnapshotValues
         - button "Login"
         """;
 
-    public static readonly string After_UploadFileSuccessfully = """
+    public const string After_UploadFileSuccessfully = """
         - paragraph: "Menu:"
         - button "DownloadPage"
         - button "UploadPage"
@@ -40,7 +41,7 @@ public static class SnapshotValues
         - paragraph: "Uploaded: upl.test_upload_file.txt.oad"
         """;
 
-    public static readonly string After_UploadFileWithError = """
+    public const string After_UploadFileWithError = """
         - paragraph: "Menu:"
         - button "DownloadPage"
         - button "UploadPage"
@@ -51,7 +52,7 @@ public static class SnapshotValues
         - paragraph: "Fetch error: Error: Response status: 400 . Response body: \"File with name 'upl.test_upload_file.txt.oad' already exists.\""
         """;
 
-    public static readonly string After_OpenDownloadPageNoAuth = """
+    public const string After_OpenDownloadPageNoAuth = """
         - paragraph: "Menu:"
         - button "DownloadPage"
         - button "UploadPage"
@@ -74,7 +75,7 @@ public static class SnapshotValues
                 - button "View"
         """;
 
-    public static readonly string After_OpenDownloadPageWithAuth = """
+    public const string After_OpenDownloadPageWithAuth = """
         - paragraph: "Menu:"
         - button "DownloadPage"
         - button "UploadPage"
@@ -104,4 +105,5 @@ public static class SnapshotValues
               - cell "View":
                 - button "View"
         """;
+#pragma warning restore MA0136 // Raw String contains an implicit end of line character
 }

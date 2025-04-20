@@ -6,9 +6,9 @@ namespace FileServer.Tests;
 
 public abstract class TestsBase : ILoggedTest
 {
-    protected HttpClient _testClient;
-    protected TestServer TestServer => SetupTestServerFixture.Host.GetTestServer();
-    protected FileServerTestClient _fsTestClient;
+    private protected HttpClient _testClient;
+    protected static TestServer TestServer => SetupTestServerFixture.Host.GetTestServer();
+    private protected FileServerTestClient _fsTestClient;
 
     public StringBuilder LogsSb => SetupTestServerFixture.LogsSb;
 

@@ -122,7 +122,7 @@ public class FilesRoutesTests : TestsBase
         using HttpResponseMessage response = await _fsTestClient.Post("/api/files/upload", CreateTestFileContent());
         Assert.That(response.StatusCode, Is.EqualTo(HttpStatusCode.OK));
         Assert.That(File.Exists("fs_data/upload/upl.uplfile1.txt.oad"), Is.True);
-        Assert.That(File.ReadAllText("fs_data/upload/upl.uplfile1.txt.oad"), Is.EqualTo("test_uplfile1_content"));
+        Assert.That(await File.ReadAllTextAsync("fs_data/upload/upl.uplfile1.txt.oad"), Is.EqualTo("test_uplfile1_content"));
     }
 
     [Test]
@@ -144,7 +144,7 @@ public class FilesRoutesTests : TestsBase
     {
         return new()
         {
-            { new ByteArrayContent(Encoding.UTF8.GetBytes("test_uplfile1_content")), "not_used", "uplfile1.txt" }
+            { new ByteArrayContent(Encoding.UTF8.GetBytes("test_uplfile1_content")), "not_used", "uplfile1.txt" },
         };
     }
 }
