@@ -6,14 +6,10 @@ using FileInfo = FileServer.Models.FileInfo;
 
 namespace FileServer.Services;
 
-public class FileService
+public class FileService(
+    IOptionsMonitor<Settings> options)
 {
-    private readonly IOptionsMonitor<Settings> _options;
-
-    public FileService(IOptionsMonitor<Settings> options)
-    {
-        _options = options;
-    }
+    private readonly IOptionsMonitor<Settings> _options = options;
 
     public List<FileInfo> GetDownloadableFilesList(string rootDir)
     {

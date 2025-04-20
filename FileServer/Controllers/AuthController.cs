@@ -8,16 +8,13 @@ using Microsoft.Extensions.Options;
 namespace FileServer.Controllers;
 
 [Route("api/auth")]
-public class AuthController : ControllerBase
+public class AuthController(
+    IOptionsMonitor<Settings> options,
+    TokenService tokenService)
+    : ControllerBase
 {
-    private readonly IOptionsMonitor<Settings> _options;
-    private readonly TokenService _tokenService;
-
-    public AuthController(IOptionsMonitor<Settings> options, TokenService tokenService)
-    {
-        _options = options;
-        _tokenService = tokenService;
-    }
+    private readonly IOptionsMonitor<Settings> _options = options;
+    private readonly TokenService _tokenService = tokenService;
 
     [HttpPost("login")]
     [Consumes("application/json")]

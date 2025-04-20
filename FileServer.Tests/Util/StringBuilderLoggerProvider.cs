@@ -4,15 +4,12 @@ using Microsoft.Extensions.Logging;
 
 namespace FileServer.Tests.Util;
 
-public class StringBuilderLoggerProvider : ILoggerProvider
+public class StringBuilderLoggerProvider(
+    StringBuilder sb)
+    : ILoggerProvider
 {
     private static readonly SemaphoreSlim s_sbSemaphoreSlim = new(1, 1);
-    private readonly StringBuilder _sb;
-
-    public StringBuilderLoggerProvider(StringBuilder sb)
-    {
-        _sb = sb;
-    }
+    private readonly StringBuilder _sb = sb;
 
     public ILogger CreateLogger(string name)
     {
@@ -23,16 +20,13 @@ public class StringBuilderLoggerProvider : ILoggerProvider
     {
     }
 
-    public class StringBuilderLogger : ILogger
+    public class StringBuilderLogger(
+        string name,
+        StringBuilder sb)
+        : ILogger
     {
-        private readonly string _name;
-        private readonly StringBuilder _sb;
-
-        public StringBuilderLogger(string name, StringBuilder sb)
-        {
-            _name = name;
-            _sb = sb;
-        }
+        private readonly string _name = name;
+        private readonly StringBuilder _sb = sb;
 
         public void Log<TState>(
             LogLevel logLevel,

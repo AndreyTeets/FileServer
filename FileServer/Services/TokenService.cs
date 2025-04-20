@@ -8,14 +8,10 @@ using Microsoft.Extensions.Options;
 
 namespace FileServer.Services;
 
-public class TokenService
+public class TokenService(
+    IOptionsMonitor<Settings> options)
 {
-    private readonly IOptionsMonitor<Settings> _options;
-
-    public TokenService(IOptionsMonitor<Settings> options)
-    {
-        _options = options;
-    }
+    private readonly IOptionsMonitor<Settings> _options = options;
 
     public Token CreateToken(Claim claim)
     {

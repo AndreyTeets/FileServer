@@ -2,20 +2,17 @@
 
 namespace FileServer.Configuration;
 
-public class Debouncer : IDebouncer
+public class Debouncer(
+    TimeSpan? waitTime = null)
+    : IDebouncer
 {
     private readonly CancellationTokenSource _cts = new();
-    private readonly TimeSpan _waitTime;
+    private readonly TimeSpan _waitTime = waitTime ?? TimeSpan.FromMilliseconds(1000);
     private readonly ConcurrentDictionary<string, long> _counter = new();
     private readonly ConcurrentDictionary<string, int> _tasksCount = new();
     private readonly object _actionLock = new();
     private readonly object _disposeLock = new();
     private bool _disposed;
-
-    public Debouncer(TimeSpan? waitTime = null)
-    {
-        _waitTime = waitTime ?? TimeSpan.FromMilliseconds(1000);
-    }
 
     public void Dispose()
     {
