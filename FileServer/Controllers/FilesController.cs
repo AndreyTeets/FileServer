@@ -92,9 +92,9 @@ public class FilesController(
     {
         using PhysicalFileProvider fileProvider = new(rootDir);
         IFileInfo file = fileProvider.GetFileInfo(filePath);
-        return !file.Exists
-            ? BadRequest("File not found.")
-            : PhysicalFile(file.PhysicalPath!, mimeType);
+        return file.Exists
+            ? PhysicalFile(file.PhysicalPath!, mimeType)
+            : BadRequest("File not found.");
     }
 
     private string? TryGetFormDataBoundary()
