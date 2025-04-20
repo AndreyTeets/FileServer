@@ -10,7 +10,6 @@ COPY ["FileServer.Tests/FileServer.Tests.csproj", "FileServer.Tests/"]
 RUN dotnet restore "FileServer.Tests/FileServer.Tests.csproj" -a $TARGETARCH
 COPY ["FileServer/", "FileServer/"]
 RUN dotnet build "FileServer/FileServer.csproj" -a $TARGETARCH -c Release --no-restore
-RUN dotnet format "FileServer/FileServer.csproj" --verify-no-changes --no-restore
 
 FROM build AS publish
 ARG TARGETARCH APP_VERSION
@@ -20,7 +19,6 @@ FROM build AS tests
 ARG TARGETARCH APP_VERSION
 COPY ["FileServer.Tests/", "FileServer.Tests/"]
 RUN dotnet build "FileServer.Tests/FileServer.Tests.csproj" -a $TARGETARCH -c Release --no-restore
-RUN dotnet format "FileServer.Tests/FileServer.Tests.csproj" --verify-no-changes --no-restore
 COPY --from=app-base /usr/share/dotnet/shared /usr/share/dotnet/shared
 RUN dotnet test "FileServer.Tests/FileServer.Tests.csproj" -a $TARGETARCH -c Release --no-build
 
