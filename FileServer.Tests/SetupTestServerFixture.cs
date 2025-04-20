@@ -15,7 +15,7 @@ namespace FileServer.Tests;
 [SetUpFixture]
 public class SetupTestServerFixture
 {
-    public static IHost Host { get; private set; }
+    public static IHost? Host { get; private set; }
     public static StringBuilder LogsSb { get; } = new();
 
     [OneTimeSetUp]

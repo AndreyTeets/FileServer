@@ -6,9 +6,11 @@ namespace FileServer.Tests;
 
 public abstract class TestsBase : ILoggedTest
 {
+#pragma warning disable CS8618 // Non-nullable variable must contain a non-null value when exiting constructor. Consider declaring it as nullable.
     private protected HttpClient _testClient;
-    protected static TestServer TestServer => SetupTestServerFixture.Host.GetTestServer();
     private protected FileServerTestClient _fsTestClient;
+#pragma warning restore CS8618 // NUnit setup will ensure it's initialized by the time it's used by tests
+    protected static TestServer TestServer => SetupTestServerFixture.Host!.GetTestServer();
 
     public StringBuilder LogsSb => SetupTestServerFixture.LogsSb;
 
@@ -18,7 +20,7 @@ public abstract class TestsBase : ILoggedTest
         foreach (FileInfo file in new DirectoryInfo(Path.GetFullPath("fs_data/upload")).GetFiles())
             file.Delete();
 
-        _testClient = SetupTestServerFixture.Host.GetTestClient();
+        _testClient = SetupTestServerFixture.Host!.GetTestClient();
         CookieProcessingHttpMessageHandler cpHttpClientHandler = new(TestServer.CreateHandler());
         HttpClient cpHttpClient = new(cpHttpClientHandler);
         cpHttpClient.BaseAddress = _testClient.BaseAddress;

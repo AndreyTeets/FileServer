@@ -18,7 +18,7 @@ public class StartServerFixture
     private const int StartTimeoutSec = 15;
     private const int Port = 9443;
 
-    private Process _process;
+    private Process? _process;
     public static Func<string>? GetServerOutputFunc { get; private set; }
 
     [OneTimeSetUp]
@@ -33,8 +33,8 @@ public class StartServerFixture
     [OneTimeTearDown]
     public void TearDownTestServer()
     {
-        _process.Kill();
-        _process.Dispose();
+        _process?.Kill();
+        _process?.Dispose();
     }
 
     private static Process StartServerProcess(out StringBuilder serverOutput)
