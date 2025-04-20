@@ -74,6 +74,7 @@ public class StringBuilderLoggerProvider : ILoggerProvider
                     LogLevel.Warning => "warn",
                     LogLevel.Error => "fail",
                     LogLevel.Critical => "crit",
+                    LogLevel.None => throw new NotSupportedException(),
                     _ => "",
                 };
             }

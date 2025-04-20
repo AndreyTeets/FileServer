@@ -25,7 +25,7 @@ public class AuthController : ControllerBase
     [AllowAnonymous]
     public ActionResult<LoginResponse> Login([FromBody] LoginRequest request)
     {
-        if (request.Password != _options.CurrentValue.LoginKey)
+        if (!ModelState.IsValid || request.Password != _options.CurrentValue.LoginKey)
             return BadRequest("Invalid password.");
 
         const string user = Constants.MainUserName;

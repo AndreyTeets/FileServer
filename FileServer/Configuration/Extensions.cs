@@ -88,10 +88,10 @@ public static class Extensions
                     $"{Utility.GetSettingsDisplayString(settings)}");
             }));
         }
-        catch (OptionsValidationException)
+        catch (OptionsValidationException ove)
         {
             debouncer.Dispose();
-            throw new Exception("Invalid settings during startup.");
+            throw new StartupException("Invalid settings during startup.", ove);
         }
     }
 

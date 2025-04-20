@@ -783,20 +783,6 @@ dotnet_diagnostic.NUnit2045.severity = silent
 
 csharp_style_prefer_primary_constructors = false
 csharp_style_prefer_top_level_statements = true
-# Add missing cases to switch expression
-dotnet_diagnostic.IDE0072.severity = suggestion
-# Do not raise reserved exception types
-dotnet_diagnostic.CA2201.severity = suggestion
-# Implement the functionality instead of throwing NotImplementedException
-dotnet_diagnostic.MA0025.severity = suggestion
-# Embed the caught exception as innerException
-dotnet_diagnostic.MA0054.severity = suggestion
-# Use System.OperatingSystem to check the current OS
-dotnet_diagnostic.MA0144.severity = suggestion
-# Nested code blocks should not be used
-dotnet_diagnostic.S1199.severity = suggestion
-# ModelState.IsValid should be called in controller actions
-dotnet_diagnostic.S6967.severity = suggestion
 
 #### Special files overrieds ####
 

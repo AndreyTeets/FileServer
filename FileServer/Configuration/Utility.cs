@@ -1,5 +1,4 @@
 ﻿using System.Reflection;
-using System.Runtime.InteropServices;
 using System.Security.Cryptography.X509Certificates;
 using System.Text;
 
@@ -18,7 +17,7 @@ public static class Utility
     public static X509Certificate2 LoadCertificate(Settings settings)
     {
         X509Certificate2 cert = X509Certificate2.CreateFromPemFile(settings.CertFilePath!, settings.CertKeyPath);
-        if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
+        if (OperatingSystem.IsWindows())
         {
             using X509Certificate2 originalCert = cert;
             cert = new X509Certificate2(originalCert.Export(X509ContentType.Pkcs12));
