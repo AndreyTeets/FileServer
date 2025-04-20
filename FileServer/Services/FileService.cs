@@ -18,7 +18,7 @@ public class FileService
     public List<FileInfo> GetDownloadableFilesList(string rootDir)
     {
         PhysicalFileProvider fileProvider = new(rootDir);
-        List<FileInfo> files = new();
+        List<FileInfo> files = [];
         FillFilesListRecursive(rootDir, files, fileProvider, "");
         return files;
     }
@@ -61,7 +61,7 @@ public class FileService
     private static string SanitizeFileName(string fileName)
     {
         string cleanedFileName = ReplaceNonWhitelistedChars(fileName).Trim();
-        string shortenedFileName = cleanedFileName.Substring(0, Math.Min(cleanedFileName.Length, 120));
+        string shortenedFileName = cleanedFileName[..Math.Min(cleanedFileName.Length, 120)];
         return "upl." + shortenedFileName + ".oad";
     }
 

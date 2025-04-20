@@ -49,8 +49,10 @@ public class StartServerFixture
 
         StringBuilder output = new();
         object outputLock = new();
+#pragma warning disable IDE2001 // Embedded statements must be on their own line
         process.OutputDataReceived += (_, eventArgs) => { lock (outputLock) { output.AppendLine(eventArgs.Data); } };
         process.ErrorDataReceived += (_, eventArgs) => { lock (outputLock) { output.AppendLine(eventArgs.Data); } };
+#pragma warning restore IDE2001 // Embedded statements must be on their own line
         process.Start();
         process.BeginOutputReadLine();
         process.BeginErrorReadLine();

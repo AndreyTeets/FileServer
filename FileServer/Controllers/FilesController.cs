@@ -107,7 +107,7 @@ public class FilesController : ControllerBase
     {
         ClaimsPrincipal user = _httpContextAccessor.HttpContext!.User;
         bool isAuthenticated = user.Identities.Any(x =>
-            x.IsAuthenticated == true
+            x.IsAuthenticated
             && x.AuthenticationType == Constants.DoubleTokenAuthenticationSchemeAuthenticationType
             && x.Name == Constants.MainUserName);
         return isAuthenticated;
