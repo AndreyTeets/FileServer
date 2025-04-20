@@ -3,12 +3,11 @@ using Microsoft.Net.Http.Headers;
 
 namespace FileServer.Tests.Util;
 
-public class CookieProcessingHttpMessageHandler : DelegatingHandler
+public class CookieProcessingHttpMessageHandler(
+    HttpMessageHandler innerHandler)
+    : DelegatingHandler(innerHandler)
 {
     public CookieContainer CookieContainer { get; set; } = new();
-
-    public CookieProcessingHttpMessageHandler(HttpMessageHandler innerHandler)
-        : base(innerHandler) { }
 
     protected override async Task<HttpResponseMessage> SendAsync(HttpRequestMessage request, CancellationToken ct)
     {

@@ -2,20 +2,17 @@
 
 namespace FileServer.Configuration;
 
-public class SettingsValidator : IValidateOptions<Settings>
+public class SettingsValidator(
+    IServiceProvider serviceProvider,
+    IDebouncer debouncer)
+    : IValidateOptions<Settings>
 {
     private const int MinLoginKeyLength = 12;
     private const int MinSigningKeyLength = 20;
     private const int MaxSigningKeyLength = 64;
 
-    private readonly ILogger<Program> _logger;
-    private readonly IDebouncer _debouncer;
-
-    public SettingsValidator(IServiceProvider serviceProvider, IDebouncer debouncer)
-    {
-        _logger = serviceProvider.GetRequiredService<ILogger<Program>>();
-        _debouncer = debouncer;
-    }
+    private readonly ILogger<Program> _logger = serviceProvider.GetRequiredService<ILogger<Program>>();
+    private readonly IDebouncer _debouncer = debouncer;
 
     public ValidateOptionsResult Validate(string? name, Settings settings)
     {

@@ -8,19 +8,14 @@ using Microsoft.Extensions.Options;
 
 namespace FileServer.Auth;
 
-public class DoubleTokenAuthenticationHandler : AuthenticationHandler<DoubleTokenAuthenticationSchemeOptions>
+public class DoubleTokenAuthenticationHandler(
+    IOptionsMonitor<DoubleTokenAuthenticationSchemeOptions> options,
+    ILoggerFactory logger,
+    UrlEncoder encoder,
+    TokenService tokenService)
+    : AuthenticationHandler<DoubleTokenAuthenticationSchemeOptions>(options, logger, encoder)
 {
-    private readonly TokenService _tokenService;
-
-    public DoubleTokenAuthenticationHandler(
-        IOptionsMonitor<DoubleTokenAuthenticationSchemeOptions> options,
-        ILoggerFactory logger,
-        UrlEncoder encoder,
-        TokenService tokenService)
-    : base(options, logger, encoder)
-    {
-        _tokenService = tokenService;
-    }
+    private readonly TokenService _tokenService = tokenService;
 
     protected override Task<AuthenticateResult> HandleAuthenticateAsync()
     {

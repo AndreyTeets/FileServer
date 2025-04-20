@@ -13,21 +13,15 @@ using FileInfo = FileServer.Models.FileInfo;
 namespace FileServer.Controllers;
 
 [Route("api/files")]
-public class FilesController : ControllerBase
+public class FilesController(
+    IHttpContextAccessor httpContextAccessor,
+    IOptionsMonitor<Settings> options,
+    FileService fileService)
+    : ControllerBase
 {
-    private readonly IHttpContextAccessor _httpContextAccessor;
-    private readonly IOptionsMonitor<Settings> _options;
-    private readonly FileService _fileService;
-
-    public FilesController(
-        IHttpContextAccessor httpContextAccessor,
-        IOptionsMonitor<Settings> options,
-        FileService fileService)
-    {
-        _httpContextAccessor = httpContextAccessor;
-        _options = options;
-        _fileService = fileService;
-    }
+    private readonly IHttpContextAccessor _httpContextAccessor = httpContextAccessor;
+    private readonly IOptionsMonitor<Settings> _options = options;
+    private readonly FileService _fileService = fileService;
 
     [HttpGet("list")]
     [Produces("application/json")]
