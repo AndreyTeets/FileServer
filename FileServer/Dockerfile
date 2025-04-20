@@ -1,6 +1,6 @@
 FROM mcr.microsoft.com/dotnet/aspnet:8.0.14-alpine3.21 AS app-base
 
-FROM --platform=$BUILDPLATFORM mcr.microsoft.com/dotnet/sdk:8.0.407-alpine3.21 AS build
+FROM --platform=$BUILDPLATFORM mcr.microsoft.com/dotnet/sdk:9.0.203-alpine3.21 AS build
 ARG TARGETARCH APP_VERSION
 WORKDIR /src
 COPY ["Directory.Build.props", "global.json", ".editorconfig", "./"]
@@ -21,6 +21,7 @@ ARG TARGETARCH APP_VERSION
 COPY ["FileServer.Tests/", "FileServer.Tests/"]
 RUN dotnet build "FileServer.Tests/FileServer.Tests.csproj" -a $TARGETARCH -c Release --no-restore
 RUN dotnet format "FileServer.Tests/FileServer.Tests.csproj" --verify-no-changes --no-restore
+COPY --from=app-base /usr/share/dotnet/shared /usr/share/dotnet/shared
 RUN dotnet test "FileServer.Tests/FileServer.Tests.csproj" -a $TARGETARCH -c Release --no-build
 
 FROM app-base AS app
