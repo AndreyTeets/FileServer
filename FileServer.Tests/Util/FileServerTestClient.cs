@@ -59,7 +59,7 @@ public class FileServerTestClient : IDisposable
         _loginResponse = await response.Content.ReadFromJsonAsync<LoginResponse>();
         Assert.That(response.StatusCode, Is.EqualTo(HttpStatusCode.OK));
         Assert.That(_loginResponse, Is.Not.Null);
-        return _loginResponse;
+        return _loginResponse!;
     }
 
     public async Task Logout()
