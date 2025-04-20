@@ -69,10 +69,10 @@ public class SetupTestServerFixture
     {
         Dictionary<string, string?> appSettings = new()
         {
-            { $"Logging:LogLevel:Default", "Trace" },
-            { $"Logging:LogLevel:Microsoft.AspNetCore", "Error" },
-            { $"Logging:LogLevel:FileServer.Auth.DoubleTokenAuthenticationHandler", "Error" },
-            { $"Logging:LogLevel:Microsoft.AspNetCore.Hosting.Diagnostics", "Information" },
+            { "Logging:LogLevel:Default", "Trace" },
+            { "Logging:LogLevel:Microsoft.AspNetCore", "Error" },
+            { "Logging:LogLevel:FileServer.Auth.DoubleTokenAuthenticationHandler", "Error" },
+            { "Logging:LogLevel:Microsoft.AspNetCore.Hosting.Diagnostics", "Information" },
             { $"{nameof(Settings)}:{nameof(Settings.DownloadAnonDir)}", Path.GetFullPath("fs_data/download_anon") },
             { $"{nameof(Settings)}:{nameof(Settings.DownloadDir)}", Path.GetFullPath("fs_data/download") },
             { $"{nameof(Settings)}:{nameof(Settings.UploadDir)}", Path.GetFullPath("fs_data/upload") },

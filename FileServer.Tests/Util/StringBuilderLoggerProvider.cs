@@ -44,8 +44,7 @@ public class StringBuilderLoggerProvider : ILoggerProvider
             if (!IsEnabled(logLevel))
                 return;
 
-            if (formatter is null)
-                throw new ArgumentNullException(nameof(formatter));
+            ArgumentNullException.ThrowIfNull(formatter);
 
             string message = formatter(state, exception);
             if (string.IsNullOrEmpty(message))
@@ -58,7 +57,7 @@ public class StringBuilderLoggerProvider : ILoggerProvider
             s_sbSemaphoreSlim.Wait();
             try
             {
-                _sb.Append(message).AppendLine();
+                _sb.AppendLine(message);
             }
             finally
             {
@@ -81,7 +80,7 @@ public class StringBuilderLoggerProvider : ILoggerProvider
 
             static string Indent(string input)
             {
-                return Regex.Replace(input, @"^", "      ", RegexOptions.Multiline);
+                return Regex.Replace(input, "^", "      ", RegexOptions.Multiline);
             }
         }
 
@@ -95,7 +94,7 @@ public class StringBuilderLoggerProvider : ILoggerProvider
             return new NoopDisposable();
         }
 
-        private class NoopDisposable : IDisposable
+        private sealed class NoopDisposable : IDisposable
         {
             public void Dispose()
             {

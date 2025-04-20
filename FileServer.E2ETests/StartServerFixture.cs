@@ -37,7 +37,7 @@ public class StartServerFixture
         _process.Dispose();
     }
 
-    private Process StartServerProcess(out StringBuilder serverOutput)
+    private static Process StartServerProcess(out StringBuilder serverOutput)
     {
         Process process = new();
         process.StartInfo.FileName = "dotnet";
@@ -61,7 +61,7 @@ public class StartServerFixture
         return process;
     }
 
-    private void WaitUntilServerStarted(Func<string> getServerOutputFunc)
+    private static void WaitUntilServerStarted(Func<string> getServerOutputFunc)
     {
         Stopwatch sw = new();
         sw.Start();
@@ -72,22 +72,22 @@ public class StartServerFixture
                 string serverOutput = getServerOutputFunc();
                 throw new TimeoutException(
                     $"Server failed to start in {StartTimeoutSec} seconds.\n" +
-                    $"ServerOutput:\n" +
+                    "ServerOutput:\n" +
                     $"{serverOutput}");
             }
             Thread.Sleep(PortCheckWaitNextTryMilliseconds);
         }
     }
 
-    private bool ServerStarted() =>
+    private static bool ServerStarted() =>
         IsPortOpen("127.0.0.1", Port, TimeSpan.FromMilliseconds(PortCheckTimoutMilliseconds));
 
-    private bool IsPortOpen(string host, int port, TimeSpan timeout)
+    private static bool IsPortOpen(string host, int port, TimeSpan timeout)
     {
         try
         {
             using TcpClient client = new();
-            IAsyncResult result = client.BeginConnect(host, port, null, null);
+            IAsyncResult result = client.BeginConnect(host, port, requestCallback: null, state: null);
             bool success = result.AsyncWaitHandle.WaitOne(timeout);
             client.EndConnect(result);
             return success;
@@ -116,7 +116,7 @@ public class StartServerFixture
     private static void CreateFilesAndFoldersRequiredByServerAndTests()
     {
         if (Directory.Exists($"{ServerProjDir}/bin/e2etests"))
-            Directory.Delete($"{ServerProjDir}/bin/e2etests", true);
+            Directory.Delete($"{ServerProjDir}/bin/e2etests", recursive: true);
         Directory.CreateDirectory($"{ServerProjDir}/bin/e2etests/settings");
         File.Copy($"{ServerProjDir}/appsettings.template.json", $"{ServerProjDir}/bin/e2etests/settings/appsettings.json");
         GenerateCertInDir(Path.GetFullPath($"{ServerProjDir}/bin/e2etests/settings"));

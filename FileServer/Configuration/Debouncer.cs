@@ -44,7 +44,7 @@ public class Debouncer : IDebouncer
             ++_tasksCount[category];
         }
 
-        Task.Delay(_waitTime, _cts.Token).ContinueWith(task =>
+        _ = Task.Delay(_waitTime, _cts.Token).ContinueWith(task =>
         {
             try
             {
@@ -73,7 +73,9 @@ public class Debouncer : IDebouncer
     }
 }
 
+#pragma warning disable MA0048 // File name must match type name
 public interface IDebouncer : IDisposable
 {
     public void Debounce(string category, Action action);
 }
+#pragma warning restore MA0048 // File name must match type name

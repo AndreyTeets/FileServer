@@ -56,8 +56,7 @@ public class DoubleTokenAuthenticationHandler : AuthenticationHandler<DoubleToke
             Token? token = _tokenService.TryDecodeToken(encodedTokenString);
             if (token is not null && _tokenService.TokenIsValid(token) && token.Claim!.Type == tokenType)
                 return token;
-            else
-                error = $"{tokenType} token not valid.";
+            error = $"{tokenType} token not valid.";
         }
         else
         {
@@ -81,27 +80,24 @@ public class DoubleTokenAuthenticationHandler : AuthenticationHandler<DoubleToke
     {
         if (tokenType == Constants.AuthClaimType)
             return TryGetEncodedAuthTokenString();
-        else if (tokenType == Constants.AntiforgeryClaimType)
+        if (tokenType == Constants.AntiforgeryClaimType)
             return TryGetEncodedAntiforgeryTokenString();
-        else
-            throw new Exception($"Invalid token type '{tokenType}'.");
+        throw new Exception($"Invalid token type '{tokenType}'.");
     }
 
     private string? TryGetEncodedAuthTokenString()
     {
         if (Request.Cookies.ContainsKey(Constants.AuthTokenCookieName))
             return Request.Cookies[Constants.AuthTokenCookieName]!;
-        else
-            return null;
+        return null;
     }
 
     private string? TryGetEncodedAntiforgeryTokenString()
     {
         if (Request.Headers.ContainsKey(Constants.AntiforgeryTokenHeaderName))
             return Request.Headers[Constants.AntiforgeryTokenHeaderName]!;
-        else if (Request.Query.ContainsKey(Constants.AntiforgeryTokenQueryParamName))
+        if (Request.Query.ContainsKey(Constants.AntiforgeryTokenQueryParamName))
             return Request.Query[Constants.AntiforgeryTokenQueryParamName]!;
-        else
-            return null;
+        return null;
     }
 }

@@ -2,6 +2,6 @@
 
 namespace FileServer.Auth;
 
-public class DoubleTokenAuthenticationSchemeOptions : AuthenticationSchemeOptions
-{
-}
+#pragma warning disable S2094 // Classes should not be empty
+public class DoubleTokenAuthenticationSchemeOptions : AuthenticationSchemeOptions;
+#pragma warning restore S2094 // Classes should not be empty

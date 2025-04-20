@@ -109,7 +109,7 @@ public static class Extensions
         {
             OnPrepareResponse = sfrContext =>
             {
-                sfrContext.Context.Response.Headers["Cache-Control"] = "no-cache, no-store";
+                sfrContext.Context.Response.Headers.CacheControl = "no-cache, no-store";
             },
         });
     }
@@ -129,7 +129,7 @@ public static class Extensions
         app.Use(async (context, next) =>
         {
             if (context.Request.Method == HttpMethod.Get.Method)
-                context.Response.Headers["Cache-Control"] = "no-cache, no-store, private";
+                context.Response.Headers.CacheControl = "no-cache, no-store, private";
             await next();
         });
     }

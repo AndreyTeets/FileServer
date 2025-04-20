@@ -30,12 +30,12 @@ public static class Utility
     public static string GetCertificateDisplayString(X509Certificate2 cert)
     {
         StringBuilder sb = new();
-        sb.Append($"-Subject: {cert.Subject}").AppendLine();
-        sb.Append($"-Issuer: {cert.Issuer}").AppendLine();
-        sb.Append($"-ValidFrom: {FormatDate(cert.NotBefore)}").AppendLine();
-        sb.Append($"-ValidTo: {FormatDate(cert.NotAfter)}").AppendLine();
-        sb.Append($"-SHA256: {GetSha256(cert)}").AppendLine();
-        sb.Append($"-SHA1: {GetSha1(cert)}").AppendLine();
+        sb.Append($"-Subject: {cert.Subject}").AppendLine()
+            .Append($"-Issuer: {cert.Issuer}").AppendLine()
+            .Append($"-ValidFrom: {FormatDate(cert.NotBefore)}").AppendLine()
+            .Append($"-ValidTo: {FormatDate(cert.NotAfter)}").AppendLine()
+            .Append($"-SHA256: {GetSha256(cert)}").AppendLine()
+            .Append($"-SHA1: {GetSha1(cert)}").AppendLine();
         return sb.ToString().Trim();
 
         static string GetSha256(X509Certificate2 cert)
@@ -61,16 +61,16 @@ public static class Utility
     public static string GetSettingsDisplayString(Settings settings)
     {
         StringBuilder sb = new();
-        sb.Append($"-{nameof(Settings.ListenAddress)}: {settings.ListenAddress}").AppendLine();
-        sb.Append($"-{nameof(Settings.ListenPort)}: {settings.ListenPort}").AppendLine();
-        sb.Append($"-{nameof(Settings.CertFilePath)}: {settings.CertFilePath}").AppendLine();
-        sb.Append($"-{nameof(Settings.CertKeyPath)}: {settings.CertKeyPath}").AppendLine();
-        sb.Append($"-{nameof(Settings.DownloadAnonDir)}: {settings.DownloadAnonDir}").AppendLine();
-        sb.Append($"-{nameof(Settings.DownloadDir)}: {settings.DownloadDir}").AppendLine();
-        sb.Append($"-{nameof(Settings.UploadDir)}: {settings.UploadDir}").AppendLine();
-        sb.Append($"-{nameof(Settings.SigningKey)}: {DisplayKey(settings.SigningKey)}").AppendLine();
-        sb.Append($"-{nameof(Settings.LoginKey)}: {DisplayKey(settings.LoginKey)}").AppendLine();
-        sb.Append($"-{nameof(Settings.TokensTtlSeconds)}: {settings.TokensTtlSeconds}").AppendLine();
+        sb.Append($"-{nameof(Settings.ListenAddress)}: {settings.ListenAddress}").AppendLine()
+            .Append($"-{nameof(Settings.ListenPort)}: {settings.ListenPort}").AppendLine()
+            .Append($"-{nameof(Settings.CertFilePath)}: {settings.CertFilePath}").AppendLine()
+            .Append($"-{nameof(Settings.CertKeyPath)}: {settings.CertKeyPath}").AppendLine()
+            .Append($"-{nameof(Settings.DownloadAnonDir)}: {settings.DownloadAnonDir}").AppendLine()
+            .Append($"-{nameof(Settings.DownloadDir)}: {settings.DownloadDir}").AppendLine()
+            .Append($"-{nameof(Settings.UploadDir)}: {settings.UploadDir}").AppendLine()
+            .Append($"-{nameof(Settings.SigningKey)}: {DisplayKey(settings.SigningKey)}").AppendLine()
+            .Append($"-{nameof(Settings.LoginKey)}: {DisplayKey(settings.LoginKey)}").AppendLine()
+            .Append($"-{nameof(Settings.TokensTtlSeconds)}: {settings.TokensTtlSeconds}").AppendLine();
         return sb.ToString().Trim();
 
         static string DisplayKey(string? key)
@@ -88,12 +88,14 @@ public static class Utility
             ?.InformationalVersion
             ?.Split("+")[0];
 
+#pragma warning disable MA0136 // Raw String contains an implicit end of line character
         string msg = $"""
             Version: {version}
             Usage:
                 <no arguments>                Start the server.
                 <any other argument(s)>       Show version and usage and exit.
             """;
+#pragma warning restore MA0136 // Raw String contains an implicit end of line character
 
         msg = msg.Replace("\r", "").Replace("\n", Environment.NewLine);
         Console.WriteLine(msg);

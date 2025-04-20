@@ -96,8 +96,7 @@ public class FilesController : ControllerBase
             (string targetFileName, bool saved) = await _fileService.SaveFileIfNotExists(fileName, fileContent);
             if (saved)
                 return new UploadFileResponse() { CreatedFileName = targetFileName };
-            else
-                return BadRequest($"File with name '{targetFileName}' already exists.");
+            return BadRequest($"File with name '{targetFileName}' already exists.");
         }
 
         return BadRequest("No files in request.");
