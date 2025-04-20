@@ -781,6 +781,31 @@ dotnet_diagnostic.NUnit2045.severity = silent
 
 #### Overrides to remove when code is fixed appropriately ####
 
+csharp_style_prefer_primary_constructors = false
+csharp_style_prefer_top_level_statements = true
+# Add missing cases to switch expression
+dotnet_diagnostic.IDE0072.severity = suggestion
+# Types that own disposable fields should be disposable
+dotnet_diagnostic.CA1001.severity = suggestion
+# Dispose objects before losing scope
+dotnet_diagnostic.CA2000.severity = suggestion
+# Do not raise reserved exception types
+dotnet_diagnostic.CA2201.severity = suggestion
+# Possible null reference return
+dotnet_diagnostic.CS8603.severity = suggestion
+# Non-nullable variable must contain a non-null value when exiting constructor. Consider declaring it as nullable
+dotnet_diagnostic.CS8618.severity = suggestion
+# Implement the functionality instead of throwing NotImplementedException
+dotnet_diagnostic.MA0025.severity = suggestion
+# Embed the caught exception as innerException
+dotnet_diagnostic.MA0054.severity = suggestion
+# Use System.OperatingSystem to check the current OS
+dotnet_diagnostic.MA0144.severity = suggestion
+# Nested code blocks should not be used
+dotnet_diagnostic.S1199.severity = suggestion
+# ModelState.IsValid should be called in controller actions
+dotnet_diagnostic.S6967.severity = suggestion
+
 #### Special files overrieds ####
 
 ## Generated or non-compiled files should be ignored
