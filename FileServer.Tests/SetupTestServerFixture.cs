@@ -65,7 +65,7 @@ public class SetupTestServerFixture
         Host?.Dispose();
     }
 
-    private Dictionary<string, string?> CreateAppSettings() => new()
+    private static Dictionary<string, string?> CreateAppSettings() => new()
     {
         { "Logging:LogLevel:Default", "Trace" },
         { "Logging:LogLevel:Microsoft.AspNetCore", "Error" },
