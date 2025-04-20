@@ -4,7 +4,7 @@ using Microsoft.Extensions.Logging;
 
 namespace FileServer.Tests.Util;
 
-public class StringBuilderLoggerProvider(
+internal sealed class StringBuilderLoggerProvider(
     StringBuilder sb)
     : ILoggerProvider
 {
@@ -16,7 +16,7 @@ public class StringBuilderLoggerProvider(
 
     public void Dispose() { }
 
-    public class StringBuilderLogger(
+    internal sealed class StringBuilderLogger(
         string name,
         StringBuilder sb)
         : ILogger

@@ -5,7 +5,7 @@ using S = FileServer.E2ETests.Snapshots.SnapshotValues;
 namespace FileServer.E2ETests;
 
 [TestFixture]
-public class ClientSideTests : PageTest
+internal sealed class ClientSideTests : PageTest
 {
     public override BrowserNewContextOptions ContextOptions() => new()
     {

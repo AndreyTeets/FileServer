@@ -13,7 +13,7 @@ using Microsoft.Extensions.Options;
 namespace FileServer.Tests;
 
 [SetUpFixture]
-public class SetupTestServerFixture
+internal sealed class SetupTestServerFixture
 {
     public static IHost? Host { get; private set; }
     public static StringBuilder LogsSb { get; } = new();
@@ -79,7 +79,7 @@ public class SetupTestServerFixture
         { $"{nameof(Settings)}:{nameof(Settings.TokensTtlSeconds)}", "30" },
     };
 
-    public class NoopDebouncer : IDebouncer
+    internal sealed class NoopDebouncer : IDebouncer
     {
         public void Debounce(string category, Action action) => action();
         public void Dispose() { }

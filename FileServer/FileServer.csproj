@@ -14,6 +14,7 @@
   </ItemGroup>
 
   <ItemGroup>
+    <InternalsVisibleTo Include="FileServer.Tests" />
     <Content Remove="appsettings.template.json" />
     <None Include="appsettings.template.json" CopyToOutputDirectory="Never" />
   </ItemGroup>

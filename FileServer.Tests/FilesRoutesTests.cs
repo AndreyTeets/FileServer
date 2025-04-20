@@ -6,7 +6,7 @@ using Microsoft.AspNetCore.Http;
 
 namespace FileServer.Tests;
 
-public class FilesRoutesTests : TestsBase
+internal sealed class FilesRoutesTests : TestsBase
 {
     [Test]
     public async Task GetFileEndpoints_CorrectlyHandle_RelativeDirs_And_NotFoundFiles()

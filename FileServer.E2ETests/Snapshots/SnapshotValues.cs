@@ -1,6 +1,6 @@
 ﻿namespace FileServer.E2ETests.Snapshots;
 
-public static class SnapshotValues
+internal static class SnapshotValues
 {
 #pragma warning disable MA0136 // Raw String contains an implicit end of line character
     public const string After_OpenInitialPage = """

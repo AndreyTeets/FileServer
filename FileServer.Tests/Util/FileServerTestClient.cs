@@ -5,7 +5,7 @@ using Microsoft.AspNetCore.Http;
 
 namespace FileServer.Tests.Util;
 
-public class FileServerTestClient : IDisposable
+internal sealed class FileServerTestClient : IDisposable
 {
 #pragma warning disable CA2213 // Disposable fields should be disposed
     private readonly CookieProcessingHttpMessageHandler _cpHandler;

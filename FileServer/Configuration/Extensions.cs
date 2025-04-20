@@ -9,7 +9,7 @@ using Microsoft.Extensions.Options;
 
 namespace FileServer.Configuration;
 
-public static class Extensions
+internal static class Extensions
 {
     public static void ConfigureSettings(this WebApplicationBuilder builder)
     {

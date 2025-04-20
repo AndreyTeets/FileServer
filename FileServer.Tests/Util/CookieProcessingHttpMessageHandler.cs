@@ -3,7 +3,7 @@ using Microsoft.Net.Http.Headers;
 
 namespace FileServer.Tests.Util;
 
-public class CookieProcessingHttpMessageHandler(
+internal sealed class CookieProcessingHttpMessageHandler(
     HttpMessageHandler innerHandler)
     : DelegatingHandler(innerHandler)
 {

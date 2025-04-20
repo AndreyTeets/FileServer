@@ -1,6 +1,6 @@
 ﻿namespace FileServer;
 
-public static class LogMessages
+internal static class LogMessages
 {
     public static readonly string UsingCertificate =
         "Using Certificate:" + Environment.NewLine +

@@ -2,7 +2,7 @@
 
 namespace FileServer.Configuration;
 
-public class SettingsValidator(
+internal sealed class SettingsValidator(
     IServiceProvider serviceProvider,
     IDebouncer debouncer)
     : IValidateOptions<Settings>

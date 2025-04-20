@@ -5,7 +5,7 @@ using System.Text;
 namespace FileServer.E2ETests;
 
 [SetUpFixture]
-public class StartServerFixture
+internal sealed class StartServerFixture
 {
 #if DEBUG
     private const string Configuration = "Debug";

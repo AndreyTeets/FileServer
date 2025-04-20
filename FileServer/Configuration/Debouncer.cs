@@ -2,7 +2,7 @@
 
 namespace FileServer.Configuration;
 
-public class Debouncer(
+internal sealed class Debouncer(
     TimeSpan? waitTime = null)
     : IDebouncer
 {
@@ -71,7 +71,7 @@ public class Debouncer(
 }
 
 #pragma warning disable MA0048 // File name must match type name
-public interface IDebouncer : IDisposable
+internal interface IDebouncer : IDisposable
 {
     public void Debounce(string category, Action action);
 }
