@@ -33,7 +33,14 @@ class AppLogic {
                 fileFormData.append("file", file);
 
                 pageData.state.status = { text: "Uploading..." };
-                const [response, errorText] = await Api.uploadFile(fileFormData);
+                let timeOfLastProgressUpdate = Date.now();
+                const [response, errorText] = await Api.uploadFile(fileFormData, (progress) => {
+                    if (Date.now() - timeOfLastProgressUpdate >= 500) {
+                        pageData.state.status = { text: `Uploading... ${progress.toFixed(2)}%` };
+                        timeOfLastProgressUpdate = Date.now();
+                    }
+                });
+
                 if (errorText)
                     pageData.state.status = { error: errorText };
                 else
