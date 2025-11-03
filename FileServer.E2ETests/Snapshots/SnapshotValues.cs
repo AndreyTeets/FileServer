@@ -51,7 +51,7 @@ internal static class SnapshotValues
         - textbox: C:\fakepath\test_upload_file.txt
         - button "Upload"
         - button "Cancel" [disabled]
-        - paragraph: "Failed to fetch: Response status: 400. Response body: \"File with name 'upl.test_upload_file.txt.oad' already exists.\""
+        - paragraph: "Failed to fetch: Response status: 409. Response body: \"File with name 'upl.test_upload_file.txt.oad' already exists.\""
         """;
 
     public const string After_OpenDownloadPageNoAuth = """

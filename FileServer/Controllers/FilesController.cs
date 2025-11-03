@@ -78,15 +78,13 @@ public class FilesController(
             return BadRequest("Not a form-data request.");
 
         (string? fileName, Stream fileContent) = await TryGetFirstFormDataFile(formDataBoundary!);
-        if (fileName is not null)
-        {
-            (string targetFileName, bool saved) = await _fileService.SaveFileIfNotExists(fileName, fileContent, Ct);
-            return saved
-                ? new UploadFileResponse() { CreatedFileName = targetFileName }
-                : BadRequest($"File with name '{targetFileName}' already exists.");
-        }
+        if (fileName is null)
+            return BadRequest("No files in request.");
 
-        return BadRequest("No files in request.");
+        (string targetFileName, bool saved) = await _fileService.SaveFileIfNotExists(fileName, fileContent, Ct);
+        return saved
+            ? new UploadFileResponse() { CreatedFileName = targetFileName }
+            : Conflict($"File with name '{targetFileName}' already exists.");
     }
 
     private ActionResult CreateGetFileResult(string rootDir, string mimeType, string filePath)
@@ -95,7 +93,7 @@ public class FilesController(
         IFileInfo file = fileProvider.GetFileInfo(filePath);
         return file.Exists
             ? PhysicalFile(file.PhysicalPath!, mimeType)
-            : BadRequest("File not found.");
+            : NotFound("File not found.");
     }
 
     private string? TryGetFormDataBoundary()
