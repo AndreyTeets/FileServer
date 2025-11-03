@@ -32,9 +32,9 @@ class UploadPageComponent {
         const div = document.createElement("div");
         div.appendChild(new HeaderComponent("UploadPage:").create());
 
-        if (!this.#fileUploadComponent || this.data.state.status.reset)
-            this.#fileUploadComponent = new FileUploadComponent(this.data.uploadFunc).create();
-        div.appendChild(this.#fileUploadComponent);
+        if (!this.#fileUploadComponent)
+            this.#fileUploadComponent = new FileUploadComponent(this.data.uploadFunc);
+        div.appendChild(this.#fileUploadComponent.create());
 
         if (this.data.state.status.text)
             div.appendChild(new TextComponent(this.data.state.status.text).create());

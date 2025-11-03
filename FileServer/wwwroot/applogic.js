@@ -28,7 +28,7 @@ class AppLogic {
     static setUploadPage() {
         if (!AppLogic.#uploadPage) {
             const pageData = AppLogic.#createProxifiedPageData(UploadPageComponent);
-            pageData.uploadFunc = async (file) => {
+            pageData.uploadFunc = async (file, onUploadCompleted) => {
                 const fileFormData = new FormData();
                 fileFormData.append("file", file);
 
@@ -41,15 +41,16 @@ class AppLogic {
                     }
                 });
 
+                onUploadCompleted(!errorText);
                 if (errorText)
                     pageData.state.status = { error: errorText };
                 else
-                    pageData.state.status = { text: `Uploaded: ${response.createdFileName}`, reset: true };
+                    pageData.state.status = { text: `Uploaded: ${response.createdFileName}` };
             };
+            pageData.state = { status: {} };
             AppLogic.#uploadPage = new UploadPageComponent(pageData);
         }
 
-        AppLogic.#uploadPage.data.state = { status: {} };
         App.page = AppLogic.#uploadPage;
     }
 
