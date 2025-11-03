@@ -65,11 +65,11 @@ class FileUploadComponent {
         div.appendChild(this.#fileInput);
 
         if (!this.#uploadButton)
-            this.#uploadButton = this.#createUploadButton();
+            this.#uploadButton = this.#createButton("Upload", () => this.#onUploadButtonClick());
         div.appendChild(this.#uploadButton);
 
         if (!this.#cancelButton)
-            this.#cancelButton = this.#createCancelButton();
+            this.#cancelButton = this.#createButton("Cancel", null);
         div.appendChild(this.#cancelButton);
 
         return div;
@@ -82,34 +82,35 @@ class FileUploadComponent {
         return fileInput;
     }
 
-    #createUploadButton() {
-        const uploadButton = document.createElement("input");
-        uploadButton.type = "submit";
-        uploadButton.value = "Upload";
-        uploadButton.disabled = true;
-        uploadButton.onclick = () => {
-            this.#isUploadInProgress = true;
-            uploadButton.disabled = true;
-            this.uploadFunc(this.#fileInput.files[0], (abortRequestFunc) => {
-                this.#cancelButton.onclick = abortRequestFunc;
-                this.#cancelButton.disabled = false;
-            }, (success) => {
-                this.#cancelButton.disabled = true;
-                if (success)
-                    this.#fileInput = this.#createFileInput();
-                this.#isUploadInProgress = false;
-                uploadButton.disabled = !this.#fileInput.files[0];
-            });
-        };
-        return uploadButton;
-    }
-
-    #createCancelButton() {
+    #createButton(name, onclickFunc) {
         const button = document.createElement("input");
         button.type = "submit";
-        button.value = "Cancel";
+        button.value = name;
         button.disabled = true;
+        button.onclick = onclickFunc;
         return button;
+    }
+
+    async #onUploadButtonClick() {
+        this.#uploadButton.disabled = true;
+        this.#isUploadInProgress = true;
+        await this.uploadFunc(this.#fileInput.files[0],
+            (abortRequestFunc) => this.#onUploadStarted(abortRequestFunc),
+            (success) => this.#onUploadCompleted(success));
+        this.#isUploadInProgress = false;
+        this.#uploadButton.disabled = !this.#fileInput.files[0];
+    }
+
+    #onUploadStarted(abortRequestFunc) {
+        this.#cancelButton.onclick = abortRequestFunc;
+        this.#cancelButton.disabled = false;
+    }
+
+    #onUploadCompleted(success) {
+        this.#cancelButton.disabled = true;
+        this.#cancelButton.onclick = null;
+        if (success)
+            this.#fileInput = this.#createFileInput();
     }
 }
 
