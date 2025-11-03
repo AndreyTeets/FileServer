@@ -49,6 +49,7 @@ class FilesListComponent {
 class FileUploadComponent {
     #fileInput;
     #uploadButton;
+    #cancelButton;
     #isUploadInProgress;
     uploadFunc;
 
@@ -66,6 +67,10 @@ class FileUploadComponent {
         if (!this.#uploadButton)
             this.#uploadButton = this.#createUploadButton();
         div.appendChild(this.#uploadButton);
+
+        if (!this.#cancelButton)
+            this.#cancelButton = this.#createCancelButton();
+        div.appendChild(this.#cancelButton);
 
         return div;
     }
@@ -85,7 +90,11 @@ class FileUploadComponent {
         uploadButton.onclick = () => {
             this.#isUploadInProgress = true;
             uploadButton.disabled = true;
-            this.uploadFunc(this.#fileInput.files[0], (success) => {
+            this.uploadFunc(this.#fileInput.files[0], (abortRequestFunc) => {
+                this.#cancelButton.onclick = abortRequestFunc;
+                this.#cancelButton.disabled = false;
+            }, (success) => {
+                this.#cancelButton.disabled = true;
                 if (success)
                     this.#fileInput = this.#createFileInput();
                 this.#isUploadInProgress = false;
@@ -93,6 +102,14 @@ class FileUploadComponent {
             });
         };
         return uploadButton;
+    }
+
+    #createCancelButton() {
+        const button = document.createElement("input");
+        button.type = "submit";
+        button.value = "Cancel";
+        button.disabled = true;
+        return button;
     }
 }
 

@@ -28,20 +28,23 @@ class AppLogic {
     static setUploadPage() {
         if (!AppLogic.#uploadPage) {
             const pageData = AppLogic.#createProxifiedPageData(UploadPageComponent);
-            pageData.uploadFunc = async (file, onUploadCompleted) => {
+            pageData.uploadFunc = async (file, onUploadStarted, onUploadCompleted) => {
                 const fileFormData = new FormData();
                 fileFormData.append("file", file);
 
                 pageData.state.status = { text: "Uploading..." };
                 let timeOfLastProgressUpdate = Date.now();
-                const [response, errorText] = await Api.uploadFile(fileFormData, (progress) => {
+                const [responsePromise, abortRequestFunc] = Api.uploadFile(fileFormData, (progress) => {
                     if (Date.now() - timeOfLastProgressUpdate >= 500) {
                         pageData.state.status = { text: `Uploading... ${progress.toFixed(2)}%` };
                         timeOfLastProgressUpdate = Date.now();
                     }
                 });
 
+                onUploadStarted(abortRequestFunc);
+                const [response, errorText] = await responsePromise;
                 onUploadCompleted(!errorText);
+
                 if (errorText)
                     pageData.state.status = { error: errorText };
                 else
