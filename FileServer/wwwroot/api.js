@@ -13,29 +13,29 @@ class Api {
             throw new Error(`No auth data or bad anon='${fileAnon}' while creating file link.`);
     }
 
-    static async getFilesList() {
+    static getFilesList() {
         const url = "api/files/list";
         const params = Api.#createParams("GET");
-        return await Api.#send(url, params);
+        return Api.#send(url, params)[0];
     }
 
-    static async uploadFile(fileFormData, onProgressFunc) {
+    static uploadFile(fileFormData, onProgressFunc) {
         const url = "api/files/upload";
         const params = Api.#createParams("POST", fileFormData);
-        return await Api.#send(url, params, onProgressFunc);
+        return Api.#send(url, params, onProgressFunc);
     }
 
-    static async login(credentials) {
+    static login(credentials) {
         const url = "api/auth/login";
         const params = Api.#createParams("POST", JSON.stringify(credentials));
         params.headers["Content-Type"] = "application/json";
-        return await Api.#send(url, params);
+        return Api.#send(url, params)[0];
     }
 
-    static async logout() {
+    static logout() {
         const url = "api/auth/logout";
         const params = Api.#createParams("POST");
-        return await Api.#send(url, params);
+        return Api.#send(url, params)[0];
     }
 
     static #createParams(method, body) {
@@ -52,37 +52,43 @@ class Api {
         return params;
     }
 
-    static async #send(url, params, onProgressFunc) {
-        var errorText;
-        const responseData = await Api.#xhrFetch(url, params, onProgressFunc)
-            .then(async response => {
-                if (response.status === 401)
-                    Auth.clear();
+    static #send(url, params, onProgressFunc) {
+        const [fetchResponsePromise, abortRequestFunc] = Api.#xhrFetch(url, params, onProgressFunc);
+        const responsePromise = (async () => {
+            let errorText;
+            const responseData = await fetchResponsePromise
+                .then(async response => {
+                    if (response.status === 401)
+                        Auth.clear();
 
-                if (response.ok) {
-                    const contentType = response.headers.get("Content-Type");
-                    if (contentType && contentType.trim().startsWith("application/json"))
-                        return await response.json();
-                    else
-                        return await response.text();
-                } else {
-                    const text = await response.text();
-                    throw new Error(`Response status: ${response.status}. Response body: ${text}`);
-                }
-            })
-            .catch(error => {
-                errorText = `Failed to fetch: ${error.message}`;
-            });
-        return [responseData, errorText];
+                    if (response.ok) {
+                        const contentType = response.headers.get("Content-Type");
+                        if (contentType && contentType.trim().startsWith("application/json"))
+                            return await response.json();
+                        else
+                            return await response.text();
+                    } else {
+                        const text = await response.text();
+                        throw new Error(`Response status: ${response.status}. Response body: ${text}`);
+                    }
+                })
+                .catch(error => {
+                    errorText = `Failed to fetch: ${error.message}`;
+                });
+            return [responseData, errorText];
+        })();
+
+        return [responsePromise, abortRequestFunc];
     }
 
     static #xhrFetch(url, params, onProgressFunc) {
-        return new Promise((resolve, reject) => {
-            const xhr = new XMLHttpRequest();
-            const method = params.method || "GET";
-            const headers = params.headers || {};
-            const body = params.body || null;
+        const xhr = new XMLHttpRequest();
+        const method = params.method || "GET";
+        const headers = params.headers || {};
+        const body = params.body || null;
+        const abortRequestFunc = () => xhr.abort();
 
+        const responsePromise = new Promise((resolve, reject) => {
             xhr.open(method, url);
             for (const headerName in headers)
                 xhr.setRequestHeader(headerName, headers[headerName]);
@@ -119,5 +125,7 @@ class Api {
 
             xhr.send(body);
         });
+
+        return [responsePromise, abortRequestFunc];
     }
 }

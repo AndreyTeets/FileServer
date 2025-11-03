@@ -20,7 +20,7 @@ public class FileService(
     }
 
     public async Task<(string targetFileName, bool saved)> SaveFileIfNotExists(
-        string originalFileName, Stream fileContent)
+        string originalFileName, Stream fileContent, CancellationToken ct)
     {
         string trustedFileName = SanitizeFileName(originalFileName);
         string saveToPath = Path.Combine(_options.CurrentValue.UploadDir!, trustedFileName);
@@ -28,7 +28,7 @@ public class FileService(
         if (!File.Exists(saveToPath))
         {
             await using FileStream targetStream = File.Create(saveToPath);
-            await fileContent.CopyToAsync(targetStream);
+            await fileContent.CopyToAsync(targetStream, ct);
             return (trustedFileName, true);
         }
         return (trustedFileName, false);

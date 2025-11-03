@@ -22,6 +22,7 @@ public class FilesController(
     private readonly IHttpContextAccessor _httpContextAccessor = httpContextAccessor;
     private readonly IOptionsMonitor<Settings> _options = options;
     private readonly FileService _fileService = fileService;
+    private CancellationToken Ct => HttpContext.RequestAborted;
 
     [HttpGet("list")]
     [Produces("application/json")]
@@ -79,7 +80,7 @@ public class FilesController(
         (string? fileName, Stream fileContent) = await TryGetFirstFormDataFile(formDataBoundary!);
         if (fileName is not null)
         {
-            (string targetFileName, bool saved) = await _fileService.SaveFileIfNotExists(fileName, fileContent);
+            (string targetFileName, bool saved) = await _fileService.SaveFileIfNotExists(fileName, fileContent, Ct);
             return saved
                 ? new UploadFileResponse() { CreatedFileName = targetFileName }
                 : BadRequest($"File with name '{targetFileName}' already exists.");
@@ -109,7 +110,7 @@ public class FilesController(
     private async Task<(string? fileName, Stream fileContent)> TryGetFirstFormDataFile(string formDataBoundary)
     {
         MultipartReader reader = new(formDataBoundary, Request.Body);
-        MultipartSection? section = await reader.ReadNextSectionAsync();
+        MultipartSection? section = await reader.ReadNextSectionAsync(Ct);
         while (section != null)
         {
             bool hasContentDispositionHeader = ContentDispositionHeaderValue.TryParse(
@@ -123,7 +124,7 @@ public class FilesController(
                 return (contentDisposition.FileName.Value, section.Body);
             }
 
-            section = await reader.ReadNextSectionAsync();
+            section = await reader.ReadNextSectionAsync(Ct);
         }
         return (null, Stream.Null);
     }
