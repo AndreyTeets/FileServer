@@ -65,7 +65,7 @@ class App {
 
     static #isObject(value) {
         return value
-            && typeof value === 'object'
+            && typeof value === "object"
             && !Array.isArray(value);
     }
 }

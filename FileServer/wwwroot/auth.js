@@ -8,10 +8,9 @@ class Auth {
             const antiforgeryToken = localStorage.getItem(Auth.#antiforgeryTokenStorageKey);
             return {
                 loginInfo: loginInfo,
-                antiforgeryToken: antiforgeryToken
+                antiforgeryToken: antiforgeryToken,
             };
-        }
-        else {
+        } else {
             if (loginInfo)
                 Auth.clear();
             return undefined;
