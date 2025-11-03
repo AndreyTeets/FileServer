@@ -17,7 +17,7 @@ internal sealed class FilesRoutesTests : TestsBase
             c.Request.Path = "/api/files/downloadanon/../download/file1.txt";
         });
 
-        Assert.That(context.Response.StatusCode, Is.EqualTo(400));
+        Assert.That(context.Response.StatusCode, Is.EqualTo(404));
         Assert.That(GetContent(context), Is.EqualTo(@"""File not found."""));
     }
 

@@ -22,8 +22,10 @@ public class AuthController(
     [AllowAnonymous]
     public ActionResult<LoginResponse> Login([FromBody] LoginRequest request)
     {
-        if (!ModelState.IsValid || request.Password != _options.CurrentValue.LoginKey)
-            return BadRequest("Invalid password.");
+        if (!ModelState.IsValid)
+            return BadRequest("Invalid login request.");
+        if (request.Password != _options.CurrentValue.LoginKey)
+            return Unauthorized("Wrong password.");
 
         const string user = Constants.MainUserName;
         DateTime tokensExpire = GetUtcNowWithoutFractionalSeconds()
