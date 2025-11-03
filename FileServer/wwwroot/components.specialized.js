@@ -47,6 +47,9 @@ class FilesListComponent {
 }
 
 class FileUploadComponent {
+    #fileInput;
+    #uploadButton;
+    #isUploadInProgress;
     uploadFunc;
 
     constructor(uploadFunc) {
@@ -56,20 +59,40 @@ class FileUploadComponent {
     create() {
         const div = document.createElement("div");
 
-        const fileInput = document.createElement("input");
-        fileInput.type = "file";
-        div.appendChild(fileInput);
+        if (!this.#fileInput)
+            this.#fileInput = this.#createFileInput();
+        div.appendChild(this.#fileInput);
 
-        const buttonInput = document.createElement("input");
-        buttonInput.type = "submit";
-        buttonInput.value = "Upload";
-        buttonInput.onclick = () => this.uploadFunc(fileInput.files[0]);
-        buttonInput.disabled = true;
-        div.appendChild(buttonInput);
-
-        fileInput.addEventListener("change", () => { buttonInput.disabled = !fileInput.files[0]; });
+        if (!this.#uploadButton)
+            this.#uploadButton = this.#createUploadButton();
+        div.appendChild(this.#uploadButton);
 
         return div;
+    }
+
+    #createFileInput() {
+        const fileInput = document.createElement("input");
+        fileInput.type = "file";
+        fileInput.addEventListener("change", () => this.#uploadButton.disabled = !fileInput.files[0] || this.#isUploadInProgress);
+        return fileInput;
+    }
+
+    #createUploadButton() {
+        const uploadButton = document.createElement("input");
+        uploadButton.type = "submit";
+        uploadButton.value = "Upload";
+        uploadButton.disabled = true;
+        uploadButton.onclick = () => {
+            this.#isUploadInProgress = true;
+            uploadButton.disabled = true;
+            this.uploadFunc(this.#fileInput.files[0], (success) => {
+                if (success)
+                    this.#fileInput = this.#createFileInput();
+                this.#isUploadInProgress = false;
+                uploadButton.disabled = !this.#fileInput.files[0];
+            });
+        };
+        return uploadButton;
     }
 }
 
