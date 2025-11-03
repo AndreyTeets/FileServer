@@ -42,7 +42,7 @@ class Api {
         const params = {
             method: method,
             headers: {},
-            body: body
+            body: body,
         };
 
         const authData = Auth.get();
@@ -54,6 +54,7 @@ class Api {
 
     static #send(url, params, onProgressFunc) {
         const [fetchResponsePromise, abortRequestFunc] = Api.#xhrFetch(url, params, onProgressFunc);
+
         const responsePromise = (async () => {
             let errorText;
             const responseData = await fetchResponsePromise

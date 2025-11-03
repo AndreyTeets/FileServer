@@ -61,8 +61,8 @@ class AuthPageComponent {
             div.appendChild(new ButtonComponent("Logout", this.data.logoutFunc).create());
         } else {
             if (!this.#loginFormComponent)
-                this.#loginFormComponent = new LoginFormComponent(this.data.loginFunc).create();
-            div.appendChild(this.#loginFormComponent);
+                this.#loginFormComponent = new LoginFormComponent(this.data.loginFunc);
+            div.appendChild(this.#loginFormComponent.create());
         }
 
         if (this.data.state.status.text)

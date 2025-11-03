@@ -10,28 +10,21 @@ class FilesListComponent {
     create() {
         const div = document.createElement("div");
 
-        const table = document.createElement("table");
         const thead = document.createElement("thead");
-        const tbody = document.createElement("tbody");
-        table.append(thead);
-        table.append(tbody);
-
         thead.append(this.#createTableRow(["Anon", "Path", "Size"]));
+
+        const tbody = document.createElement("tbody");
         for (const file of this.filesList) {
-            const downloadButton = document.createElement("input");
-            downloadButton.type = "submit";
-            downloadButton.value = "Download";
-            downloadButton.onclick = () => this.fileActionFunc(file, 'download');
-
-            const viewButton = document.createElement("input");
-            viewButton.type = "submit";
-            viewButton.value = "View";
-            viewButton.onclick = () => this.fileActionFunc(file, 'view');
-
+            const downloadButton = this.#createButton("Download", () => this.fileActionFunc(file, "download"));
+            const viewButton = this.#createButton("View", () => this.fileActionFunc(file, "view"));
             tbody.appendChild(this.#createTableRow([file.anon, file.path, file.size, downloadButton, viewButton]));
         }
 
+        const table = document.createElement("table");
+        table.append(thead);
+        table.append(tbody);
         div.appendChild(table);
+
         return div;
     }
 
@@ -43,6 +36,14 @@ class FilesListComponent {
             tr.append(td);
         }
         return tr;
+    }
+
+    #createButton(name, onclickFunc) {
+        const button = document.createElement("input");
+        button.type = "submit";
+        button.value = name;
+        button.onclick = onclickFunc;
+        return button;
     }
 }
 
@@ -115,6 +116,8 @@ class FileUploadComponent {
 }
 
 class LoginFormComponent {
+    #passwordInput;
+    #loginButton;
     loginFunc;
 
     constructor(loginFunc) {
@@ -124,21 +127,32 @@ class LoginFormComponent {
     create() {
         const div = document.createElement("div");
 
+        div.append("Key:");
+        if (!this.#passwordInput)
+            this.#passwordInput = this.#createPasswordInput();
+        div.appendChild(this.#passwordInput);
+
+        if (!this.#loginButton)
+            this.#loginButton = this.#createLoginButton();
+        div.appendChild(this.#loginButton);
+
+        return div;
+    }
+
+    #createPasswordInput() {
         const passwordInput = document.createElement("input");
         passwordInput.type = "password";
         passwordInput.name = "key";
-        div.append("Key:");
-        div.appendChild(passwordInput);
+        passwordInput.addEventListener("input", () => this.#loginButton.disabled = !passwordInput.value);
+        return passwordInput;
+    }
 
-        const buttonInput = document.createElement("input");
-        buttonInput.type = "submit";
-        buttonInput.value = "Login";
-        buttonInput.onclick = () => this.loginFunc(passwordInput.value);
-        buttonInput.disabled = true;
-        div.appendChild(buttonInput);
-
-        passwordInput.addEventListener("input", () => { buttonInput.disabled = !passwordInput.value; });
-
-        return div;
+    #createLoginButton() {
+        const loginButton = document.createElement("input");
+        loginButton.type = "submit";
+        loginButton.value = "Login";
+        loginButton.disabled = true;
+        loginButton.onclick = () => this.loginFunc(this.#passwordInput.value);
+        return loginButton;
     }
 }

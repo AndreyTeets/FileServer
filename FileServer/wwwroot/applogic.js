@@ -67,8 +67,7 @@ class AppLogic {
                 const [response, errorText] = await Api.login(credentials);
                 if (errorText) {
                     pageData.state.status = { error: errorText };
-                }
-                else {
+                } else {
                     Auth.set(response.loginInfo, response.antiforgeryToken);
                     pageData.state = { loggedIn: true, status: {} };
                 }
@@ -78,8 +77,7 @@ class AppLogic {
                 const [_, errorText] = await Api.logout();
                 if (errorText) {
                     pageData.state = { loggedIn: !!Auth.get(), status: { error: errorText } };
-                }
-                else {
+                } else {
                     Auth.clear();
                     pageData.state = { loggedIn: false, status: {} };
                 }
@@ -92,11 +90,7 @@ class AppLogic {
     }
 
     static #createProxifiedPageData(pageClass) {
-        return App.proxifyObjectPropertiesForRenderOnChange(
-            { state: {} },
-            () => {
-                return App.page instanceof pageClass;
-            }
-        );
+        const isDataForCurrentPage = () => App.page instanceof pageClass;
+        return App.proxifyObjectPropertiesForRenderOnChange({ state: {} }, isDataForCurrentPage);
     }
 }
