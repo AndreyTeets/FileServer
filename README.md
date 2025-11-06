@@ -55,20 +55,20 @@ Settings that can be configured:
 + To run as a self-contained dotnet application on windows - nothing.
 
 ## Usage (container image)
-1. ###### Get the source code.
++ ###### 1. Get the source code.
     For example, to get the latest stable sources:
     ```
     git clone -b stable https://github.com/AndreyTeets/FileServer.git
     cd FileServer
     ```
 
-2. ###### Build the container image.
++ ###### 2. Build the container image.
     For example, using docker:
     ```
     docker build . -f ./FileServer/Dockerfile-simple -t my_file_server:latest
     ```
 
-3. ###### Create/prepare the `server certificate` in PEM format.
++ ###### 3. Create/prepare the `server certificate` in PEM format.
     For example, to create a self signed certificate:
     ```
     mkdir server_cert
@@ -76,7 +76,7 @@ Settings that can be configured:
     ```
     Note: An HTTPS connection still provides encryption even if the certificate is untrusted by the browser (e.g. if it's self-signed). But to ensure that the connection is not intercepted, the certificate must still be verified by other means, such as manually via browser's "view certificate" menu and comparing its fingerprints with those printed in the server logs during startup.
 
-4. ###### Create/prepare the `anonymous downloads folder`, `downloads folder`, `uploads folder`.
++ ###### 4. Create/prepare the `anonymous downloads folder`, `downloads folder`, `uploads folder`.
     For example:
     ```
     mkdir fs_data
@@ -86,7 +86,7 @@ Settings that can be configured:
     ```
     On linux setup permissions if necessary.
 
-5. ###### Create/prepare the settings file.
++ ###### 5. Create/prepare the settings file.
     Template settings file can be found here [FileServer/appsettings.template.json](FileServer/appsettings.template.json). At a bare minimum the `signing key` and `login key` have to be changed, as they are empty in the template and the server will refuse to start with invalid settings.
 
     The next step in this example assumes that the settings file is located in the current directory with the name `appsettings.json` and that the settings are set to:
@@ -98,7 +98,7 @@ Settings that can be configured:
     ```
     with the rest left as is in the template.
 
-6. ###### Start the server.
++ ###### 6. Start the server.
     For example, using docker:
     ```
     docker run --rm -it --pull=never --name my_file_server \
@@ -122,9 +122,9 @@ Settings that can be configured:
     + When running as the root user in rootless mode (which e.g. podman by default does), there may be no problem with uploaded files ownership (e.g. with podman, there isn't, as it by default maps the host user who launched the container to the root user inside the container). But chaning to a non-root user is still recommended to reduce security risks. For podman it can be done using `--userns=keep-id` option, which will change the previously mentioned mapping to the same UID inside the container as on host, or `--userns=keep-id:uid=12345,gid=12345` option, which will change it to the specified UID.
     + On systems with SELinux it may be necessary to add `:z` to the volume mount options (with `!care!`, as it will recursively relabel the mapped directory on the host, which may break the host system if used on directories that are used elsewhere besides the container). In case of relabeling, uploaded files will have "system_u:object_r:container_file_t:s0" context. To restore default context `restorecon -RFv /path/to/fs_data` can be used. If relabeling is an issue and has to be avoided `--security-opt label=disable` option can be added instead (which will basically disable SELinux for the containerized process).
 
-7. ###### Open the corresponding tcp port in firewall if necessary.
++ ###### 7. Open the corresponding tcp port in firewall if necessary.
 
-8. ###### Visit the site using a browser.
++ ###### 8. Visit the site using a browser.
     In this example to do it from the same machine the address will be https://127.0.0.1:8443 or https://localhost:8443
 
 ## Usage (dotnet application directly)
