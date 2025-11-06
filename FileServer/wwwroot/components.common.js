@@ -21,6 +21,21 @@ class HeaderComponent extends TextComponent {
     cssClass = "header";
 }
 
+class StatusComponent extends ComponentBase {
+    constructor() {
+        super();
+    }
+
+    renderCore() {
+        const div = VDom.createElement("div");
+        if (this.props.status.text)
+            div.append(new TextComponent().render({ text: this.props.status.text }));
+        if (this.props.status.error)
+            div.append(new ErrorComponent().render({ text: this.props.status.error }));
+        return div;
+    }
+}
+
 class ButtonComponent extends ComponentBase {
     constructor() {
         super();

@@ -13,11 +13,8 @@ class DownloadPageComponent extends ComponentBase {
 
         if (this.state.files)
             div.append(this.#filesListComponent.render({ files: this.state.files }));
-        if (this.state.status.text)
-            div.append(new TextComponent().render({ text: this.state.status.text }));
-        if (this.state.status.error)
-            div.append(new ErrorComponent().render({ text: this.state.status.error }));
 
+        div.append(new StatusComponent().render({ status: this.state.status }));
         return div;
     }
 
@@ -43,13 +40,8 @@ class UploadPageComponent extends ComponentBase {
     renderCore() {
         const div = VDom.createElement("div");
         div.append(new HeaderComponent().render({ text: "UploadPage:" }));
-
         div.append(this.#fileUploadComponent.render({ uploadFileFunc: this.#uploadFile }));
-        if (this.state.status.text)
-            div.append(new TextComponent().render({ text: this.state.status.text }));
-        if (this.state.status.error)
-            div.append(new ErrorComponent().render({ text: this.state.status.error }));
-
+        div.append(new StatusComponent().render({ status: this.state.status }));
         return div;
     }
 
@@ -95,11 +87,7 @@ class AuthPageComponent extends ComponentBase {
         else
             div.append(this.#loginFormComponent.render({ loginFunc: this.#login }));
 
-        if (this.state.status.text)
-            div.append(new TextComponent().render({ text: this.state.status.text }));
-        if (this.state.status.error)
-            div.append(new ErrorComponent().render({ text: this.state.status.error }));
-
+        div.append(new StatusComponent().render({ status: this.state.status }));
         return div;
     }
 
