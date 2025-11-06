@@ -82,7 +82,7 @@ internal sealed class ClientSideTests : PageTest
         await Page.GetByRole(AriaRole.Button, new() { Name = "DownloadPage" }).ClickAsync();
         IDownload download = await Page.RunAndWaitForDownloadAsync(async () =>
         {
-            await Page.Locator("#app table tbody tr").Last.Locator("td").Nth(3).ClickAsync();
+            await Page.Locator("#root table tbody tr").Last.Locator("td").Nth(3).ClickAsync();
         });
         using StreamReader sr = new(await download.CreateReadStreamAsync());
         return await sr.ReadToEndAsync();

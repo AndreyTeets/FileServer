@@ -1,75 +1,133 @@
-class DownloadPageComponent {
-    data;
+class DownloadPageComponent extends ComponentBase {
+    #filesListComponent;
 
-    constructor(data) {
-        this.data = data
+    constructor() {
+        super();
+        this.state = { files: null, status: {} };
+        this.#filesListComponent = new FilesListComponent();
     }
 
-    create() {
+    renderCore() {
         const div = document.createElement("div");
-        div.appendChild(new HeaderComponent("DownloadPage:").create());
+        div.appendChild(new HeaderComponent().render({ text: "DownloadPage:" }));
 
-        if (this.data.state.files)
-            div.appendChild(new FilesListComponent(this.data.state.files, this.data.fileActionFunc).create());
-        if (this.data.state.status.text)
-            div.appendChild(new TextComponent(this.data.state.status.text).create());
-        if (this.data.state.status.error)
-            div.appendChild(new ErrorComponent(this.data.state.status.error).create());
+        if (this.state.files)
+            div.appendChild(this.#filesListComponent.render({ files: this.state.files }));
+        if (this.state.status.text)
+            div.appendChild(new TextComponent().render({ text: this.state.status.text }));
+        if (this.state.status.error)
+            div.appendChild(new ErrorComponent().render({ text: this.state.status.error }));
 
         return div;
     }
+
+    async loadFilesList() {
+        this.setState({ files: null, status: { text: "Loading..." } });
+        const [response, errorText] = await Api.getFilesList();
+        if (errorText)
+            this.setState({ status: { error: errorText } });
+        else
+            this.setState({ files: response.files, status: {} });
+    }
 }
 
-class UploadPageComponent {
+class UploadPageComponent extends ComponentBase {
     #fileUploadComponent;
-    data;
 
-    constructor(data) {
-        this.data = data
+    constructor() {
+        super();
+        this.state = { status: {} };
+        this.#fileUploadComponent = new FileUploadComponent();
     }
 
-    create() {
+    renderCore() {
         const div = document.createElement("div");
-        div.appendChild(new HeaderComponent("UploadPage:").create());
+        div.appendChild(new HeaderComponent().render({ text: "UploadPage:" }));
 
-        if (!this.#fileUploadComponent)
-            this.#fileUploadComponent = new FileUploadComponent(this.data.uploadFunc);
-        div.appendChild(this.#fileUploadComponent.create());
-
-        if (this.data.state.status.text)
-            div.appendChild(new TextComponent(this.data.state.status.text).create());
-        if (this.data.state.status.error)
-            div.appendChild(new ErrorComponent(this.data.state.status.error).create());
+        div.appendChild(this.#fileUploadComponent.render({ uploadFileFunc: this.#uploadFile }));
+        if (this.state.status.text)
+            div.appendChild(new TextComponent().render({ text: this.state.status.text }));
+        if (this.state.status.error)
+            div.appendChild(new ErrorComponent().render({ text: this.state.status.error }));
 
         return div;
+    }
+
+    #uploadFile = async (file, onUploadStarted, onUploadCompleted) => {
+        const fileFormData = new FormData();
+        fileFormData.append("file", file);
+
+        this.setState({ status: { text: "Uploading..." } });
+        let timeOfLastProgressUpdate = Date.now();
+        const [responsePromise, abortRequestFunc] = Api.uploadFile(fileFormData, (progress) => {
+            if (Date.now() - timeOfLastProgressUpdate >= 500) {
+                this.setState({ status: { text: `Uploading... ${progress.toFixed(2)}%` } });
+                timeOfLastProgressUpdate = Date.now();
+            }
+        });
+
+        onUploadStarted(abortRequestFunc);
+        const [response, errorText] = await responsePromise;
+        onUploadCompleted(!errorText);
+
+        if (errorText)
+            this.setState({ status: { error: errorText } });
+        else
+            this.setState({ status: { text: `Uploaded: ${response.createdFileName}` } });
     }
 }
 
-class AuthPageComponent {
+class AuthPageComponent extends ComponentBase {
     #loginFormComponent;
-    data;
 
-    constructor(data) {
-        this.data = data
+    constructor() {
+        super();
+        this.state = { loggedIn: false, status: {} };
+        this.#loginFormComponent = new LoginFormComponent();
     }
 
-    create() {
+    renderCore() {
         const div = document.createElement("div");
-        div.appendChild(new HeaderComponent("AuthPage:").create());
+        div.appendChild(new HeaderComponent().render({ text: "AuthPage:" }));
 
-        if (this.data.state.loggedIn) {
-            div.appendChild(new ButtonComponent("Logout", this.data.logoutFunc).create());
-        } else {
-            if (!this.#loginFormComponent)
-                this.#loginFormComponent = new LoginFormComponent(this.data.loginFunc);
-            div.appendChild(this.#loginFormComponent.create());
-        }
+        if (this.state.loggedIn)
+            div.appendChild(new ButtonComponent().render({ text: "Logout", onclickFunc: this.#logout }));
+        else
+            div.appendChild(this.#loginFormComponent.render({ loginFunc: this.#login }));
 
-        if (this.data.state.status.text)
-            div.appendChild(new TextComponent(this.data.state.status.text).create());
-        if (this.data.state.status.error)
-            div.appendChild(new ErrorComponent(this.data.state.status.error).create());
+        if (this.state.status.text)
+            div.appendChild(new TextComponent().render({ text: this.state.status.text }));
+        if (this.state.status.error)
+            div.appendChild(new ErrorComponent().render({ text: this.state.status.error }));
 
         return div;
+    }
+
+    setAuthState() {
+        this.setState({ loggedIn: !!Auth.get() });
+    }
+
+    #login = async (password) => {
+        const credentials = { password: password };
+
+        this.setState({ status: { text: "Authenticating..." } });
+        const [response, errorText] = await Api.login(credentials);
+        if (errorText) {
+            this.setState({ loggedIn: false, status: { error: errorText } });
+        } else {
+            Auth.set(response.loginInfo, response.antiforgeryToken);
+            this.setState({ loggedIn: true, status: {} });
+        }
+    }
+
+    #logout = async () => {
+        this.setState({ status: { text: "Logging out..." } });
+        const [_, errorText] = await Api.logout();
+        if (errorText) {
+            this.setState({ loggedIn: !!Auth.get(), status: { error: errorText } });
+        } else {
+            Auth.clear();
+            this.setState({ loggedIn: false, status: {} });
+        }
     }
 }

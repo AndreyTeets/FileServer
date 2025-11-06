@@ -1,3 +1,6 @@
 function onDocumentLoad() {
-    App.menu = new MenuComponent();
+    const appComponent = new AppComponent();
+    const div = appComponent.render();
+    const root = document.querySelector("#root");
+    root.replaceChild(div, root.firstChild);
 }

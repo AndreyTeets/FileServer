@@ -1,22 +1,18 @@
-class FilesListComponent {
-    filesList;
-    fileActionFunc;
-
-    constructor(filesList, fileActionFunc) {
-        this.filesList = filesList;
-        this.fileActionFunc = fileActionFunc;
+class FilesListComponent extends ComponentBase {
+    constructor() {
+        super();
     }
 
-    create() {
+    renderCore() {
         const div = document.createElement("div");
 
         const thead = document.createElement("thead");
         thead.append(this.#createTableRow(["Anon", "Path", "Size"]));
 
         const tbody = document.createElement("tbody");
-        for (const file of this.filesList) {
-            const downloadButton = this.#createButton("Download", () => this.fileActionFunc(file, "download"));
-            const viewButton = this.#createButton("View", () => this.fileActionFunc(file, "view"));
+        for (const file of this.props.files) {
+            const downloadButton = this.#createButton("Download", () => this.#openFile(file, "download"));
+            const viewButton = this.#createButton("View", () => this.#openFile(file, "view"));
             tbody.appendChild(this.#createTableRow([file.anon, file.path, file.size, downloadButton, viewButton]));
         }
 
@@ -45,32 +41,36 @@ class FilesListComponent {
         button.onclick = onclickFunc;
         return button;
     }
+
+    #openFile(file, action) {
+        const a = document.createElement("a");
+        a.href = Api.createFileLink(file.path, action, file.anon);
+        a.target = `_blank`;
+        a.click();
+    }
 }
 
-class FileUploadComponent {
+class FileUploadComponent extends ComponentBase {
     #fileInput;
     #uploadButton;
     #cancelButton;
-    #isUploadInProgress;
-    uploadFunc;
 
-    constructor(uploadFunc) {
-        this.uploadFunc = uploadFunc;
+    constructor() {
+        super();
+        this.state = { isFileSelected: false, isUploadInProgress: false };
+        this.#fileInput = this.#createFileInput();
+        this.#uploadButton = this.#createButton("Upload", this.#onUploadButtonClick);
+        this.#cancelButton = this.#createButton("Cancel", null);
     }
 
-    create() {
+    renderCore() {
         const div = document.createElement("div");
 
-        if (!this.#fileInput)
-            this.#fileInput = this.#createFileInput();
+        this.#uploadButton.disabled = !this.state.isFileSelected || this.state.isUploadInProgress;
+        this.#cancelButton.disabled = !this.state.isUploadInProgress;
+
         div.appendChild(this.#fileInput);
-
-        if (!this.#uploadButton)
-            this.#uploadButton = this.#createButton("Upload", () => this.#onUploadButtonClick());
         div.appendChild(this.#uploadButton);
-
-        if (!this.#cancelButton)
-            this.#cancelButton = this.#createButton("Cancel", null);
         div.appendChild(this.#cancelButton);
 
         return div;
@@ -79,7 +79,7 @@ class FileUploadComponent {
     #createFileInput() {
         const fileInput = document.createElement("input");
         fileInput.type = "file";
-        fileInput.addEventListener("change", () => this.#uploadButton.disabled = !fileInput.files[0] || this.#isUploadInProgress);
+        fileInput.addEventListener("change", () => this.setState({ isFileSelected: !!fileInput.files[0] }));
         return fileInput;
     }
 
@@ -92,48 +92,41 @@ class FileUploadComponent {
         return button;
     }
 
-    async #onUploadButtonClick() {
-        this.#uploadButton.disabled = true;
-        this.#isUploadInProgress = true;
-        await this.uploadFunc(this.#fileInput.files[0],
-            (abortRequestFunc) => this.#onUploadStarted(abortRequestFunc),
-            (success) => this.#onUploadCompleted(success));
-        this.#isUploadInProgress = false;
-        this.#uploadButton.disabled = !this.#fileInput.files[0];
+    #onUploadButtonClick = async () => {
+        this.setState({ isUploadInProgress: true });
+        await this.props.uploadFileFunc(this.#fileInput.files[0], this.#onUploadStarted, this.#onUploadCompleted);
+        this.setState({ isUploadInProgress: false });
     }
 
-    #onUploadStarted(abortRequestFunc) {
+    #onUploadStarted = (abortRequestFunc) => {
         this.#cancelButton.onclick = abortRequestFunc;
-        this.#cancelButton.disabled = false;
     }
 
-    #onUploadCompleted(success) {
-        this.#cancelButton.disabled = true;
+    #onUploadCompleted = (success) => {
         this.#cancelButton.onclick = null;
         if (success)
             this.#fileInput = this.#createFileInput();
     }
 }
 
-class LoginFormComponent {
+class LoginFormComponent extends ComponentBase {
     #passwordInput;
     #loginButton;
-    loginFunc;
 
-    constructor(loginFunc) {
-        this.loginFunc = loginFunc;
+    constructor() {
+        super();
+        this.state = { isPasswordEmpty: true };
+        this.#passwordInput = this.#createPasswordInput();
+        this.#loginButton = this.#createLoginButton();
     }
 
-    create() {
+    renderCore() {
         const div = document.createElement("div");
 
-        div.append("Key:");
-        if (!this.#passwordInput)
-            this.#passwordInput = this.#createPasswordInput();
-        div.appendChild(this.#passwordInput);
+        this.#loginButton.disabled = this.state.isPasswordEmpty;
 
-        if (!this.#loginButton)
-            this.#loginButton = this.#createLoginButton();
+        div.append("Key:");
+        div.appendChild(this.#passwordInput);
         div.appendChild(this.#loginButton);
 
         return div;
@@ -143,7 +136,7 @@ class LoginFormComponent {
         const passwordInput = document.createElement("input");
         passwordInput.type = "password";
         passwordInput.name = "key";
-        passwordInput.addEventListener("input", () => this.#loginButton.disabled = !passwordInput.value);
+        passwordInput.addEventListener("input", () => this.setState({ isPasswordEmpty: !passwordInput.value }));
         return passwordInput;
     }
 
@@ -152,7 +145,7 @@ class LoginFormComponent {
         loginButton.type = "submit";
         loginButton.value = "Login";
         loginButton.disabled = true;
-        loginButton.onclick = () => this.loginFunc(this.#passwordInput.value);
+        loginButton.onclick = () => this.props.loginFunc(this.#passwordInput.value);
         return loginButton;
     }
 }

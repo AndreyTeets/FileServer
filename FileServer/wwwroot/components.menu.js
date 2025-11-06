@@ -1,10 +1,14 @@
-class MenuComponent {
-    create() {
+class MenuComponent extends ComponentBase {
+    constructor() {
+        super();
+    }
+
+    renderCore() {
         const div = document.createElement("div");
-        div.appendChild(new HeaderComponent("Menu:").create());
-        div.appendChild(new ButtonComponent("DownloadPage", AppLogic.setDownloadPage).create());
-        div.appendChild(new ButtonComponent("UploadPage", AppLogic.setUploadPage).create());
-        div.appendChild(new ButtonComponent("AuthPage", AppLogic.setAuthPage).create());
+        div.appendChild(new HeaderComponent().render({ text: "Menu:" }));
+        div.appendChild(new ButtonComponent().render({ text: "DownloadPage", onclickFunc: () => this.props.selectPageFunc("download") }));
+        div.appendChild(new ButtonComponent().render({ text: "UploadPage", onclickFunc: () => this.props.selectPageFunc("upload") }));
+        div.appendChild(new ButtonComponent().render({ text: "AuthPage", onclickFunc: () => this.props.selectPageFunc("auth") }));
         return div;
     }
 }
