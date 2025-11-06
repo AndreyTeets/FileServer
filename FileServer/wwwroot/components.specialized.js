@@ -11,8 +11,8 @@ class FilesListComponent extends ComponentBase {
 
         const tbody = VDom.createElement("tbody");
         for (const file of this.props.files) {
-            const downloadButton = this.#createButton("Download", () => this.#openFile(file, "download"));
-            const viewButton = this.#createButton("View", () => this.#openFile(file, "view"));
+            const downloadButton = new ButtonComponent().render({ text: "Download", onclick: () => this.#openFile(file, "download") });
+            const viewButton = new ButtonComponent().render({ text: "View", onclick: () => this.#openFile(file, "view") });
             tbody.append(this.#createTableRow([file.anon, file.path, file.size, downloadButton, viewButton]));
         }
 
@@ -32,14 +32,6 @@ class FilesListComponent extends ComponentBase {
             tr.append(td);
         }
         return tr;
-    }
-
-    #createButton(name, onclickFunc) {
-        const button = VDom.createElement("input");
-        button.type = "submit";
-        button.value = name;
-        button.onclick = onclickFunc;
-        return button;
     }
 
     #openFile(file, action) {
@@ -63,8 +55,8 @@ class FileUploadComponent extends ComponentBase {
     renderCore() {
         const div = VDom.createElement("div");
         div.append(this.#fileInput);
-        div.append(this.#createButton("Upload", this.#onUploadButtonClick, this.#isUploadButtonEnabled()));
-        div.append(this.#createButton("Cancel", this.#onCancelButtonClick, this.#isCancelButtonEnabled()));
+        div.append(new ButtonComponent().render({ text: "Upload", onclick: this.#onUploadButtonClick, disabled: this.#isUploadButtonDisabled() }));
+        div.append(new ButtonComponent().render({ text: "Cancel", onclick: this.#onCancelButtonClick, disabled: this.#isCancelButtonDisabled() }));
         return div;
     }
 
@@ -76,17 +68,8 @@ class FileUploadComponent extends ComponentBase {
         return fileInput;
     }
 
-    #createButton(name, onclickFunc, disabled) {
-        const button = VDom.createElement("input");
-        button.type = "submit";
-        button.value = name;
-        button.disabled = disabled;
-        button.onclick = onclickFunc;
-        return button;
-    }
-
-    #isUploadButtonEnabled = () => !this.state.isFileSelected || this.state.isUploadInProgress;
-    #isCancelButtonEnabled = () => !this.state.isUploadInProgress;
+    #isUploadButtonDisabled= () => !this.state.isFileSelected || this.state.isUploadInProgress;
+    #isCancelButtonDisabled = () => !this.state.isUploadInProgress;
     #onFileInputChange = () => this.setState({ isFileSelected: !!this.#fileInput.getDomElem().files[0] });
 
     #onUploadButtonClick = async () => {
@@ -126,7 +109,7 @@ class LoginFormComponent extends ComponentBase {
         const div = VDom.createElement("div");
         div.append(VDom.createTextNode("Key:"));
         div.append(this.#passwordInput);
-        div.append(this.#createLoginButton(this.state.isPasswordEmpty));
+        div.append(new ButtonComponent().render({ text: "Login", onclick: this.#onLoginButtonClick, disabled: this.#isLoginButtonDisabled() }));
         return div;
     }
 
@@ -138,15 +121,7 @@ class LoginFormComponent extends ComponentBase {
         return passwordInput;
     }
 
-    #createLoginButton(disabled) {
-        const loginButton = VDom.createElement("input");
-        loginButton.type = "submit";
-        loginButton.value = "Login";
-        loginButton.disabled = disabled;
-        loginButton.onclick = this.#onLoginButtonClick;
-        return loginButton;
-    }
-
-    #onPasswordInputChange = () => this.setState({ isPasswordEmpty: !this.#passwordInput.getDomElem().value });
+    #isLoginButtonDisabled = () => this.state.isPasswordEmpty;
     #onLoginButtonClick = () => this.props.loginFunc(this.#passwordInput.getDomElem().value);
+    #onPasswordInputChange = () => this.setState({ isPasswordEmpty: !this.#passwordInput.getDomElem().value });
 }

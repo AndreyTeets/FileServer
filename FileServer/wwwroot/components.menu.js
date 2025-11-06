@@ -6,9 +6,9 @@ class MenuComponent extends ComponentBase {
     renderCore() {
         const div = VDom.createElement("div");
         div.append(new HeaderComponent().render({ text: "Menu:" }));
-        div.append(new ButtonComponent().render({ text: "DownloadPage", onclickFunc: this.#onDownloadPageClick }));
-        div.append(new ButtonComponent().render({ text: "UploadPage", onclickFunc: this.#onUploadPageClick }));
-        div.append(new ButtonComponent().render({ text: "AuthPage", onclickFunc: this.#onAuthPageClick }));
+        div.append(new ButtonComponent().render({ text: "DownloadPage", onclick: this.#onDownloadPageClick }));
+        div.append(new ButtonComponent().render({ text: "UploadPage", onclick: this.#onUploadPageClick }));
+        div.append(new ButtonComponent().render({ text: "AuthPage", onclick: this.#onAuthPageClick }));
         return div;
     }
 
