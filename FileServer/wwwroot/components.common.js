@@ -1,15 +1,13 @@
-class TextComponent {
-    text;
-    cssClass;
+class TextComponent extends ComponentBase {
+    cssClass = "text";
 
-    constructor(text) {
-        this.text = text;
-        this.cssClass = "text";
+    constructor() {
+        super();
     }
 
-    create() {
+    renderCore() {
         const p = document.createElement("p");
-        p.append(this.text);
+        p.append(this.props.text);
         p.classList.add(this.cssClass);
         return p;
     }
@@ -23,20 +21,16 @@ class HeaderComponent extends TextComponent {
     cssClass = "header";
 }
 
-class ButtonComponent {
-    text;
-    onclickFunc;
-
-    constructor(text, onclickFunc) {
-        this.text = text;
-        this.onclickFunc = onclickFunc;
+class ButtonComponent extends ComponentBase {
+    constructor() {
+        super();
     }
 
-    create() {
+    renderCore() {
         const input = document.createElement("input");
         input.type = "submit";
-        input.value = this.text;
-        input.onclick = this.onclickFunc;
+        input.value = this.props.text;
+        input.onclick = this.props.onclickFunc;
         return input;
     }
 }
