@@ -6,9 +6,9 @@ class TextComponent extends ComponentBase {
     }
 
     renderCore() {
-        const p = document.createElement("p");
-        p.append(this.props.text);
-        p.classList.add(this.cssClass);
+        const p = VDom.createElement("p");
+        p.append(VDom.createTextNode(this.props.text));
+        p.vClasses.push(this.cssClass);
         return p;
     }
 }
@@ -27,7 +27,7 @@ class ButtonComponent extends ComponentBase {
     }
 
     renderCore() {
-        const input = document.createElement("input");
+        const input = VDom.createElement("input");
         input.type = "submit";
         input.value = this.props.text;
         input.onclick = this.props.onclickFunc;

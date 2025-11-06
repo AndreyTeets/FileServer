@@ -1,15 +1,15 @@
 class Comparer {
-    static objectsAreEqual(obj1, obj2) {
+    static objectsAreIdentical(obj1, obj2, excludeProps) {
         if (!(typeof obj1 === typeof obj2 && typeof obj1 === "object"))
             throw new Error(`Non-object type '${typeof obj1}'/'${typeof obj2}' while comparing objects.`);
 
-        if (obj1 === obj2) // Reference equal or both null
+        if (obj1 === null && obj2 === null)
             return true;
         if (obj1 === null || obj2 === null)
-            return false; // One is null and the other isn't
+            return false;
 
-        const keys1 = Object.keys(obj1);
-        const keys2 = Object.keys(obj2);
+        const keys1 = Object.keys(obj1).filter(x => !excludeProps?.includes(x));
+        const keys2 = Object.keys(obj2).filter(x => !excludeProps?.includes(x));
         if (keys1.length !== keys2.length)
             return false;
 
@@ -25,7 +25,7 @@ class Comparer {
                 return false;
 
             const bothAreObjects = typesAreEqual && typeof val1 === "object";
-            if (bothAreObjects && !Comparer.objectsAreEqual(val1, val2))
+            if (bothAreObjects && !Comparer.objectsAreIdentical(val1, val2, excludeProps))
                 return false;
             if (!bothAreObjects && val1 !== val2)
                 return false;
