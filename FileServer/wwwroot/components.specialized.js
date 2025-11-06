@@ -52,6 +52,7 @@ class FilesListComponent extends ComponentBase {
 
 class FileUploadComponent extends ComponentBase {
     #fileInput;
+    #fileInputVDomForceResetId = 0;
 
     constructor() {
         super();
@@ -62,15 +63,16 @@ class FileUploadComponent extends ComponentBase {
     renderCore() {
         const div = VDom.createElement("div");
         div.append(this.#fileInput);
-        div.append(this.#createButton("Upload", this.#onUploadButtonClick, !this.state.isFileSelected || this.state.isUploadInProgress));
-        div.append(this.#createButton("Cancel", this.#onCancelButtonClick, !this.state.isUploadInProgress));
+        div.append(this.#createButton("Upload", this.#onUploadButtonClick, this.#isUploadButtonEnabled()));
+        div.append(this.#createButton("Cancel", this.#onCancelButtonClick, this.#isCancelButtonEnabled()));
         return div;
     }
 
     #createFileInput() {
         const fileInput = VDom.createElement("input");
         fileInput.type = "file";
-        fileInput.vEventListeners["change"] = [() => this.setState({ isFileSelected: !!fileInput.getDomElem().files[0] })];
+        fileInput.vEventListeners["change"] = [this.#onFileInputChange];
+        fileInput.vDomForceResetId = this.#fileInputVDomForceResetId++;
         return fileInput;
     }
 
@@ -82,6 +84,10 @@ class FileUploadComponent extends ComponentBase {
         button.onclick = onclickFunc;
         return button;
     }
+
+    #isUploadButtonEnabled = () => !this.state.isFileSelected || this.state.isUploadInProgress;
+    #isCancelButtonEnabled = () => !this.state.isUploadInProgress;
+    #onFileInputChange = () => this.setState({ isFileSelected: !!this.#fileInput.getDomElem().files[0] });
 
     #onUploadButtonClick = async () => {
         this.setState({ isUploadInProgress: true });
@@ -128,7 +134,7 @@ class LoginFormComponent extends ComponentBase {
         const passwordInput = VDom.createElement("input");
         passwordInput.type = "password";
         passwordInput.name = "key";
-        passwordInput.vEventListeners["input"] = [() => this.setState({ isPasswordEmpty: !passwordInput.getDomElem().value })];
+        passwordInput.vEventListeners["input"] = [this.#onPasswordInputChange];
         return passwordInput;
     }
 
@@ -137,7 +143,10 @@ class LoginFormComponent extends ComponentBase {
         loginButton.type = "submit";
         loginButton.value = "Login";
         loginButton.disabled = disabled;
-        loginButton.onclick = () => this.props.loginFunc(this.#passwordInput.getDomElem().value);
+        loginButton.onclick = this.#onLoginButtonClick;
         return loginButton;
     }
+
+    #onPasswordInputChange = () => this.setState({ isPasswordEmpty: !this.#passwordInput.getDomElem().value });
+    #onLoginButtonClick = () => this.props.loginFunc(this.#passwordInput.getDomElem().value);
 }
