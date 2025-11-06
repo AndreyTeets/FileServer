@@ -30,7 +30,8 @@ class ButtonComponent extends ComponentBase {
         const input = VDom.createElement("input");
         input.type = "submit";
         input.value = this.props.text;
-        input.onclick = this.props.onclickFunc;
+        input.disabled = !!this.props.disabled;
+        input.onclick = this.props.onclick;
         return input;
     }
 }

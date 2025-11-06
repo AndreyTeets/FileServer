@@ -19,10 +19,10 @@ class Api {
         return Api.#send(url, params)[0];
     }
 
-    static uploadFile(fileFormData, onProgressFunc) {
+    static uploadFile(fileFormData, onUploadProgress) {
         const url = "api/files/upload";
         const params = Api.#createParams("POST", fileFormData);
-        return Api.#send(url, params, onProgressFunc);
+        return Api.#send(url, params, onUploadProgress);
     }
 
     static login(credentials) {
@@ -52,8 +52,8 @@ class Api {
         return params;
     }
 
-    static #send(url, params, onProgressFunc) {
-        const [fetchResponsePromise, abortRequestFunc] = Api.#xhrFetch(url, params, onProgressFunc);
+    static #send(url, params, onUploadProgress) {
+        const [fetchResponsePromise, abortRequestFunc] = Api.#xhrFetch(url, params, onUploadProgress);
 
         const responsePromise = (async () => {
             let errorText;
@@ -82,7 +82,7 @@ class Api {
         return [responsePromise, abortRequestFunc];
     }
 
-    static #xhrFetch(url, params, onProgressFunc) {
+    static #xhrFetch(url, params, onUploadProgress) {
         const xhr = new XMLHttpRequest();
         const method = params.method || "GET";
         const headers = params.headers || {};
@@ -115,11 +115,11 @@ class Api {
             xhr.onerror = () => { reject(new Error("HTTP request failed due to a network error.")); };
             xhr.onabort = () => { reject(new Error("HTTP request was aborted.")); };
 
-            if (onProgressFunc) {
+            if (onUploadProgress) {
                 xhr.upload.onprogress = (event) => {
                     if (event.lengthComputable) {
                         const percentComplete = (event.loaded / event.total) * 100;
-                        onProgressFunc(percentComplete);
+                        onUploadProgress(percentComplete);
                     }
                 };
             }

@@ -91,7 +91,7 @@ class AuthPageComponent extends ComponentBase {
         div.append(new HeaderComponent().render({ text: "AuthPage:" }));
 
         if (this.state.loggedIn)
-            div.append(new ButtonComponent().render({ text: "Logout", onclickFunc: this.#logout }));
+            div.append(new ButtonComponent().render({ text: "Logout", onclick: this.#logout }));
         else
             div.append(this.#loginFormComponent.render({ loginFunc: this.#login }));
 
