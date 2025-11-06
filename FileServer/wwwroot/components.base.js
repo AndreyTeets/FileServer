@@ -1,9 +1,9 @@
 class ComponentBase {
     props;
     state;
-    #lastRenderedElem;
     #lastRenderedProps;
     #lastRenderedState;
+    #lastRenderedElem;
 
     constructor() {
         this.props = {};
@@ -12,41 +12,40 @@ class ComponentBase {
 
     render(props) {
         this.props = props || {};
-
-        if (!this.#lastRenderedPropsOrStateDifferFromCurrent())
+        if (this.#lastRenderedElemIsAttachedToDom() && this.#lastRenderedPropsAndStateAreIdenticalToCurrent())
             return this.#lastRenderedElem;
         return this.#renderCoreAndSaveLastRenderInfo();
     }
 
     setState(state) {
         this.state = { ...this.state, ...state };
-        if (this.#lastRenderedElem && this.#lastRenderedElem.isConnected && this.#lastRenderedPropsOrStateDifferFromCurrent())
+        if (this.#lastRenderedElemIsAttachedToDom() && !this.#lastRenderedPropsAndStateAreIdenticalToCurrent())
             this.#rerender();
     }
 
     #rerender() {
         const oldElem = this.#lastRenderedElem;
         const newElem = this.#renderCoreAndSaveLastRenderInfo();
-        oldElem.parentNode.replaceChild(newElem, oldElem);
+        VDom.replaceAndRerender(newElem, oldElem);
     }
 
     #renderCoreAndSaveLastRenderInfo() {
         const elem = this.renderCore();
+        this.#lastRenderedProps = this.props;
+        this.#lastRenderedState = this.state;
         this.#lastRenderedElem = elem;
-        this.#setCurrentPropsAndStateAsLastRendered();
         return elem;
     }
 
-    #lastRenderedPropsOrStateDifferFromCurrent() {
-        if (!(this.#lastRenderedProps && Comparer.objectsAreEqual(this.#lastRenderedProps, this.props)))
-            return true;
-        if (!(this.#lastRenderedState && Comparer.objectsAreEqual(this.#lastRenderedState, this.state)))
+    #lastRenderedPropsAndStateAreIdenticalToCurrent() {
+        if (this.#lastRenderedProps && this.#lastRenderedState
+            && Comparer.objectsAreIdentical(this.#lastRenderedProps, this.props)
+            && Comparer.objectsAreIdentical(this.#lastRenderedState, this.state))
             return true;
         return false;
     }
 
-    #setCurrentPropsAndStateAsLastRendered() {
-        this.#lastRenderedProps = this.props;
-        this.#lastRenderedState = this.state;
+    #lastRenderedElemIsAttachedToDom() {
+        return this.#lastRenderedElem && VDom.isConnected(this.#lastRenderedElem);
     }
 }

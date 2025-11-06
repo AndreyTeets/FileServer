@@ -8,15 +8,15 @@ class DownloadPageComponent extends ComponentBase {
     }
 
     renderCore() {
-        const div = document.createElement("div");
-        div.appendChild(new HeaderComponent().render({ text: "DownloadPage:" }));
+        const div = VDom.createElement("div");
+        div.append(new HeaderComponent().render({ text: "DownloadPage:" }));
 
         if (this.state.files)
-            div.appendChild(this.#filesListComponent.render({ files: this.state.files }));
+            div.append(this.#filesListComponent.render({ files: this.state.files }));
         if (this.state.status.text)
-            div.appendChild(new TextComponent().render({ text: this.state.status.text }));
+            div.append(new TextComponent().render({ text: this.state.status.text }));
         if (this.state.status.error)
-            div.appendChild(new ErrorComponent().render({ text: this.state.status.error }));
+            div.append(new ErrorComponent().render({ text: this.state.status.error }));
 
         return div;
     }
@@ -41,14 +41,14 @@ class UploadPageComponent extends ComponentBase {
     }
 
     renderCore() {
-        const div = document.createElement("div");
-        div.appendChild(new HeaderComponent().render({ text: "UploadPage:" }));
+        const div = VDom.createElement("div");
+        div.append(new HeaderComponent().render({ text: "UploadPage:" }));
 
-        div.appendChild(this.#fileUploadComponent.render({ uploadFileFunc: this.#uploadFile }));
+        div.append(this.#fileUploadComponent.render({ uploadFileFunc: this.#uploadFile }));
         if (this.state.status.text)
-            div.appendChild(new TextComponent().render({ text: this.state.status.text }));
+            div.append(new TextComponent().render({ text: this.state.status.text }));
         if (this.state.status.error)
-            div.appendChild(new ErrorComponent().render({ text: this.state.status.error }));
+            div.append(new ErrorComponent().render({ text: this.state.status.error }));
 
         return div;
     }
@@ -87,18 +87,18 @@ class AuthPageComponent extends ComponentBase {
     }
 
     renderCore() {
-        const div = document.createElement("div");
-        div.appendChild(new HeaderComponent().render({ text: "AuthPage:" }));
+        const div = VDom.createElement("div");
+        div.append(new HeaderComponent().render({ text: "AuthPage:" }));
 
         if (this.state.loggedIn)
-            div.appendChild(new ButtonComponent().render({ text: "Logout", onclickFunc: this.#logout }));
+            div.append(new ButtonComponent().render({ text: "Logout", onclickFunc: this.#logout }));
         else
-            div.appendChild(this.#loginFormComponent.render({ loginFunc: this.#login }));
+            div.append(this.#loginFormComponent.render({ loginFunc: this.#login }));
 
         if (this.state.status.text)
-            div.appendChild(new TextComponent().render({ text: this.state.status.text }));
+            div.append(new TextComponent().render({ text: this.state.status.text }));
         if (this.state.status.error)
-            div.appendChild(new ErrorComponent().render({ text: this.state.status.error }));
+            div.append(new ErrorComponent().render({ text: this.state.status.error }));
 
         return div;
     }

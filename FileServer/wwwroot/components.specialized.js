@@ -4,38 +4,38 @@ class FilesListComponent extends ComponentBase {
     }
 
     renderCore() {
-        const div = document.createElement("div");
+        const div = VDom.createElement("div");
 
-        const thead = document.createElement("thead");
+        const thead = VDom.createElement("thead");
         thead.append(this.#createTableRow(["Anon", "Path", "Size"]));
 
-        const tbody = document.createElement("tbody");
+        const tbody = VDom.createElement("tbody");
         for (const file of this.props.files) {
             const downloadButton = this.#createButton("Download", () => this.#openFile(file, "download"));
             const viewButton = this.#createButton("View", () => this.#openFile(file, "view"));
-            tbody.appendChild(this.#createTableRow([file.anon, file.path, file.size, downloadButton, viewButton]));
+            tbody.append(this.#createTableRow([file.anon, file.path, file.size, downloadButton, viewButton]));
         }
 
-        const table = document.createElement("table");
+        const table = VDom.createElement("table");
         table.append(thead);
         table.append(tbody);
-        div.appendChild(table);
+        div.append(table);
 
         return div;
     }
 
     #createTableRow(columns) {
-        const tr = document.createElement("tr");
+        const tr = VDom.createElement("tr");
         for (const col of columns) {
-            const td = document.createElement("td");
-            td.append(col);
+            const td = VDom.createElement("td");
+            td.append(["string", "number"].includes(typeof(col)) ? VDom.createTextNode(col) : col);
             tr.append(td);
         }
         return tr;
     }
 
     #createButton(name, onclickFunc) {
-        const button = document.createElement("input");
+        const button = VDom.createElement("input");
         button.type = "submit";
         button.value = name;
         button.onclick = onclickFunc;
@@ -52,100 +52,92 @@ class FilesListComponent extends ComponentBase {
 
 class FileUploadComponent extends ComponentBase {
     #fileInput;
-    #uploadButton;
-    #cancelButton;
 
     constructor() {
         super();
-        this.state = { isFileSelected: false, isUploadInProgress: false };
+        this.state = { isFileSelected: false, isUploadInProgress: false, cancelButtonFunc: null };
         this.#fileInput = this.#createFileInput();
-        this.#uploadButton = this.#createButton("Upload", this.#onUploadButtonClick);
-        this.#cancelButton = this.#createButton("Cancel", null);
     }
 
     renderCore() {
-        const div = document.createElement("div");
-
-        this.#uploadButton.disabled = !this.state.isFileSelected || this.state.isUploadInProgress;
-        this.#cancelButton.disabled = !this.state.isUploadInProgress;
-
-        div.appendChild(this.#fileInput);
-        div.appendChild(this.#uploadButton);
-        div.appendChild(this.#cancelButton);
-
+        const div = VDom.createElement("div");
+        div.append(this.#fileInput);
+        div.append(this.#createButton("Upload", this.#onUploadButtonClick, !this.state.isFileSelected || this.state.isUploadInProgress));
+        div.append(this.#createButton("Cancel", this.#onCancelButtonClick, !this.state.isUploadInProgress));
         return div;
     }
 
     #createFileInput() {
-        const fileInput = document.createElement("input");
+        const fileInput = VDom.createElement("input");
         fileInput.type = "file";
-        fileInput.addEventListener("change", () => this.setState({ isFileSelected: !!fileInput.files[0] }));
+        fileInput.vEventListeners["change"] = [() => this.setState({ isFileSelected: !!fileInput.getDomElem().files[0] })];
         return fileInput;
     }
 
-    #createButton(name, onclickFunc) {
-        const button = document.createElement("input");
+    #createButton(name, onclickFunc, disabled) {
+        const button = VDom.createElement("input");
         button.type = "submit";
         button.value = name;
-        button.disabled = true;
+        button.disabled = disabled;
         button.onclick = onclickFunc;
         return button;
     }
 
     #onUploadButtonClick = async () => {
         this.setState({ isUploadInProgress: true });
-        await this.props.uploadFileFunc(this.#fileInput.files[0], this.#onUploadStarted, this.#onUploadCompleted);
+        await this.props.uploadFileFunc(this.#fileInput.getDomElem().files[0], this.#onUploadStarted, this.#onUploadCompleted);
         this.setState({ isUploadInProgress: false });
     }
 
+    #onCancelButtonClick = () => {
+        if (this.state.cancelButtonFunc)
+            this.state.cancelButtonFunc();
+    }
+
     #onUploadStarted = (abortRequestFunc) => {
-        this.#cancelButton.onclick = abortRequestFunc;
+        this.setState({ cancelButtonFunc: abortRequestFunc });
     }
 
     #onUploadCompleted = (success) => {
-        this.#cancelButton.onclick = null;
-        if (success)
+        this.setState({ cancelButtonFunc: null });
+        if (success) {
             this.#fileInput = this.#createFileInput();
+            this.setState({ isFileSelected : false });
+        }
     }
 }
 
 class LoginFormComponent extends ComponentBase {
     #passwordInput;
-    #loginButton;
 
     constructor() {
         super();
         this.state = { isPasswordEmpty: true };
         this.#passwordInput = this.#createPasswordInput();
-        this.#loginButton = this.#createLoginButton();
     }
 
     renderCore() {
-        const div = document.createElement("div");
-
-        this.#loginButton.disabled = this.state.isPasswordEmpty;
-
-        div.append("Key:");
-        div.appendChild(this.#passwordInput);
-        div.appendChild(this.#loginButton);
-
+        const div = VDom.createElement("div");
+        div.append(VDom.createTextNode("Key:"));
+        div.append(this.#passwordInput);
+        div.append(this.#createLoginButton(this.state.isPasswordEmpty));
         return div;
     }
 
     #createPasswordInput() {
-        const passwordInput = document.createElement("input");
+        const passwordInput = VDom.createElement("input");
         passwordInput.type = "password";
         passwordInput.name = "key";
-        passwordInput.addEventListener("input", () => this.setState({ isPasswordEmpty: !passwordInput.value }));
+        passwordInput.vEventListeners["input"] = [() => this.setState({ isPasswordEmpty: !passwordInput.getDomElem().value })];
         return passwordInput;
     }
 
-    #createLoginButton() {
-        const loginButton = document.createElement("input");
+    #createLoginButton(disabled) {
+        const loginButton = VDom.createElement("input");
         loginButton.type = "submit";
         loginButton.value = "Login";
-        loginButton.disabled = true;
-        loginButton.onclick = () => this.props.loginFunc(this.#passwordInput.value);
+        loginButton.disabled = disabled;
+        loginButton.onclick = () => this.props.loginFunc(this.#passwordInput.getDomElem().value);
         return loginButton;
     }
 }

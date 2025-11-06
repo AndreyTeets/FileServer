@@ -13,18 +13,18 @@ class AppComponent extends ComponentBase {
     }
 
     renderCore() {
-        const div = document.createElement("div");
-        div.appendChild(this.#menuComponent.render({ selectPageFunc: this.#selectPage }));
+        const div = VDom.createElement("div");
+        div.append(this.#menuComponent.render({ selectPageFunc: this.#selectPage }));
 
         if (this.state.currentPage)
-            div.appendChild(document.createElement("br"));
+            div.append(VDom.createElement("br"));
 
         if (this.state.currentPage === "download")
-            div.appendChild(this.#downloadPageComponent.render());
+            div.append(this.#downloadPageComponent.render());
         if (this.state.currentPage === "upload")
-            div.appendChild(this.#uploadPageComponent.render());
+            div.append(this.#uploadPageComponent.render());
         if (this.state.currentPage === "auth")
-            div.appendChild(this.#authPageComponent.render());
+            div.append(this.#authPageComponent.render());
 
         return div;
     }

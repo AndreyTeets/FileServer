@@ -1,6 +1,12 @@
 function onDocumentLoad() {
-    const appComponent = new AppComponent();
-    const div = appComponent.render();
     const root = document.querySelector("#root");
-    root.replaceChild(div, root.firstChild);
+    const vRoot = VDom.createElement("div");
+    vRoot.id = "root";
+
+    const appComponent = new AppComponent();
+    const vApp = appComponent.render();
+
+    vRoot.append(vApp);
+    root.replaceWith(vRoot.getDomElem());
+    VDom.rootElem = vRoot;
 }

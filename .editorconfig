@@ -51,7 +51,7 @@ indent_size = 4
 
 ## Html files
 [*.{html,css}]
-indent_size = 2
+indent_size = 4
 
 ## Javascript files
 [*.{js,jsx,ts,tsx,vue}]
