@@ -20,7 +20,7 @@ internal sealed class Program
         builder.Services.AddAndConfigureServices();
 
         WebApplication app = builder.Build();
-        app.SetupSettingsMonitor();
+        app.SetUpSettingsMonitor();
 
         app.UseToIndexPageRedirect();
         app.UseStaticFilesWithNoCacheHeaders();

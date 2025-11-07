@@ -12,15 +12,15 @@ internal abstract class TestsBase : ILoggedTest
     private protected HttpClient _testClient;
     private protected FileServerTestClient _fsTestClient;
 #pragma warning restore CS8618 // NUnit setup will ensure it's initialized by the time it's used by tests
-    protected static TestServer TestServer => SetupTestServerFixture.Host!.GetTestServer();
+    protected static TestServer TestServer => SetUpTestServerFixture.Host!.GetTestServer();
 
-    public StringBuilder LogsSb => SetupTestServerFixture.LogsSb;
+    public StringBuilder LogsSb => SetUpTestServerFixture.LogsSb;
 
     [SetUp]
     public void SetUpTestClients()
     {
         ClearUploadDir();
-        _testClient = SetupTestServerFixture.Host!.GetTestClient();
+        _testClient = SetUpTestServerFixture.Host!.GetTestClient();
         _fsTestClient = new FileServerTestClient(TestServer.CreateHandler(), _testClient.BaseAddress);
     }
 

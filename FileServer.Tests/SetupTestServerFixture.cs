@@ -13,7 +13,7 @@ using Microsoft.Extensions.Options;
 namespace FileServer.Tests;
 
 [SetUpFixture]
-internal sealed class SetupTestServerFixture
+internal sealed class SetUpTestServerFixture
 {
     public static IHost? Host { get; private set; }
     public static StringBuilder LogsSb { get; } = new();

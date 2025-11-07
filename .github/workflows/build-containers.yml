@@ -23,10 +23,10 @@ jobs:
     runs-on: ubuntu-latest
     permissions: {}
     steps:
-      - name: Checkout
+      - name: Check out repository
         uses: actions/checkout@v4
 
-      - name: Set vars
+      - name: Set up vars
         id: vars
         shell: bash
         run: |
@@ -50,7 +50,7 @@ jobs:
             APP_VERSION=${{ steps.vars.outputs.app_version }}
           tags: ${{ env.IMAGE_NAME_TESTS }}:${{ steps.vars.outputs.sanitized_ref }}
 
-      - name: Run e2etests
+      - name: Run E2E tests
         uses: docker/build-push-action@v6
         with:
           context: .

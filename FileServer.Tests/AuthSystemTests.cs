@@ -10,8 +10,8 @@ internal sealed class AuthSystemTests : TestsBase
     [Test]
     public async Task AntiforgeryToken_UsingQueryString_Works()
     {
-        LoginResponse loginReponse = await _fsTestClient.Login();
-        string queryString = $"?{Constants.AntiforgeryTokenQueryParamName}={loginReponse.AntiforgeryToken}";
+        LoginResponse loginResponse = await _fsTestClient.Login();
+        string queryString = $"?{Constants.AntiforgeryTokenQueryParamName}={loginResponse.AntiforgeryToken}";
         using HttpResponseMessage response = await _fsTestClient.Get(
             $"/api/files/download/file1.txt{queryString}", skipAntiforgeryTokenHeader: true);
         Assert.That(response.StatusCode, Is.EqualTo(HttpStatusCode.OK));
@@ -56,8 +56,8 @@ internal sealed class AuthSystemTests : TestsBase
     [Test]
     public async Task Auth_WithInvalid_AntiforgeryToken_Fails()
     {
-        LoginResponse loginReponse = await _fsTestClient.Login();
-        loginReponse.AntiforgeryToken = CreateInvalidEncodedToken(Constants.AntiforgeryClaimType);
+        LoginResponse loginResponse = await _fsTestClient.Login();
+        loginResponse.AntiforgeryToken = CreateInvalidEncodedToken(Constants.AntiforgeryClaimType);
         using HttpResponseMessage response = await _fsTestClient.Get("/api/files/download/file1.txt");
         Assert.That(response.StatusCode, Is.EqualTo(HttpStatusCode.Unauthorized));
         Assert.That(await GetContent(response), Is.EqualTo(
