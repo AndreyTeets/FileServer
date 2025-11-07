@@ -12,21 +12,21 @@ class ComponentBase {
 
     render(props) {
         this.props = props || {};
-        if (this.#lastRenderedElemIsAttachedToDom() && this.#lastRenderedPropsAndStateAreIdenticalToCurrent())
+        if (this.#lastRenderedElemIsAttached() && this.#lastRenderedPropsAndStateAreIdenticalToCurrent())
             return this.#lastRenderedElem;
         return this.#renderCoreAndSaveLastRenderInfo();
     }
 
     setState(state) {
         this.state = { ...this.state, ...state };
-        if (this.#lastRenderedElemIsAttachedToDom() && !this.#lastRenderedPropsAndStateAreIdenticalToCurrent())
+        if (this.#lastRenderedElemIsAttached() && !this.#lastRenderedPropsAndStateAreIdenticalToCurrent())
             this.#rerender();
     }
 
     #rerender() {
         const oldElem = this.#lastRenderedElem;
         const newElem = this.#renderCoreAndSaveLastRenderInfo();
-        VDom.replaceAndRerender(newElem, oldElem);
+        VDom.replace(newElem, oldElem);
     }
 
     #renderCoreAndSaveLastRenderInfo() {
@@ -45,7 +45,7 @@ class ComponentBase {
         return false;
     }
 
-    #lastRenderedElemIsAttachedToDom() {
+    #lastRenderedElemIsAttached() {
         return this.#lastRenderedElem && VDom.isConnected(this.#lastRenderedElem);
     }
 }
