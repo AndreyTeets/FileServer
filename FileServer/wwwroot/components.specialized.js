@@ -44,7 +44,7 @@ class FilesListComponent extends ComponentBase {
 
 class FileUploadComponent extends ComponentBase {
     #fileInput;
-    #fileInputVDomForceResetId = 0;
+    #fileInputCreationCounter = 0;
 
     constructor() {
         super();
@@ -64,7 +64,7 @@ class FileUploadComponent extends ComponentBase {
         const fileInput = VDom.createElement("input");
         fileInput.type = "file";
         fileInput.vEventListeners["change"] = [this.#onFileInputChange];
-        fileInput.vDomForceResetId = this.#fileInputVDomForceResetId++;
+        fileInput.vIdToForceChange = this.#fileInputCreationCounter++;
         return fileInput;
     }
 

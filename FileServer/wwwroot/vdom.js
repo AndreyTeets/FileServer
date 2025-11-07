@@ -60,17 +60,17 @@ class VDom {
         return elem.vParent && VDom.isConnected(elem.vParent);
     }
 
-    static replaceAndRerender(newElem, oldElem) {
+    static replace(newElem, oldElem) {
         if (newElem === oldElem) {
-            throw new Error("Equal elements while replacing and rerendering.");
+            throw new Error("Attempt to replace equal VDOM elements.");
         } else if (VDomElemComparer.vDomElementsAreIdentical(newElem, oldElem)) {
             VDom.#replaceInVDom(newElem, oldElem);
-            VDom.#setDomElemInNewFromOldInAllInnerNonChanged(newElem, oldElem, null);
+            VDom.#setDomElem_InNewFromOld_IncludingChildren_ExceptWhenChanged(newElem, oldElem, null);
         } else {
             const [newMinimalElem, oldMinimalElem, oldMinimalElemParent] = VDom.#findMinimalChangedElement(newElem, oldElem);
             VDom.#replaceInVDom(newElem, oldElem);
             VDom.#replaceInDom(newMinimalElem, oldMinimalElem, oldMinimalElemParent);
-            VDom.#setDomElemInNewFromOldInAllInnerNonChanged(newElem, oldElem, newMinimalElem);
+            VDom.#setDomElem_InNewFromOld_IncludingChildren_ExceptWhenChanged(newElem, oldElem, newMinimalElem);
         }
     }
 
@@ -90,38 +90,38 @@ class VDom {
             oldElemParent.getDomElem().replaceChild(newElem.getDomElem(), oldElem.getDomElem());
     }
 
-    static #setDomElemInNewFromOldInAllInnerNonChanged(newElem, oldElem, newChangedElem) {
-        if (newElem === newChangedElem)
+    static #setDomElem_InNewFromOld_IncludingChildren_ExceptWhenChanged(newElem, oldElem, changedElemNew) {
+        if (newElem === changedElemNew)
             return;
         newElem.setDomElem(oldElem.getDomElem());
         for (let i = 0; i < Math.min(newElem.vChildren.length, oldElem.vChildren.length); i++)
-            VDom.#setDomElemInNewFromOldInAllInnerNonChanged(newElem.vChildren[i], oldElem.vChildren[i], newChangedElem);
+            VDom.#setDomElem_InNewFromOld_IncludingChildren_ExceptWhenChanged(newElem.vChildren[i], oldElem.vChildren[i], changedElemNew);
     }
 
     static #findMinimalChangedElement(newElem, oldElem) {
         if (!VDomElemComparer.vDomElementsAreIdenticalWithoutChildren(newElem, oldElem)) // Difference in non-child props
             return [newElem, oldElem, oldElem.vParent];
 
-        const lengthDiff = newElem.vChildren.length - oldElem.vChildren.length;
-        const changedElemIndexes = [];
+        const childrenLengthDiff = newElem.vChildren.length - oldElem.vChildren.length;
+        const changedChildrenIndexes = [];
         for (let i = 0; i < Math.min(newElem.vChildren.length, oldElem.vChildren.length); i++) {
             const oldChild = oldElem.vChildren[i];
             const newChild = newElem.vChildren[i];
             if (!VDomElemComparer.vDomElementsAreIdentical(newChild, oldChild))
-                changedElemIndexes.push(i);
+                changedChildrenIndexes.push(i);
         }
 
-        if (Math.abs(lengthDiff) + changedElemIndexes.length === 0) // Same non-child props and same children
-            throw new Error("Identical elements while searching for minimal changed.");
-        if (Math.abs(lengthDiff) + changedElemIndexes.length > 1) // Difference in more than one child
+        if (Math.abs(childrenLengthDiff) + changedChildrenIndexes.length === 0) // Identical non-child props and children
+            throw new Error("Identical VDOM elements while searching for minimal changed.");
+        if (Math.abs(childrenLengthDiff) + changedChildrenIndexes.length > 1) // Difference in more than one child
             return [newElem, oldElem, oldElem.vParent];
 
-        if (lengthDiff === 1) // Last child added
+        if (childrenLengthDiff === 1) // Last child added
             return [newElem.vChildren.at(-1), null, oldElem];
-        if (lengthDiff === -1) // Last child removed
+        if (childrenLengthDiff === -1) // Last child removed
             return [null, oldElem.vChildren.at(-1), oldElem];
 
-        const i = changedElemIndexes[0]; // Difference in exactly one child
+        const i = changedChildrenIndexes[0]; // Difference in exactly one child
         return VDom.#findMinimalChangedElement(newElem.vChildren[i], oldElem.vChildren[i]);
     }
 }
