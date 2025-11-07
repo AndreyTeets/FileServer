@@ -45,15 +45,15 @@ jobs:
           - target: 'secret'
             event: 'schedule'
     steps:
-      - name: Checkout repository
+      - name: Check out repository
         uses: actions/checkout@v4
 
-      - name: Prepare docker image
+      - name: Prepare container image
         if: ${{ matrix.scan-type == 'image' }}
         id: prep-image
         shell: bash
         run: |
-          echo "Preparing docker image for event '${{ matrix.event }}'"
+          echo "Preparing container image for event '${{ matrix.event }}'"
           if [ "${{ matrix.event }}" == "commit" ]; then
             image="app-base-image:${{ github.sha }}"
             docker build . -f ./FileServer/Dockerfile --target app-base -t $image
@@ -63,7 +63,7 @@ jobs:
           fi
           echo "image-ref=${image}" >> $GITHUB_OUTPUT
 
-      - name: Setup .NET SDK
+      - name: Set up .NET SDK
         if: ${{ matrix.scan-type == 'repo' && matrix.target == 'vuln-library' }}
         uses: actions/setup-dotnet@v4
 
@@ -71,7 +71,7 @@ jobs:
         if: ${{ matrix.scan-type == 'repo' && matrix.target == 'vuln-library' }}
         run: dotnet restore . -p:RestorePackagesWithLockFile=True
 
-      - name: Setup Trivy
+      - name: Set up Trivy
         uses: aquasecurity/setup-trivy@v0.2.3
         with:
           version: v0.61.0

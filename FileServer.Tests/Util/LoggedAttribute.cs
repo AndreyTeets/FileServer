@@ -12,7 +12,7 @@ internal sealed class LoggedAttribute : Attribute, ITestAction
     {
         if (test.Fixture is ILoggedTest loggedTest)
             loggedTest.LogsSb?.Clear();
-        TestContext.Out.WriteLine($"------Started {test.FullName}");
+        TestContext.Out.WriteLine($"------Starting {test.FullName}");
     }
 
     public void AfterTest(ITest test)

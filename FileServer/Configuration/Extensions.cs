@@ -70,7 +70,7 @@ internal static class Extensions
         });
     }
 
-    public static void SetupSettingsMonitor(this WebApplication app)
+    public static void SetUpSettingsMonitor(this WebApplication app)
     {
         ILogger logger = app.Services.GetRequiredService<ILogger<Program>>();
         IOptionsMonitor<Settings> settingsMonitor = app.Services.GetRequiredService<IOptionsMonitor<Settings>>();

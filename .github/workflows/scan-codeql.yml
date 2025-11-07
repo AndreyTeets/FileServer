@@ -29,10 +29,10 @@ jobs:
           - language: javascript-typescript
             build-mode: none
     steps:
-      - name: Checkout repository
+      - name: Check out repository
         uses: actions/checkout@v4
 
-      - name: Setup .NET SDK
+      - name: Set up .NET SDK
         uses: actions/setup-dotnet@v4
 
       - name: Initialize CodeQL
@@ -55,7 +55,7 @@ jobs:
         if: ${{ matrix.language == 'csharp' && matrix.build-mode == 'manual' }}
         shell: bash
         run: |
-          echo "Building all csharp projects separetely and consecutively"
+          echo "Building all csharp projects separately and consecutively"
           dotnet build ./FileServer -c Release
           dotnet build ./FileServer.Tests -c Release
           dotnet build ./FileServer.E2ETests -c Release

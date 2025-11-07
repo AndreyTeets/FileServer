@@ -13,7 +13,7 @@ internal sealed class StartServerFixture
     private const string Configuration = "Release";
 #endif
     private const string ServerProjDir = "../../../../FileServer";
-    private const int PortCheckTimoutMilliseconds = 500;
+    private const int PortCheckTimeoutMilliseconds = 500;
     private const int PortCheckWaitNextTryMilliseconds = 1000;
     private const int StartTimeoutSec = 15;
     private const int Port = 9443;
@@ -82,7 +82,7 @@ internal sealed class StartServerFixture
     }
 
     private static bool ServerStarted() =>
-        IsPortOpen("127.0.0.1", Port, TimeSpan.FromMilliseconds(PortCheckTimoutMilliseconds));
+        IsPortOpen("127.0.0.1", Port, TimeSpan.FromMilliseconds(PortCheckTimeoutMilliseconds));
 
     private static bool IsPortOpen(string host, int port, TimeSpan timeout)
     {

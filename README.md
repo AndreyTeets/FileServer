@@ -1,5 +1,5 @@
 # FileServer
-Is a minimalistic https file server with a simple password-only authentication. It provides a simple, secure, universal, cross-patform method to transfer files over network (or just view them in text mode in a browser).
+Is a minimalistic https file server with a simple password-only authentication. It provides a simple, secure, universal, cross-platform method to transfer files over network (or just view them in text mode in a browser).
 
 It's useful, for example, to transfer files over LAN directly between 2 devices if enabling/installing things like SSH, Samba, FTP, Windows folder sharing, e.t.c. on them is undesired. Also mobile devices often miss the client tools necessary to use those, but they do have a browser.
 
@@ -17,16 +17,16 @@ It starts an https server at the specified `listen address` and `listen port` us
 
 ## Nuances
 + There are no file size restrictions for downloading and uploading.
-+ Uploaded files names are sanitized before the server saves them: any characters except the whitelisted (which are any ASCII letter, any digit, space and any of ``` !#$%&'()+,-.;=@[]^_`{}~ ```) are repaced with `_`, then the name is shortened to the first 120 symbols, and then the result is prefixed and postfixed with "upl." and ".oad" respectively.
++ Uploaded files names are sanitized before the server saves them: any characters except the whitelisted (which are any ASCII letter, any digit, space and any of ``` !#$%&'()+,-.;=@[]^_`{}~ ```) are replaced with `_`, then the name is shortened to the first 120 symbols, and then the result is prefixed and postfixed with "upl." and ".oad" respectively.
 + The server won't accept an upload if a file with the same (sanitized) name already exists.
 + Some browsers on mobile devices (e.g. Safari on IPhone/IPad) ignore "Content-Type" header and may try to interpret the content based on the file name extension, which may lead to "Download" button viewing the file or "View" button downloading the file. This can be solved by renaming the file on the server to a name without extension.
 
 ## Authentication system
-To get authenticated on an incoming request that requires authorization, the server expects a client to provide 2 tokens: an auth token in the request's http-only cookie and an antiforgery token in the request's header/query-parameter. The antiforgery token is kept by the SPA client in a browser's local storage (which is scoped to protocol://host:port) and the cookie is managed by the browser. Both tokens have to be a HMACSHA256-signed-claim for [user name, corresponding token type, expiration time]. Authentication succeeds only if both tokens are valid (that is, they are signed by the server's `signing key` and are not expired) and have the same user name (the server issues tokens during a login operation only for one hardcoded `Main` user).
+To authenticate an incoming request that requires authorization, the server expects a client to provide 2 tokens: an auth token in the request http-only cookie and an antiforgery token in the request header/query-parameter. The antiforgery token is kept by the SPA client in a browser local storage (which is scoped to protocol://host:port) and the cookie is managed by the browser. Both tokens have to be a HMACSHA256-signed-claim for [user name, corresponding token type, expiration time]. Authentication succeeds only if both tokens are valid (that is, they are signed by the server `signing key` and are not expired) and have the same user name (the server issues tokens during a login operation only for one hardcoded `Main` user).
 
-For a login operation to succeed, the server expects a client to provide a login request with the same password as the server's `login key`. The auth token ensures that the client has performed a successful login operation (and thus knows the `login key`). And the antiforgery token ensures that the incoming request was initiated by the SPA client's site (protocol://host:port). The latter is necessary because browsers may automatically send cookies to the target site even if the request was initiated by another site.
+For a login operation to succeed, the server expects a client to provide a login request with the same password as the server `login key`. The auth token ensures that the client has performed a successful login operation (and thus knows the `login key`). And the antiforgery token ensures that the incoming request was initiated by the SPA client site (protocol://host:port). The latter is necessary because browsers may automatically send cookies to the target site even if the request was initiated by another site.
 
-To perform a logout operation the SPA client sends a logout request to the server which simply responds with "Set-Cookie token=empty;expired" header which is handled by the browser. Then the SPA client removes the antiforgery token from the browser's local storage. As a consequence it's still possible to access the server with those tokens until they expire (for example, if they got intercepted or got saved somewhere else or got not deleted). This shouldn't be a problem if `tokens ttl` is configured short. To completely invalidate all issued tokens, the server's `signing key` has to be changed.
+To perform a logout operation the SPA client sends a logout request to the server which simply responds with "Set-Cookie token=empty;expired" header which is handled by the browser. Then the SPA client removes the antiforgery token from the browser local storage. As a consequence it's still possible to access the server with those tokens until they expire (for example, if they got intercepted or got saved somewhere else or got not deleted). This shouldn't be a problem if `tokens ttl` is configured short. To completely invalidate all issued tokens, the server `signing key` has to be changed.
 
 As for authorization - the server requires the authenticated user name to be `Main`, but it's kind of redundant since the server doesn't issue tokens for any other users.
 
@@ -74,7 +74,7 @@ Settings that can be configured:
     mkdir server_cert
     openssl req -x509 -newkey rsa:4096 -sha256 -days 3650 -nodes -keyout server_cert/cert.key -out server_cert/cert.crt -subj "/CN=localhost"
     ```
-    Note: An HTTPS connection still provides encryption even if the certificate is untrusted by the browser (e.g. if it's self-signed). But to ensure that the connection is not intercepted, the certificate must still be verified by other means, such as manually via browser's "view certificate" menu and comparing its fingerprints with those printed in the server logs during startup.
+    Note: An HTTPS connection still provides encryption even if the certificate is untrusted by the browser (e.g. if it's self-signed). But to ensure that the connection is not intercepted, the certificate must still be verified by other means, such as manually via browser "view certificate" menu and comparing its fingerprints with those printed in the server logs during startup.
 
 + ###### 4. Create/prepare the `anonymous downloads folder`, `downloads folder`, `uploads folder`.
     For example:
@@ -84,7 +84,7 @@ Settings that can be configured:
     mkdir fs_data/downloads
     mkdir fs_data/uploads
     ```
-    On linux setup permissions if necessary.
+    On linux set up permissions if necessary.
 
 + ###### 5. Create/prepare the settings file.
     Template settings file can be found here [FileServer/appsettings.template.json](FileServer/appsettings.template.json). At a bare minimum the `signing key` and `login key` have to be changed, as they are empty in the template and the server will refuse to start with invalid settings.
@@ -119,7 +119,7 @@ Settings that can be configured:
     + The container image doesn't set any custom users and will run as the root user unless it's explicitly specified in the run command otherwise.
     + The server does not require root permissions and may run as any user UID. The only requirement is for it to have read access to the settings file, all the files and directories specified in settings, and, if upload functionality is to be used, write access to the uploads directory (from the perspective of the user running inside the container). Neither does it require any capabilities and `--cap-drop=all` option can be added if the previous condition is met.
     + When running as the root user in rootful mode (which docker by default does), uploaded files will be owned by the root user on the host, which is at least inconvenient. It also poses additional security risks. So it is highly recommended to add `-u $(id -u):$(id -g)` option, which will make uploaded files being owned by the same user who launched the container.
-    + When running as the root user in rootless mode (which e.g. podman by default does), there may be no problem with uploaded files ownership (e.g. with podman, there isn't, as it by default maps the host user who launched the container to the root user inside the container). But chaning to a non-root user is still recommended to reduce security risks. For podman it can be done using `--userns=keep-id` option, which will change the previously mentioned mapping to the same UID inside the container as on host, or `--userns=keep-id:uid=12345,gid=12345` option, which will change it to the specified UID.
+    + When running as the root user in rootless mode (which e.g. podman by default does), there may be no problem with uploaded files ownership (e.g. with podman, there isn't, as it by default maps the host user who launched the container to the root user inside the container). But changing to a non-root user is still recommended to reduce security risks. For podman it can be done using `--userns=keep-id` option, which will change the previously mentioned mapping to the same UID inside the container as on host, or `--userns=keep-id:uid=12345,gid=12345` option, which will change it to the specified UID.
     + On systems with SELinux it may be necessary to add `:z` to the volume mount options (with `!care!`, as it will recursively relabel the mapped directory on the host, which may break the host system if used on directories that are used elsewhere besides the container). In case of relabeling, uploaded files will have "system_u:object_r:container_file_t:s0" context. To restore default context `restorecon -RFv /path/to/fs_data` can be used. If relabeling is an issue and has to be avoided `--security-opt label=disable` option can be added instead (which will basically disable SELinux for the containerized process).
 
 + ###### 7. Open the corresponding tcp port in firewall if necessary.
@@ -161,5 +161,5 @@ The `master` branch is where the development happens, it may be unstable. Use th
 
 Pre-built container images can be found [here](https://hub.docker.com/r/andreyteets/fileserver) on Docker Hub.
 
-# Licence
+# License
 MIT License. See [LICENSE](LICENSE) file.

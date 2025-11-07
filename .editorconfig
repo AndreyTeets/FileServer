@@ -781,7 +781,7 @@ dotnet_diagnostic.NUnit2045.severity = silent
 
 #### Overrides to remove when code is fixed appropriately ####
 
-#### Special files overrieds ####
+#### Special files overrides ####
 
 ## Generated or non-compiled files should be ignored
 [{**/obj/**.cs,**/Generated/**.cs,**/TestData/**.cs}]
