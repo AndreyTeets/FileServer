@@ -16,20 +16,23 @@ class Comparer {
         for (const key of keys1) {
             if (!keys2.includes(key))
                 return false;
-
-            const val1 = obj1[key];
-            const val2 = obj2[key];
-
-            const typesAreEqual = typeof val1 === typeof val2;
-            if (!typesAreEqual)
-                return false;
-
-            const bothAreObjects = typesAreEqual && typeof val1 === "object";
-            if (bothAreObjects && !Comparer.objectsAreIdentical(val1, val2, excludeProps))
-                return false;
-            if (!bothAreObjects && val1 !== val2)
+            if (!Comparer.#valuesAreIdentical(obj1[key], obj2[key], excludeProps))
                 return false;
         }
+
+        return true;
+    }
+
+    static #valuesAreIdentical(val1, val2, excludeProps) {
+        const typesAreEqual = typeof val1 === typeof val2;
+        if (!typesAreEqual)
+            return false;
+
+        const bothAreObjects = typesAreEqual && typeof val1 === "object";
+        if (bothAreObjects && !Comparer.objectsAreIdentical(val1, val2, excludeProps))
+            return false;
+        if (!bothAreObjects && val1 !== val2)
+            return false;
 
         return true;
     }
