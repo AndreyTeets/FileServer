@@ -16,28 +16,42 @@ class VDomElement {
     }
 
     getDomElem() {
-        if (!this.#domElem) {
-            if (this.vType === "vText") {
-                this.#domElem = document.createTextNode(this.vText);
-            } else {
-                this.#domElem = document.createElement(this.vType);
-                for (const prop of Object.keys(this).filter(x => !Object.keys(new VDomElement("")).includes(x)))
-                    this.#domElem[prop] = this[prop];
-                for (const cls of this.vClasses)
-                    this.#domElem.classList.add(cls);
-                for (const event of Object.keys(this.vEventListeners)) {
-                    for (const eventListener of this.vEventListeners[event])
-                        this.#domElem.addEventListener(event, eventListener);
-                }
-                for (const child of this.vChildren)
-                    this.#domElem.append(child.getDomElem());
-            }
-        }
+        if (!this.#domElem)
+            throw new Error("Attempt to get a DOM element for a VDOM element that doesn't have one.");
         return this.#domElem;
     }
 
     setDomElem(elem) {
+        if (this.#domElem)
+            throw new Error("Attempt to set a DOM element for a VDOM element that already has one.");
         this.#domElem = elem;
+    }
+
+    createDomElem() {
+        const isText = this.vType === "vText";
+        const domElem = isText
+            ? document.createTextNode(this.vText)
+            : document.createElement(this.vType);
+        if (!isText) {
+            this.#addPropsTo(domElem);
+            for (const child of this.vChildren) {
+                if (!child.#domElem) // Components may reuse saved child elements when rendering
+                    child.setDomElem(child.createDomElem());
+                domElem.append(child.getDomElem());
+            }
+        }
+        return domElem;
+    }
+
+    #addPropsTo(domElem) {
+        for (const prop of Object.keys(this).filter(x => !Object.keys(new VDomElement("")).includes(x)))
+            domElem[prop] = this[prop];
+        for (const cls of this.vClasses)
+            domElem.classList.add(cls);
+        for (const eventName in this.vEventListeners) {
+            for (const eventListener of this.vEventListeners[eventName])
+                domElem.addEventListener(eventName, eventListener);
+        }
     }
 }
 
@@ -65,12 +79,14 @@ class VDom {
             throw new Error("Attempt to replace equal VDOM elements.");
         } else if (VDomElemComparer.vDomElementsAreIdentical(newElem, oldElem)) {
             VDom.#replaceInVDom(newElem, oldElem);
-            VDom.#setDomElem_InNewFromOld_IncludingChildren_ExceptWhenChanged(newElem, oldElem, null);
+            VDom.#setDomElem_InNewFromOld_IncludingChildren_ExceptWhenEqualOrChanged(newElem, oldElem, null);
         } else {
             const [newMinimalElem, oldMinimalElem, oldMinimalElemParent] = VDom.#findMinimalChangedElement(newElem, oldElem);
             VDom.#replaceInVDom(newElem, oldElem);
+            VDom.#setDomElem_InNewFromOld_IncludingChildren_ExceptWhenEqualOrChanged(newElem, oldElem, newMinimalElem);
+            if (newMinimalElem !== null)
+                newMinimalElem.setDomElem(newMinimalElem.createDomElem());
             VDom.#replaceInDom(newMinimalElem, oldMinimalElem, oldMinimalElemParent);
-            VDom.#setDomElem_InNewFromOld_IncludingChildren_ExceptWhenChanged(newElem, oldElem, newMinimalElem);
         }
     }
 
@@ -90,12 +106,12 @@ class VDom {
             oldElemParent.getDomElem().replaceChild(newElem.getDomElem(), oldElem.getDomElem());
     }
 
-    static #setDomElem_InNewFromOld_IncludingChildren_ExceptWhenChanged(newElem, oldElem, changedElemNew) {
-        if (newElem === changedElemNew)
+    static #setDomElem_InNewFromOld_IncludingChildren_ExceptWhenEqualOrChanged(newElem, oldElem, changedElemNew) {
+        if (newElem === oldElem || newElem === changedElemNew)
             return;
         newElem.setDomElem(oldElem.getDomElem());
         for (let i = 0; i < Math.min(newElem.vChildren.length, oldElem.vChildren.length); i++)
-            VDom.#setDomElem_InNewFromOld_IncludingChildren_ExceptWhenChanged(newElem.vChildren[i], oldElem.vChildren[i], changedElemNew);
+            VDom.#setDomElem_InNewFromOld_IncludingChildren_ExceptWhenEqualOrChanged(newElem.vChildren[i], oldElem.vChildren[i], changedElemNew);
     }
 
     static #findMinimalChangedElement(newElem, oldElem) {

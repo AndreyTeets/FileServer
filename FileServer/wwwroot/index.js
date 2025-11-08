@@ -7,6 +7,7 @@ function onDocumentLoad() {
     const vApp = appComponent.render();
 
     vRoot.append(vApp);
+    vRoot.setDomElem(vRoot.createDomElem());
     root.replaceWith(vRoot.getDomElem());
     VDom.rootElem = vRoot;
 }
