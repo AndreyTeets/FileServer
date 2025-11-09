@@ -16,7 +16,7 @@ concurrency: # head_ref is only defined on pull_request events, run_id is unique
 
 jobs:
   scan-trivy:
-    name: scan-trivy (${{ matrix.target }})
+    name: scan-trivy (${{ matrix.target }} ${{ matrix.image-tag }})
     runs-on: ubuntu-latest
     permissions:
       security-events: write
@@ -27,6 +27,9 @@ jobs:
         scan-type: ['image', 'repo']
         event:
           - ${{ github.event_name != 'schedule' && 'commit' || 'schedule' }}
+        image-tag:
+          - ${{ github.event_name != 'schedule' && 'commit' || 'latest' }}
+          - ${{ github.event_name != 'schedule' && 'exclude_for_commit' || '1.0' }}
         exclude:
           - target: 'vuln-os'
             scan-type: 'repo'
@@ -44,6 +47,8 @@ jobs:
             scan-type: 'image'
           - target: 'secret'
             event: 'schedule'
+          - image-tag: 'exclude_for_commit'
+            event: 'commit'
     steps:
       - name: Check out repository
         uses: actions/checkout@v4
@@ -58,7 +63,7 @@ jobs:
             image="app-base-image:${{ github.sha }}"
             docker build . -f ./FileServer/Dockerfile --target app-base -t $image
           else
-            image="${{ vars.DOCKERHUB_NAMESPACE }}/${{ vars.DOCKERHUB_REPOSITORY }}:latest"
+            image="${{ vars.DOCKERHUB_NAMESPACE }}/${{ vars.DOCKERHUB_REPOSITORY }}:${{ matrix.image-tag }}"
             docker pull $image
           fi
           echo "image-ref=${image}" >> $GITHUB_OUTPUT
