@@ -156,6 +156,8 @@ Replace these steps from the container image usage example:
     + `./FileServer.exe` for self-contained when using windows pwsh.
     + `./FileServer` for self-contained when using linux.
 
+A practical end-to-end working example of setting up and running a non-self-contained .exe server for local development can be found in [_setup-server.bat](_setup-server.bat) and [_run-server.bat](_run-server.bat) scripts.
+
 ## Additional information
 The `master` branch is where the development happens, it may be unstable. Use the `stable` branch or one of the `v*` tags (releases) to build from the source code (the `stable` branch always points to the latest release, so it is essentially an analog to the "latest" tag for container images).
 
