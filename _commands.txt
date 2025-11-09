@@ -1,8 +1,22 @@
-openssl req -x509 -newkey rsa:4096 -sha256 -days 3650 -nodes -keyout cert.key -out cert.crt -subj "/CN=localhost"
-
 docker build . -f ./FileServer.E2ETests/Dockerfile -t fs_e2etests:latest
 docker build . -f ./FileServer/Dockerfile -t fs_tests:latest --target tests
 docker build . -f ./FileServer/Dockerfile -t fs:latest --target app --build-arg APP_VERSION=0.0.1 --platform linux/amd64
-
 docker build . -f ./FileServer/Dockerfile-simple -t fs:latest
-docker run --rm -it --name fs -p 127.0.0.1:8443:8443/tcp -v "$pwd\FileServer\bin\settings:/app/settings" -v "$pwd\FileServer\bin\fs_data:/fs_data" fs:latest
+docker run --rm -it --name fs -p 127.0.0.1:8443:8443/tcp -v "$pwd/FileServer/bin/settings:/app/settings" -v "$pwd/FileServer/bin/fs_data:/fs_data" fs:latest
+
+$trivyExePath = [System.IO.Path]::GetFullPath("../../trivy/trivy.exe")
+dotnet clean . && dotnet restore . -p:RestorePackagesWithLockFile=True
+&"$trivyExePath" image --scanners vuln --vuln-type 'os' fs:latest
+&"$trivyExePath" image --scanners vuln --vuln-type 'library' fs:latest
+&"$trivyExePath" fs --scanners vuln --skip-dirs "**/bin" --skip-dirs "**/obj" .
+&"$trivyExePath" fs --scanners misconfig --severity CRITICAL,HIGH,MEDIUM --skip-dirs "**/bin" .
+&"$trivyExePath" fs --scanners secret --severity CRITICAL,HIGH,MEDIUM --skip-dirs "**/bin" .
+Remove-Item -Path "./FileServer*/packages.lock.json" && &"$trivyExePath" clean --all
+
+$codeqlExePath = [System.IO.Path]::GetFullPath("../../codeql/codeql.exe")
+$codeqlDbDir = [System.IO.Path]::GetFullPath("FileServer/bin/qldb")
+mkdir "$codeqlDbDir"
+rmdir -Recurse "$codeqlDbDir/actions.db" || $true && &"$codeqlExePath" database create $codeqlDbDir/actions.db --language=actions && &"$codeqlExePath" database analyze $codeqlDbDir/actions.db --format=sarif-latest --output=$codeqlDbDir/actions-report.sarif actions-security-and-quality.qls
+rmdir -Recurse "$codeqlDbDir/cs.db" || $true && &"$codeqlExePath" database create $codeqlDbDir/cs.db --language=csharp --command='dotnet build FileServer -t:rebuild && dotnet build FileServer.Tests -t:rebuild && dotnet build FileServer.E2ETests -t:rebuild' && &"$codeqlExePath" database analyze $codeqlDbDir/cs.db --format=sarif-latest --output=$codeqlDbDir/cs-report.sarif csharp-security-and-quality.qls
+rmdir -Recurse "$codeqlDbDir/js.db" || $true && pushd "FileServer/wwwroot" && &"$codeqlExePath" database create $codeqlDbDir/js.db --language=javascript-typescript && popd && &"$codeqlExePath" database analyze $codeqlDbDir/js.db --format=sarif-latest --output=$codeqlDbDir/js-report.sarif javascript-security-and-quality.qls
+rmdir -Recurse "$codeqlDbDir/*.db"
