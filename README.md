@@ -133,14 +133,14 @@ Note: This is not recommended as it does not provide an extra layer of security 
 Replace these steps from the container image usage example:
 + ###### Step 2.
     ```
-    dotnet publish "FileServer/FileServer.csproj" -c Release -o bin/publish
+    dotnet publish "FileServer/FileServer.csproj" -c Release -o FileServer/bin/publish
     ```
     Add `-r <RID> --self-contained` to publish as self-contained.
 
     Commonly used RIDs: `win-x64`, `linux-x64`, `linux-musl-x64`.
 
 + ###### Step 5.
-    Place the `appsettings.json` file from the container image usage example to bin/publish and set correct full paths for:
+    Place the `appsettings.json` file from the container image usage example to FileServer/bin/publish and set correct full paths for:
     ```
     "CertFilePath": "/full/path/to/server_cert/cert.crt",
     "CertKeyPath": "/full/path/to/server_cert/cert.key",
@@ -150,7 +150,7 @@ Replace these steps from the container image usage example:
     ```
 
 + ###### Step 6.
-    `cd bin/publish` (current working directory is `!important!`).
+    `cd FileServer/bin/publish` (current working directory is `!important!`).
     + `dotnet ./FileServer.dll` for non-self-contained.
     + `"./FileServer.exe"` for self-contained when using windows cmd.
     + `./FileServer.exe` for self-contained when using windows pwsh.
