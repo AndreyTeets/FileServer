@@ -20,9 +20,13 @@ if %errorlevel% neq 0 goto :Error
 echo -^> Running E2E tests...
 dotnet test FileServer.E2ETests -c Release --no-build -v q
 if %errorlevel% neq 0 goto :Error
+
+:Success
+echo =^> All tests completed successfully
 goto :End
 
 :Error
+
 :End
 echo;
 echo Press any key to close...
