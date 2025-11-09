@@ -1,0 +1,38 @@
+@echo off
+pushd "%~dp0"
+
+set "SETTINGS_DIR=%cd%\FileServer\bin\settings"
+set "FS_DATA_DIR=%cd%\FileServer\bin\fs_data"
+
+:CopyAppSettingsJsonFromTemplate
+if exist "%SETTINGS_DIR%\appsettings.json" goto :SetUpFsDataDirectory
+echo -^> Copying appsettings.json from template...
+echo F| xcopy "%cd%\FileServer\appsettings.template.json" "%SETTINGS_DIR%\appsettings.json" /Y /R /Q>nul
+echo Don't forget to manually set SigningKey/LoginKey
+
+:SetUpFsDataDirectory
+if exist "%FS_DATA_DIR%" goto :GenerateCertificate
+echo -^> Setting up fs_data directory...
+(mkdir "%FS_DATA_DIR%\download_anon")>nul 2>&1 && echo test_anonfile1_content>"%FS_DATA_DIR%\download_anon\anonfile1.txt"
+(mkdir "%FS_DATA_DIR%\download")>nul 2>&1 && echo test_file1_content>"%FS_DATA_DIR%\download\file1.txt"
+(mkdir "%FS_DATA_DIR%\upload")>nul 2>&1
+
+:GenerateCertificate
+if exist "%SETTINGS_DIR%\cert.crt" goto :BuildAndPublish
+echo -^> Generating certificate...
+openssl req -quiet -x509 -newkey rsa:4096 -sha256 -days 365 -nodes -keyout "%SETTINGS_DIR%/cert.key" -out "%SETTINGS_DIR%/cert.crt" -subj "/CN=localhost"
+if %errorlevel% neq 0 goto :Error
+
+:BuildAndPublish
+echo -^> Building and publishing...
+if exist "FileServer\bin\publish" (rmdir "FileServer\bin\publish" /S /Q)>nul 2>&1
+dotnet publish "FileServer/FileServer.csproj" -c Release -o "FileServer/bin/publish"
+if %errorlevel% neq 0 goto :Error
+goto :End
+
+:Error
+:End
+echo;
+echo Press any key to close...
+pause>nul
+popd

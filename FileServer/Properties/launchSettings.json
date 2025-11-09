@@ -8,7 +8,6 @@
         "ASPNETCORE_ENVIRONMENT": "Development",
         "FileServer_SettingsFilePath": "$(MSBuildProjectDirectory)\\bin\\settings\\appsettings.json",
         "FileServer__Settings__ListenAddress": "127.0.0.1",
-        "FileServer__Settings__ListenPort": "8443",
         "FileServer__Settings__CertFilePath": "$(MSBuildProjectDirectory)\\bin\\settings\\cert.crt",
         "FileServer__Settings__CertKeyPath": "$(MSBuildProjectDirectory)\\bin\\settings\\cert.key",
         "FileServer__Settings__DownloadAnonDir": "$(MSBuildProjectDirectory)\\bin\\fs_data\\download_anon",
@@ -24,8 +23,13 @@
         "ASPNETCORE_URLS": "",
         "ASPNETCORE_ENVIRONMENT": "Development",
         "FileServer_SettingsFilePath": "/app/bin/settings/appsettings.json",
+        "FileServer__Settings__ListenAddress": "0.0.0.0",
+        "FileServer__Settings__ListenPort": "8443",
         "FileServer__Settings__CertFilePath": "/app/bin/settings/cert.crt",
-        "FileServer__Settings__CertKeyPath": "/app/bin/settings/cert.key"
+        "FileServer__Settings__CertKeyPath": "/app/bin/settings/cert.key",
+        "FileServer__Settings__DownloadAnonDir": "/fs_data/download_anon",
+        "FileServer__Settings__DownloadDir": "/fs_data/download",
+        "FileServer__Settings__UploadDir": "/fs_data/upload"
       },
       "dotnetRunMessages": true,
       "publishAllPorts": false
