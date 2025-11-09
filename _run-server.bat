@@ -9,15 +9,25 @@ set "FileServer__Settings__DownloadAnonDir=%cd%\FileServer\bin\fs_data\download_
 set "FileServer__Settings__DownloadDir=%cd%\FileServer\bin\fs_data\download"
 set "FileServer__Settings__UploadDir=%cd%\FileServer\bin\fs_data\upload"
 
+echo -^> Publishing...
+if exist "FileServer\bin\publish" (rmdir "FileServer\bin\publish" /S /Q)>nul 2>&1
+dotnet publish "FileServer/FileServer.csproj" -c Release -o "FileServer/bin/publish" -v q
+if %errorlevel% neq 0 goto :Error
+
+echo -^> Running...
 pushd "%cd%\FileServer\bin\publish"
 call "FileServer.exe"
 if %errorlevel% neq 0 goto :Error
+
+:Success
+echo =^> Completed successfully
 goto :End
 
 :Error
 echo;
 echo Press any key to close...
 pause>nul
+
 :End
 popd
 popd
