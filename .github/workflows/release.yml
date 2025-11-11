@@ -1,0 +1,43 @@
+name: release
+
+on:
+  push:
+    tags: ['v*.*.*']
+
+permissions: {}
+
+jobs:
+  build-binaries:
+    uses: ./.github/workflows/build-binaries.yml
+    permissions:
+      contents: read
+
+  build-containers:
+    uses: ./.github/workflows/build-containers.yml
+    needs: [build-binaries]
+    permissions:
+      contents: read
+    secrets:
+      DOCKERHUB_TOKEN: ${{ secrets.DOCKERHUB_TOKEN }}
+
+  create-release:
+    runs-on: ubuntu-latest
+    needs: [build-binaries, build-containers]
+    permissions:
+      contents: write
+    steps:
+      - name: Download artifacts
+        uses: actions/download-artifact@v5
+        with:
+          pattern: built-*
+          path: artifacts
+          merge-multiple: true
+
+      - name: Create release
+        shell: bash
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          VERSION="${GITHUB_REF#refs/tags/v}"
+          REPO="${{ vars.REPO_OWNER }}/${{ vars.REPO_NAME }}"
+          gh release create "v${VERSION}" ./artifacts/* --verify-tag --title $VERSION -R $REPO

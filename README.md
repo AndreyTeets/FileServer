@@ -49,10 +49,10 @@ Settings that can be configured:
 
 ## Usage requirements
 + To build the container image and/or run it - docker or an alternative container engine (e.g. podman).
-+ To build (publish) as a dotnet application - dotnet sdk 8.0 or higher.
-+ To run as a non-self-contained dotnet application - aspnetcore runtime 8.0.
-+ To run as a self-contained dotnet application on linux - dotnet runtime dependencies.
-+ To run as a self-contained dotnet application on windows - nothing.
++ To build (publish) a dotnet application - dotnet sdk 8.0 or higher.
++ To run a portable dotnet application - aspnetcore runtime 8.0.
++ To run a self-contained dotnet application on linux - dotnet runtime dependencies.
++ To run a self-contained dotnet application on windows - nothing.
 
 ## Usage (container image)
 + ###### 1. Get the source code.
@@ -151,17 +151,18 @@ Replace these steps from the container image usage example:
 
 + ###### Step 6.
     `cd FileServer/bin/publish` (current working directory is `!important!`).
-    + `dotnet ./FileServer.dll` for non-self-contained.
+    + `dotnet ./FileServer.dll` for portable (framework-dependent cross-platform).
     + `"./FileServer.exe"` for self-contained when using windows cmd.
     + `./FileServer.exe` for self-contained when using windows pwsh.
     + `./FileServer` for self-contained when using linux.
 
-A practical end-to-end working example of setting up and running a non-self-contained .exe server for local development can be found in [_setup-server.bat](_setup-server.bat) and [_run-server.bat](_run-server.bat) scripts.
+A practical end-to-end working example of setting up, publishing and running a portable server for local development can be found in [_setup-server.bat](_setup-server.bat) and [_run-server.bat](_run-server.bat) scripts.
 
 ## Additional information
 The `master` branch is where the development happens, it may be unstable. Use the `stable` branch or one of the `v*` tags (releases) to build from the source code (the `stable` branch always points to the latest release, so it is essentially an analog to the "latest" tag for container images).
 
 Pre-built container images can be found [here](https://hub.docker.com/r/andreyteets/fileserver) on Docker Hub.
+Pre-built binaries can be found [here](https://github.com/AndreyTeets/FileServer/releases) in GitHub Releases.
 
 # License
 MIT License. See [LICENSE](LICENSE) file.

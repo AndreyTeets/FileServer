@@ -14,12 +14,13 @@ concurrency: # head_ref is only defined on pull_request events, run_id is unique
   group: ${{ github.workflow }}-${{ github.head_ref || github.run_id }}
   cancel-in-progress: true
 
+permissions:
+  security-events: write
+
 jobs:
   scan-trivy:
     name: scan-trivy (${{ matrix.target }} ${{ matrix.image-tag }})
     runs-on: ubuntu-latest
-    permissions:
-      security-events: write
     strategy:
       fail-fast: false
       matrix:
@@ -71,6 +72,8 @@ jobs:
       - name: Set up .NET SDK
         if: ${{ matrix.scan-type == 'repo' && matrix.target == 'vuln-library' }}
         uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: 9.0.x
 
       - name: Generate lock files for all csharp projects
         if: ${{ matrix.scan-type == 'repo' && matrix.target == 'vuln-library' }}
