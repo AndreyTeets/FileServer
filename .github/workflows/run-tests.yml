@@ -12,11 +12,12 @@ concurrency: # head_ref is only defined on pull_request events, run_id is unique
   group: ${{ github.workflow }}-${{ github.head_ref || github.run_id }}
   cancel-in-progress: true
 
+permissions: {}
+
 jobs:
   run-tests:
     name: run-tests (${{ matrix.os }} ${{ matrix.browser }} sdk${{ matrix.netsdkver }} ${{ matrix.netcfg }})
     runs-on: ${{ matrix.os }}-latest
-    permissions: {}
     strategy:
       fail-fast: false
       matrix:

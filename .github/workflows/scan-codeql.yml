@@ -12,12 +12,13 @@ concurrency: # head_ref is only defined on pull_request events, run_id is unique
   group: ${{ github.workflow }}-${{ github.head_ref || github.run_id }}
   cancel-in-progress: true
 
+permissions:
+  security-events: write
+
 jobs:
   scan-codeql:
     name: scan-codeql (${{ matrix.language }})
     runs-on: ubuntu-latest
-    permissions:
-      security-events: write
     strategy:
       fail-fast: false
       matrix:
@@ -34,6 +35,8 @@ jobs:
 
       - name: Set up .NET SDK
         uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: 9.0.x
 
       - name: Initialize CodeQL
         uses: github/codeql-action/init@v3
