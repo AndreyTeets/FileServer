@@ -66,7 +66,7 @@ jobs:
         run: dotnet test FileServer.Tests -c ${{ matrix.netcfg }} --no-build
 
       - name: Install Playwright
-        run: pwsh FileServer.E2ETests/bin/${{ matrix.netcfg }}/net8.0/playwright.ps1 install --with-deps ${{ matrix.browser }}
+        run: pwsh FileServer.E2ETests/bin/${{ matrix.netcfg }}/net8.0/playwright.ps1 install --with-deps --only-shell ${{ matrix.browser }}
 
       - name: Run E2E tests
         run: dotnet test FileServer.E2ETests -c ${{ matrix.netcfg }} --no-build -- Playwright.BrowserName=${{ matrix.browser }}
