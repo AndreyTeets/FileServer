@@ -52,6 +52,7 @@ jobs:
       - name: Build all platforms
         shell: bash
         run: |
+          export APP_VERSION=${{ steps.vars.outputs.app_version }}
           echo "Building portable"
           ART_NAME="fileserver-${{ steps.vars.outputs.app_version }}-portable"
           dotnet publish "FileServer/FileServer.csproj" -c Release -p:UseAppHost=false -o "artifacts/${ART_NAME}"
