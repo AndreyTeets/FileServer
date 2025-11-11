@@ -1,0 +1,79 @@
+name: build-binaries
+
+on:
+  push:
+    tags: ['v*.*.*']
+    branches: ['master']
+    paths: ['FileServer**', 'Directory.Build.props', '.editorconfig', 'global.json', '.github/workflows/build-binaries.yml']
+  pull_request:
+    branches: ['master']
+    paths: ['FileServer**', 'Directory.Build.props', '.editorconfig', 'global.json', '.github/workflows/build-binaries.yml']
+
+concurrency: # head_ref is only defined on pull_request events, run_id is unique for each workflow run
+  group: ${{ github.workflow }}-${{ github.head_ref || github.run_id }}
+  cancel-in-progress: true
+
+env:
+  PLATFORMS: |-
+    linux-x64
+    linux-arm64
+    linux-arm
+    linux-musl-x64
+    linux-musl-arm64
+    win-x86
+    win-x64
+    win-arm64
+    osx-x64
+    osx-arm64
+
+jobs:
+  build-binaries:
+    runs-on: ubuntu-latest
+    permissions: {}
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+
+      - name: Set up vars
+        id: vars
+        shell: bash
+        run: |
+          tag_version="${GITHUB_REF#refs/tags/v}"
+          [ "${tag_version:0:5}" == "refs/" ] && app_version='1.0.0' || app_version="$tag_version"
+          echo "app_version=${app_version}" >> $GITHUB_OUTPUT
+
+      - name: Set up .NET SDK
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: 9.0.x
+
+      - name: Build all platforms
+        shell: bash
+        run: |
+          echo "Building portable"
+          ART_NAME="fileserver-${{ steps.vars.outputs.app_version }}-portable"
+          dotnet publish "FileServer/FileServer.csproj" -c Release -p:UseAppHost=false -o "artifacts/${ART_NAME}"
+          pushd artifacts
+          zip -rq "${ART_NAME}.zip" $ART_NAME
+          tar -czf "${ART_NAME}.tar.gz" $ART_NAME
+          popd
+          rm -rf "artifacts/${ART_NAME}"
+          echo "${{ env.PLATFORMS }}" | while IFS= read -r RID; do
+            echo "Building $RID"
+            ART_NAME="fileserver-${{ steps.vars.outputs.app_version }}-$RID"
+            dotnet publish "FileServer/FileServer.csproj" -c Release --self-contained -r $RID -o "artifacts/${ART_NAME}"
+            pushd artifacts
+            [ "${RID:0:4}" == "win-" ] && zip -rq "${ART_NAME}.zip" $ART_NAME || tar -czf "${ART_NAME}.tar.gz" $ART_NAME
+            popd
+          rm -rf "artifacts/${ART_NAME}"
+          done
+
+      - name: Upload artifacts
+        if: ${{ github.event_name == 'push' && startsWith(github.ref, 'refs/tags/v') }}
+        uses: actions/upload-artifact@v4
+        with:
+          name: built-binaries
+          if-no-files-found: error
+          retention-days: 7
+          compression-level: 0
+          path: artifacts/*
