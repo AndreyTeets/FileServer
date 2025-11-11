@@ -161,7 +161,7 @@ A practical end-to-end working example of setting up, publishing and running a p
 ## Additional information
 The `master` branch is where the development happens, it may be unstable. Use the `stable` branch or one of the `v*` tags (releases) to build from the source code (the `stable` branch always points to the latest release, so it is essentially an analog to the "latest" tag for container images).
 
-Pre-built container images can be found [here](https://hub.docker.com/r/andreyteets/fileserver) on Docker Hub.
+Pre-built container images can be found [here](https://hub.docker.com/r/andreyteets/fileserver) on Docker Hub.\
 Pre-built binaries can be found [here](https://github.com/AndreyTeets/FileServer/releases) in GitHub Releases.
 
 # License

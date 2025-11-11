@@ -40,4 +40,4 @@ jobs:
         run: |
           VERSION="${GITHUB_REF#refs/tags/v}"
           REPO="${{ vars.REPO_OWNER }}/${{ vars.REPO_NAME }}"
-          gh release create "v${VERSION}" ./artifacts/* --verify-tag --title $VERSION -R $REPO
+          gh release create "v${VERSION}" ./artifacts/* --verify-tag --title "v${VERSION}" -R $REPO
