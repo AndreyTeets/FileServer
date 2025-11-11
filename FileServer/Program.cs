@@ -12,10 +12,13 @@ internal sealed class Program
             return;
         }
 
+        ILogger logger = Utility.CreateConsoleLogger<Program>();
+        logger.LogInformation(LogMessages.StartingServer, Utility.GetVersion(out string commit), commit);
+
         WebApplicationBuilder builder = WebApplication.CreateBuilder(args);
         builder.ConfigureSettings();
         builder.ConfigureLogging();
-        builder.ConfigureKestrel();
+        builder.ConfigureKestrel(logger);
 
         builder.Services.AddAndConfigureServices();
 

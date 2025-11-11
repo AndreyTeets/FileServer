@@ -42,7 +42,7 @@ public class TokenService(
         {
             string base64TokenString = WebUtility.UrlDecode(encodedTokenString);
             string tokenJson = Encoding.UTF8.GetString(Convert.FromBase64String(base64TokenString));
-            return JsonSerializer.Deserialize<Token>(tokenJson, StaticSettings.JsonOptions)!;
+            return JsonSerializer.Deserialize<Token>(tokenJson, StaticSettings.JsonOptions);
         }
         catch (Exception)
         {
