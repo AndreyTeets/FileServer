@@ -1,6 +1,6 @@
-FROM mcr.microsoft.com/playwright/dotnet:v1.51.0-noble AS e2etests
+FROM mcr.microsoft.com/playwright/dotnet:v1.56.0-noble AS e2etests
 WORKDIR /src
-RUN curl -sSL https://dot.net/v1/dotnet-install.sh | bash /dev/stdin --install-dir /usr/share/dotnet --channel 9.0
+RUN curl -sSL https://dot.net/v1/dotnet-install.sh | bash /dev/stdin --install-dir /usr/share/dotnet --channel 10.0
 
 COPY ["Directory.Build.props", "global.json", ".editorconfig", "./"]
 COPY ["FileServer/FileServer.csproj", "FileServer/"]

@@ -23,33 +23,33 @@ jobs:
       matrix:
         os: [ubuntu, windows, macos]
         browser: [chromium]
-        netsdkver: ['8.0']
+        netsdkver: ['10.0']
         netcfg: ['Release']
         include:
           - os: 'ubuntu'
             browser: 'firefox'
-            netsdkver: '9.0'
+            netsdkver: '10.0'
             netcfg: 'Debug'
           - os: 'windows'
             browser: 'firefox'
-            netsdkver: '9.0'
+            netsdkver: '10.0'
             netcfg: 'Debug'
           - os: 'macos'
             browser: 'webkit'
-            netsdkver: '9.0'
+            netsdkver: '10.0'
             netcfg: 'Debug'
     steps:
       - name: Check out repository
-        uses: actions/checkout@v4
+        uses: actions/checkout@v5
 
-      - name: Set up .NET 8.0
-        if: ${{ matrix.netsdkver != '8.0' }}
-        uses: actions/setup-dotnet@v4
+      - name: Set up .NET 10.0
+        if: ${{ matrix.netsdkver != '10.0' }}
+        uses: actions/setup-dotnet@v5
         with:
-          dotnet-version: 8.0.x
+          dotnet-version: 10.0.x
 
       - name: Set up .NET SDK ${{ matrix.netsdkver }}
-        uses: actions/setup-dotnet@v4
+        uses: actions/setup-dotnet@v5
         with:
           dotnet-version: ${{ matrix.netsdkver }}.x
 
@@ -66,7 +66,7 @@ jobs:
         run: dotnet test FileServer.Tests -c ${{ matrix.netcfg }} --no-build
 
       - name: Install Playwright
-        run: pwsh FileServer.E2ETests/bin/${{ matrix.netcfg }}/net8.0/playwright.ps1 install --with-deps --only-shell ${{ matrix.browser }}
+        run: pwsh FileServer.E2ETests/bin/${{ matrix.netcfg }}/net10.0/playwright.ps1 install --with-deps --only-shell ${{ matrix.browser }}
 
       - name: Run E2E tests
         run: dotnet test FileServer.E2ETests -c ${{ matrix.netcfg }} --no-build -- Playwright.BrowserName=${{ matrix.browser }}

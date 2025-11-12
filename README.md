@@ -49,8 +49,8 @@ Settings that can be configured:
 
 ## Usage requirements
 + To build the container image and/or run it - docker or an alternative container engine (e.g. podman).
-+ To build (publish) a dotnet application - dotnet sdk 8.0 or higher.
-+ To run a portable dotnet application - aspnetcore runtime 8.0.
++ To build (publish) a dotnet application - dotnet sdk 10.0 or higher.
++ To run a portable dotnet application - aspnetcore runtime 10.0.
 + To run a self-contained dotnet application on linux - dotnet runtime dependencies.
 + To run a self-contained dotnet application on windows - nothing.
 

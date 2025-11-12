@@ -1,5 +1,15 @@
 # Changelog
 
+## [2.0.0] - xxxx-xx-xx
+
+**BREAKING CHANGES**:
++ Update dotnet 10.
+
+**Notable Changes**:
++ yyyyy.
+
+[All Changes](https://github.com/AndreyTeets/FileServer/compare/v1.1.2...v2.0.0)
+
 ## [1.1.2] - 2025-11-12
 
 **Notable Changes**:
