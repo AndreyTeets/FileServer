@@ -52,7 +52,7 @@ jobs:
             event: 'commit'
     steps:
       - name: Check out repository
-        uses: actions/checkout@v4
+        uses: actions/checkout@v5
 
       - name: Prepare container image
         if: ${{ matrix.scan-type == 'image' }}
@@ -71,22 +71,22 @@ jobs:
 
       - name: Set up .NET SDK
         if: ${{ matrix.scan-type == 'repo' && matrix.target == 'vuln-library' }}
-        uses: actions/setup-dotnet@v4
+        uses: actions/setup-dotnet@v5
         with:
-          dotnet-version: 9.0.x
+          dotnet-version: 10.0.x
 
       - name: Generate lock files for all csharp projects
         if: ${{ matrix.scan-type == 'repo' && matrix.target == 'vuln-library' }}
         run: dotnet restore . -p:RestorePackagesWithLockFile=True
 
       - name: Set up Trivy
-        uses: aquasecurity/setup-trivy@v0.2.3
+        uses: aquasecurity/setup-trivy@v0.2.4
         with:
-          version: v0.61.0
+          version: v0.67.2
           cache: true
 
       - name: Run Trivy scan
-        uses: aquasecurity/trivy-action@0.30.0
+        uses: aquasecurity/trivy-action@0.33.1
         env:
           TRIVY_FILE_PATTERNS: 'dockerfile:Dockerfile.*'
         with:
@@ -103,13 +103,13 @@ jobs:
           limit-severities-for-sarif: true
           exit-code: ${{ matrix.event == 'schedule' && 1 || 0 }}
           skip-setup-trivy: true
-          version: v0.61.0
+          version: v0.67.2
           cache: ${{ (matrix.target == 'vuln-os' || matrix.target == 'vuln-library') && true || false }}
           trivyignores: '.github/.trivyignore'
 
       - name: Upload Trivy scan results to GitHub Security tab
         if: ${{ matrix.event == 'commit' }}
-        uses: github/codeql-action/upload-sarif@v3
+        uses: github/codeql-action/upload-sarif@v4
         with:
           sarif_file: 'trivy-results.sarif'
           category: 'scan-trivy (${{ matrix.target }})'
