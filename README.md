@@ -164,5 +164,7 @@ The `master` branch is where the development happens, it may be unstable. Use th
 Pre-built container images can be found [here](https://hub.docker.com/r/andreyteets/fileserver) on Docker Hub.\
 Pre-built binaries can be found [here](https://github.com/AndreyTeets/FileServer/releases) in GitHub Releases.
 
+Changelog for each release can be found in [CHANGELOG.md](CHANGELOG.md) file, and is also duplicated in GitHub Releases.
+
 # License
 MIT License. See [LICENSE](LICENSE) file.

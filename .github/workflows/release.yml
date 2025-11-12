@@ -38,6 +38,8 @@ jobs:
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
-          VERSION="${GITHUB_REF#refs/tags/v}"
           REPO="${{ vars.REPO_OWNER }}/${{ vars.REPO_NAME }}"
-          gh release create "v${VERSION}" ./artifacts/* --verify-tag --title "v${VERSION}" -R $REPO
+          VERSION="${GITHUB_REF#refs/tags/v}"
+          gh api -H "Accept: application/vnd.github.raw+text" "repos/$REPO/contents/CHANGELOG.md?ref=v${VERSION}" > CHANGELOG.md
+          csplit -f CHANGELOG_ CHANGELOG.md '/^## \[[0-9]\+\.[0-9]\+\.[0-9]\+\(-[a-z0-9.]\+\)\?\] - [0-9]\+-[0-9]\+-[0-9]\+/' '{1}'
+          gh release create "v${VERSION}" ./artifacts/* --verify-tag --title "v${VERSION}" -F CHANGELOG_01 -R "$REPO"
