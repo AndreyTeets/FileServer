@@ -82,16 +82,16 @@ internal sealed class DoubleTokenAuthenticationHandler(
     private string? TryGetEncodedAuthTokenString()
     {
         if (Request.Cookies.ContainsKey(Constants.AuthTokenCookieName))
-            return Request.Cookies[Constants.AuthTokenCookieName]!;
+            return Request.Cookies[Constants.AuthTokenCookieName];
         return null;
     }
 
     private string? TryGetEncodedAntiforgeryTokenString()
     {
         if (Request.Headers.ContainsKey(Constants.AntiforgeryTokenHeaderName))
-            return Request.Headers[Constants.AntiforgeryTokenHeaderName]!;
+            return Request.Headers[Constants.AntiforgeryTokenHeaderName];
         if (Request.Query.ContainsKey(Constants.AntiforgeryTokenQueryParamName))
-            return Request.Query[Constants.AntiforgeryTokenQueryParamName]!;
+            return Request.Query[Constants.AntiforgeryTokenQueryParamName];
         return null;
     }
 }

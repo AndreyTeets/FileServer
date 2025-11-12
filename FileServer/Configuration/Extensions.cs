@@ -31,9 +31,8 @@ internal static class Extensions
         builder.Logging.AddConsole();
     }
 
-    public static void ConfigureKestrel(this WebApplicationBuilder builder)
+    public static void ConfigureKestrel(this WebApplicationBuilder builder, ILogger logger)
     {
-        ILogger logger = Utility.CreateConsoleLogger<Program>();
         Settings settings = builder.Configuration.GetSection(nameof(Settings)).Get<Settings>()!;
 
 #pragma warning disable CA2000 // Dispose objects before losing scope

@@ -2,6 +2,11 @@
 
 internal static class LogMessages
 {
+    public static readonly string StartingServer =
+        "Starting server:" + Environment.NewLine +
+        "-Version: {Version}" + Environment.NewLine +
+        "-Commit: {Commit}";
+
     public static readonly string UsingCertificate =
         "Using Certificate:" + Environment.NewLine +
         "{Certificate}";

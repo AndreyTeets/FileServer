@@ -78,16 +78,26 @@ internal static class Utility
     public static string GetSettingsProblemsDisplayString(IEnumerable<string> problems) =>
         $"-{string.Join($"{Environment.NewLine}-", problems)}";
 
-    public static void ShowVersionAndUsage()
+    public static string GetVersion(out string commit)
     {
-        string? version = typeof(Program).Assembly
+        string[] versionParts = typeof(Program).Assembly
             .GetCustomAttribute<AssemblyInformationalVersionAttribute>()
             ?.InformationalVersion
-            ?.Split("+")[0];
+            ?.Split("+")
+            ?? [$"Missing {nameof(AssemblyInformationalVersionAttribute)}"];
+        string version = versionParts[0];
+        commit = versionParts.Length > 1
+            ? versionParts[1][..Math.Min(10, versionParts[1].Length)]
+            : "NONE";
+        return version;
+    }
 
+    public static void ShowVersionAndUsage()
+    {
 #pragma warning disable MA0136 // Raw String contains an implicit end of line character
         string msg = $"""
-            Version: {version}
+            Version: {GetVersion(out string commit)}
+            Commit: {commit}
             Usage:
                 <no arguments>                Start the server.
                 <any other argument(s)>       Show version and usage and exit.
