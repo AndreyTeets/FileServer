@@ -58,3 +58,10 @@ It starts an https server at the specified `listen address` and `listen port` us
 + Upload a file to the `uploads folder` specified in server settings (only if authorized).
 
 [All Commits](https://github.com/AndreyTeets/FileServer/commits/v1.0.1)
+
+[1.1.2]: https://github.com/AndreyTeets/FileServer/releases/tag/v1.1.2
+[1.1.1]: https://github.com/AndreyTeets/FileServer/releases/tag/v1.1.1
+[1.1.0]: https://github.com/AndreyTeets/FileServer/releases/tag/v1.1.0
+[1.0.3]: https://github.com/AndreyTeets/FileServer/releases/tag/v1.0.3
+[1.0.2]: https://github.com/AndreyTeets/FileServer/releases/tag/v1.0.2
+[1.0.1]: https://github.com/AndreyTeets/FileServer/releases/tag/v1.0.1
