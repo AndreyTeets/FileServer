@@ -20,7 +20,7 @@ internal static class Utility
         if (OperatingSystem.IsWindows())
         {
             using X509Certificate2 originalCert = cert;
-            cert = new X509Certificate2(originalCert.Export(X509ContentType.Pkcs12));
+            cert = X509CertificateLoader.LoadPkcs12(originalCert.Export(X509ContentType.Pkcs12), password: null);
         }
         return cert;
     }
