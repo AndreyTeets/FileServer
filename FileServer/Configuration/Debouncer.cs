@@ -10,8 +10,8 @@ internal sealed class Debouncer(
     private readonly CancellationTokenSource _cts = new();
     private readonly ConcurrentDictionary<string, long> _counter = new();
     private readonly ConcurrentDictionary<string, int> _tasksCount = new();
-    private readonly object _actionLock = new();
-    private readonly object _disposeLock = new();
+    private readonly Lock _actionLock = new();
+    private readonly Lock _disposeLock = new();
     private bool _disposed;
 
     public void Dispose()
