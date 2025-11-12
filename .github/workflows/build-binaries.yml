@@ -70,6 +70,7 @@ jobs:
             popd
           rm -rf "artifacts/${ART_NAME}"
           done
+          sha256sum artifacts/* | tee artifacts/sha256sums.txt
 
       - name: Upload artifacts
         if: ${{ github.event_name == 'push' && startsWith(github.ref, 'refs/tags/v') }}
