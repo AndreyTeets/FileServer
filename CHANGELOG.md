@@ -1,5 +1,15 @@
 # Changelog
 
+## [1.1.2] - 2025-11-12
+
+**Notable Changes**:
++ Fix app version being 1.0.0 in pre-built binaries (#19).
++ Add log message about server starting, its version and commit (#20).
++ Add generation of sha256sums.txt for pre-built binaries (#21).
++ Add CHANGELOG.md and use it as a source of truth for releases (#22).
+
+[All Changes](https://github.com/AndreyTeets/FileServer/compare/v1.1.1...v1.1.2)
+
 ## [1.1.1] - 2025-11-11
 
 **Notable Changes**:
