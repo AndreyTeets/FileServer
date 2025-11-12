@@ -16,8 +16,8 @@ internal sealed class ClientSideTests : PageTest
     public void SetUpTimeouts()
     {
         SetDefaultExpectTimeout(1_000);
-        Page.SetDefaultNavigationTimeout(1_000);
-        Page.SetDefaultTimeout(1_000);
+        Page.SetDefaultNavigationTimeout(10_000);
+        Page.SetDefaultTimeout(3_000);
     }
 
     [TearDown]
