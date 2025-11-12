@@ -71,7 +71,7 @@ internal sealed class ClientSideTests : PageTest
         await Page.GetByRole(AriaRole.Button, new() { Name = "UploadPage" }).ClickAsync();
         IFileChooser fileChooser = await Page.RunAndWaitForFileChooserAsync(async () =>
         {
-            await Page.GetByRole(AriaRole.Textbox).ClickAsync();
+            await Page.Locator("#root input[type='file']").ClickAsync();
         });
         await fileChooser.SetFilesAsync(["test_upload_file.txt"]);
         await Page.GetByRole(AriaRole.Button, new() { Name = "Upload", Exact = true }).ClickAsync();

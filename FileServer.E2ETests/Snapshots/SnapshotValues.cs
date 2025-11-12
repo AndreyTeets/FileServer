@@ -36,7 +36,7 @@ internal static class SnapshotValues
         - button "UploadPage"
         - button "AuthPage"
         - paragraph: "UploadPage:"
-        - textbox
+        - button "Choose File"
         - button "Upload" [disabled]
         - button "Cancel" [disabled]
         - paragraph: "Uploaded: upl.test_upload_file.txt.oad"
@@ -48,7 +48,7 @@ internal static class SnapshotValues
         - button "UploadPage"
         - button "AuthPage"
         - paragraph: "UploadPage:"
-        - textbox: C:\fakepath\test_upload_file.txt
+        - button "Choose File"
         - button "Upload"
         - button "Cancel" [disabled]
         - paragraph: "Failed to fetch: Response status: 409. Response body: \"File with name 'upl.test_upload_file.txt.oad' already exists.\""
