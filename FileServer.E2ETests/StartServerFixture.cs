@@ -44,7 +44,7 @@ internal sealed class StartServerFixture
 #pragma warning restore CA2000 // Ignore missing dispose on exception in the setup method
         process.StartInfo.FileName = "dotnet";
         process.StartInfo.WorkingDirectory = Path.GetFullPath(ServerProjDir);
-        process.StartInfo.Arguments = $"bin/{Configuration}/net8.0/FileServer.dll";
+        process.StartInfo.Arguments = $"bin/{Configuration}/net10.0/FileServer.dll";
         SetProcessInputOutputOptions(process);
 
         SetProcessEnv(process);

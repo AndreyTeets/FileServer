@@ -1,6 +1,6 @@
-FROM mcr.microsoft.com/dotnet/aspnet:8.0.21-alpine3.21 AS app-base
+FROM mcr.microsoft.com/dotnet/aspnet:10.0.0-alpine3.22 AS app-base
 
-FROM --platform=$BUILDPLATFORM mcr.microsoft.com/dotnet/sdk:9.0.306-alpine3.21 AS build
+FROM --platform=$BUILDPLATFORM mcr.microsoft.com/dotnet/sdk:10.0.100-alpine3.22 AS build
 ARG TARGETARCH APP_VERSION
 WORKDIR /src
 COPY ["Directory.Build.props", "global.json", ".editorconfig", "./"]
