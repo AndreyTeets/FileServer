@@ -7,6 +7,29 @@ on:
 permissions: {}
 
 jobs:
+  prepare-notes:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    steps:
+      - name: Prepare release notes
+        shell: bash
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          REPO="${{ vars.REPO_OWNER }}/${{ vars.REPO_NAME }}"
+          VERSION="${GITHUB_REF#refs/tags/v}"
+          gh api -H "Accept: application/vnd.github.raw+text" "repos/$REPO/contents/CHANGELOG.md?ref=v${VERSION}" > CHANGELOG.md
+          csplit -f CHANGELOG_ CHANGELOG.md '/^## \[[0-9]\+\.[0-9]\+\.[0-9]\+\(-[a-z0-9.]\+\)\?\] - [0-9]\+-[0-9]\+-[0-9]\+/' '{1}'
+          mv CHANGELOG_01 NOTES
+
+      - name: Upload release notes
+        uses: actions/upload-artifact@v4
+        with:
+          name: release-notes
+          if-no-files-found: error
+          path: NOTES
+
   build-binaries:
     uses: ./.github/workflows/build-binaries.yml
     permissions:
@@ -14,7 +37,7 @@ jobs:
 
   build-containers:
     uses: ./.github/workflows/build-containers.yml
-    needs: [build-binaries]
+    needs: [prepare-notes, build-binaries]
     permissions:
       contents: read
     secrets:
@@ -22,15 +45,21 @@ jobs:
 
   create-release:
     runs-on: ubuntu-latest
-    needs: [build-binaries, build-containers]
+    needs: [prepare-notes, build-binaries, build-containers]
     permissions:
       contents: write
     steps:
-      - name: Download artifacts
+      - name: Download release notes
+        uses: actions/download-artifact@v5
+        with:
+          name: release-notes
+          path: .
+
+      - name: Download release assets
         uses: actions/download-artifact@v5
         with:
           pattern: built-*
-          path: artifacts
+          path: assets
           merge-multiple: true
 
       - name: Create release
@@ -40,6 +69,4 @@ jobs:
         run: |
           REPO="${{ vars.REPO_OWNER }}/${{ vars.REPO_NAME }}"
           VERSION="${GITHUB_REF#refs/tags/v}"
-          gh api -H "Accept: application/vnd.github.raw+text" "repos/$REPO/contents/CHANGELOG.md?ref=v${VERSION}" > CHANGELOG.md
-          csplit -f CHANGELOG_ CHANGELOG.md '/^## \[[0-9]\+\.[0-9]\+\.[0-9]\+\(-[a-z0-9.]\+\)\?\] - [0-9]\+-[0-9]\+-[0-9]\+/' '{1}'
-          gh release create "v${VERSION}" ./artifacts/* --verify-tag --title "v${VERSION}" -F CHANGELOG_01 -R "$REPO"
+          gh release create "v${VERSION}" ./assets/* --verify-tag --title "v${VERSION}" -F ./NOTES -R "$REPO"
