@@ -33,7 +33,7 @@ internal sealed class CookieProcessingHttpMessageHandler(
             {
                 Cookie cookie = new(cookieHeader.Name.Value!, cookieHeader.Value.Value, cookieHeader.Path.Value);
                 if (cookieHeader.Expires.HasValue)
-                    cookie.Expires = cookieHeader.Expires.Value.DateTime;
+                    cookie.Expires = DateTime.SpecifyKind(cookieHeader.Expires.Value.DateTime, DateTimeKind.Utc);
                 CookieContainer.Add(requestUri, cookie);
             }
         }
