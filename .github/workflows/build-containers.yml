@@ -84,9 +84,9 @@ jobs:
         uses: docker/metadata-action@v5
         with:
           images: ${{ vars.DOCKERHUB_NAMESPACE }}/${{ vars.DOCKERHUB_REPOSITORY }}
-          tags: |
+          tags: |-
             type=semver,pattern={{version}}
-            type=semver,pattern={{major}}.{{minor}}
+            ${{ !contains(steps.vars.outputs.app_version, '-') && 'type=semver,pattern={{major}}.{{minor}}' || '' }}
           flavor: >-
             latest=${{
             startsWith(steps.vars.outputs.app_version, format('{0}.', vars.LATEST_MAJOR_MINOR))
