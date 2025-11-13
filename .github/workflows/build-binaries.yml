@@ -68,7 +68,7 @@ jobs:
             pushd artifacts
             [ "${RID:0:4}" == "win-" ] && zip -rq "${ART_NAME}.zip" $ART_NAME || tar -czf "${ART_NAME}.tar.gz" $ART_NAME
             popd
-          rm -rf "artifacts/${ART_NAME}"
+            rm -rf "artifacts/${ART_NAME}"
           done
           sha256sum artifacts/* | tee artifacts/sha256sums.txt
 
