@@ -16,8 +16,8 @@ jobs:
         shell: bash
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          REPO: ${{ vars.REPO_OWNER }}/${{ vars.REPO_NAME }}
         run: |
-          REPO="${{ vars.REPO_OWNER }}/${{ vars.REPO_NAME }}"
           VERSION="${GITHUB_REF#refs/tags/v}"
           gh api -H "Accept: application/vnd.github.raw+text" "repos/$REPO/contents/CHANGELOG.md?ref=v${VERSION}" > CHANGELOG.md
           csplit -f CHANGELOG_ CHANGELOG.md '/^## \[[0-9]\+\.[0-9]\+\.[0-9]\+\(-[a-z0-9.]\+\)\?\] - [0-9]\+-[0-9]\+-[0-9]\+/' '{1}'
@@ -49,6 +49,13 @@ jobs:
     permissions:
       contents: write
     steps:
+      - name: Set up vars
+        id: vars
+        shell: bash
+        run: |
+          app_version="${GITHUB_REF#refs/tags/v}"
+          echo "app_version=${app_version}" >> $GITHUB_OUTPUT
+
       - name: Download release notes
         uses: actions/download-artifact@v5
         with:
@@ -66,7 +73,12 @@ jobs:
         shell: bash
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          REPO: ${{ vars.REPO_OWNER }}/${{ vars.REPO_NAME }}
+          VERSION: ${{ steps.vars.outputs.app_version }}
+          LATEST: >-
+            ${{
+            startsWith(steps.vars.outputs.app_version, format('{0}.', vars.LATEST_MAJOR_MINOR))
+            && !contains(steps.vars.outputs.app_version, '-')
+            }}
         run: |
-          REPO="${{ vars.REPO_OWNER }}/${{ vars.REPO_NAME }}"
-          VERSION="${GITHUB_REF#refs/tags/v}"
-          gh release create "v${VERSION}" ./assets/* --verify-tag --title "v${VERSION}" -F ./NOTES -R "$REPO"
+          gh release create "v${VERSION}" ./assets/* --verify-tag --title "v${VERSION}" -F ./NOTES --latest=$LATEST -R "$REPO"
