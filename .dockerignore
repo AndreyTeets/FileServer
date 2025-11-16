@@ -1,8 +1,20 @@
+# Exclude all items in repo root except required for build
+*
+!Directory.Build.props
+!global.json
+!.editorconfig
+!FileServer*
+
+# Exclude all git items except minimal required for SourceLink
+**/.git
+!.git/HEAD
+!.git/config
+!.git/refs
+
+# Other standard exclusions
 **/.classpath
 **/.dockerignore
 **/.env
-**/.git
-**/.gitignore
 **/.project
 **/.settings
 **/.toolstarget
@@ -21,5 +33,3 @@
 **/obj
 **/secrets.dev.yaml
 **/values.dev.yaml
-LICENSE
-README.md
