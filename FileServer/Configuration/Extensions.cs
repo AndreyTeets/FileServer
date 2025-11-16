@@ -5,6 +5,7 @@ using FileServer.Auth;
 using FileServer.Configuration;
 using FileServer.Services;
 using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.DataProtection.KeyManagement;
 using Microsoft.Extensions.Options;
 
 namespace FileServer.Configuration;
@@ -67,6 +68,13 @@ internal static class Extensions
         {
             options.JsonSerializerOptions.PropertyNamingPolicy = StaticSettings.JsonOptions.PropertyNamingPolicy;
         });
+
+        services.AddSingleton<IConfigureOptions<KeyManagementOptions>>(services =>
+            new ConfigureOptions<KeyManagementOptions>(options =>
+            {   // DataProtection isn't used but can't be disabled, this is just to get rid of the warnings
+                options.XmlRepository = new InMemoryXmlRepository();
+                options.XmlEncryptor = new InMemoryXmlRepository.NoopXmlEncryptor();
+            }));
     }
 
     public static void SetUpSettingsMonitor(this WebApplication app)
