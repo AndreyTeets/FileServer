@@ -3,6 +3,7 @@ using FileServer.Configuration;
 using FileServer.Tests.Util;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
+using Microsoft.AspNetCore.Http.Features;
 using Microsoft.AspNetCore.TestHost;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
@@ -42,20 +43,25 @@ internal sealed class SetUpTestServerFixture
                     services.AddSingleton<IDebouncer, NoopDebouncer>();
                     services.AddSingleton<IValidateOptions<Settings>, SettingsValidator>();
                     services.AddAndConfigureServices();
-                    services.AddMvc().AddApplicationPart(typeof(Constants).Assembly);
+                    services.AddRouting();
                 })
                 .Configure(app =>
                 {
+                    app.Use(async (context, next) =>
+                    {
+                        context.Features.Set<IHttpMaxRequestBodySizeFeature>(new FakeHttpMaxRequestBodySizeFeature());
+                        await next();
+                    });
                     app.UseToIndexPageRedirect();
                     app.UseStaticFilesWithNoCacheHeaders();
                     app.UseRouting();
                     app.UseAuthentication();
                     app.UseAuthorization();
-                    app.UseEndpoints(endpoints => endpoints.UseControllersWithAuthorization());
+                    app.UseEndpoints(endpoints =>
+                        endpoints.MapRoutes(endpoints.ServiceProvider));
                     app.UseNoCacheHeaders();
                 });
         });
-
         Host = await hostBuilder.StartAsync();
     }
 
@@ -83,5 +89,11 @@ internal sealed class SetUpTestServerFixture
     {
         public void Debounce(string category, Action action) => action();
         public void Dispose() { }
+    }
+
+    internal sealed class FakeHttpMaxRequestBodySizeFeature : IHttpMaxRequestBodySizeFeature
+    {
+        public bool IsReadOnly => false;
+        public long? MaxRequestBodySize { get; set; }
     }
 }

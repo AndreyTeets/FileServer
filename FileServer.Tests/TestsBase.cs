@@ -31,10 +31,8 @@ internal abstract class TestsBase : ILoggedTest
         _testClient?.Dispose();
     }
 
-    protected static async Task<string> GetContent(HttpResponseMessage response)
-    {
-        return await response.Content.ReadAsStringAsync();
-    }
+    protected static async Task<string> GetContent(HttpResponseMessage response) =>
+        await response.Content.ReadAsStringAsync();
 
     private static void ClearUploadDir()
     {

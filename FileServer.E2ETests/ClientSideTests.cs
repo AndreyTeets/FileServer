@@ -53,10 +53,8 @@ internal sealed class ClientSideTests : PageTest
         await Expect(Page.Locator("body")).ToMatchAriaSnapshotAsync(S.After_Logout);
     }
 
-    private async Task OpenInitialPage()
-    {
+    private async Task OpenInitialPage() =>
         await Page.GotoAsync("https://localhost:9443");
-    }
 
     private async Task Login()
     {
@@ -70,9 +68,7 @@ internal sealed class ClientSideTests : PageTest
     {
         await Page.GetByRole(AriaRole.Button, new() { Name = "UploadPage" }).ClickAsync();
         IFileChooser fileChooser = await Page.RunAndWaitForFileChooserAsync(async () =>
-        {
-            await Page.Locator("#root input[type='file']").ClickAsync();
-        });
+            await Page.Locator("#root input[type='file']").ClickAsync());
         await fileChooser.SetFilesAsync(["test_upload_file.txt"]);
         await Page.GetByRole(AriaRole.Button, new() { Name = "Upload", Exact = true }).ClickAsync();
     }
@@ -81,9 +77,7 @@ internal sealed class ClientSideTests : PageTest
     {
         await Page.GetByRole(AriaRole.Button, new() { Name = "DownloadPage" }).ClickAsync();
         IDownload download = await Page.RunAndWaitForDownloadAsync(async () =>
-        {
-            await Page.Locator("#root table tbody tr").Last.Locator("td").Nth(3).ClickAsync();
-        });
+            await Page.Locator("#root table tbody tr").Last.Locator("td").Nth(3).ClickAsync());
         using StreamReader sr = new(await download.CreateReadStreamAsync());
         return await sr.ReadToEndAsync();
     }

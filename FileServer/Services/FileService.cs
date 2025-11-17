@@ -11,7 +11,7 @@ public class FileService(
 {
     private readonly IOptionsMonitor<Settings> _options = options;
 
-    public List<FileInfo> GetDownloadableFilesList(string rootDir)
+    public List<FileInfo> GetDirectoryFilesListRecursive(string rootDir)
     {
         using PhysicalFileProvider fileProvider = new(rootDir);
         List<FileInfo> files = [];
@@ -46,13 +46,12 @@ public class FileService(
         foreach (IFileInfo file in dirItems.Where(f => !f.IsDirectory))
         {
             string relativeFilePath = Path.GetRelativePath(rootDir, file.PhysicalPath!);
-            FileInfo fileInfo = new()
+            files.Add(new FileInfo()
             {
                 Name = file.Name,
                 Path = relativeFilePath.Replace("\\", "/"),
                 Size = file.Length,
-            };
-            files.Add(fileInfo);
+            });
         }
     }
 
