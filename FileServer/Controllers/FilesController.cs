@@ -3,6 +3,7 @@ using FileServer.Configuration;
 using FileServer.Models;
 using FileServer.Services;
 using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Http.Features;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.WebUtilities;
 using Microsoft.Extensions.FileProviders;
@@ -12,88 +13,90 @@ using FileInfo = FileServer.Models.FileInfo;
 
 namespace FileServer.Controllers;
 
-[Route("api/files")]
-public class FilesController(
+internal sealed class FilesController(
     IHttpContextAccessor httpContextAccessor,
     IOptionsMonitor<Settings> options,
     FileService fileService)
-    : ControllerBase
 {
     private readonly IHttpContextAccessor _httpContextAccessor = httpContextAccessor;
     private readonly IOptionsMonitor<Settings> _options = options;
     private readonly FileService _fileService = fileService;
-    private CancellationToken Ct => HttpContext.RequestAborted;
 
-    [HttpGet("list")]
-    [Produces("application/json")]
+    private HttpContext Context => _httpContextAccessor.HttpContext!;
+    private HttpRequest Request => _httpContextAccessor.HttpContext!.Request;
+    private CancellationToken Ct => _httpContextAccessor.HttpContext!.RequestAborted;
+
+    [ProducesResponseType(typeof(GetFilesListResponse), StatusCodes.Status200OK, "application/json")]
     [AllowAnonymous]
-    public ActionResult<GetFilesListResponse> GetFilesList()
+    public IResult GetFilesList()
     {
-        List<FileInfo> files = _fileService.GetDownloadableFilesList(_options.CurrentValue.DownloadAnonDir!);
+        List<FileInfo> files = _fileService.GetDirectoryFilesListRecursive(_options.CurrentValue.DownloadAnonDir!);
         files.ForEach(x => x.Anon = "yes");
 
         if (IsAuthenticated())
         {
-            List<FileInfo> authFiles = _fileService.GetDownloadableFilesList(_options.CurrentValue.DownloadDir!);
+            List<FileInfo> authFiles = _fileService.GetDirectoryFilesListRecursive(_options.CurrentValue.DownloadDir!);
             authFiles.ForEach(x => x.Anon = "no");
             files.AddRange(authFiles);
         }
 
-        return new GetFilesListResponse()
+        return Results.Ok(new GetFilesListResponse()
         {
             Files = files,
             Count = files.Count,
-        };
+        });
     }
 
-    [HttpGet($"downloadanon/{{*{nameof(filePath)}}}")]
-    [Produces("application/octet-stream", "application/json")]
+    [ProducesResponseType(typeof(void), StatusCodes.Status200OK, "application/octet-stream")]
+    [ProducesResponseType(typeof(string), StatusCodes.Status404NotFound, "application/json")]
     [AllowAnonymous]
-    public ActionResult DownloadFileAnon([FromRoute] string filePath) =>
+    public IResult DownloadFileAnon([FromRoute] string filePath) =>
         CreateGetFileResult(_options.CurrentValue.DownloadAnonDir!, "application/octet-stream", filePath);
 
-    [HttpGet($"viewanon/{{*{nameof(filePath)}}}")]
-    [Produces("text/plain", "application/json")]
+    [ProducesResponseType(typeof(void), StatusCodes.Status200OK, "text/plain")]
+    [ProducesResponseType(typeof(string), StatusCodes.Status404NotFound, "application/json")]
     [AllowAnonymous]
-    public ActionResult ViewFileAnon([FromRoute] string filePath) =>
+    public IResult ViewFileAnon([FromRoute] string filePath) =>
         CreateGetFileResult(_options.CurrentValue.DownloadAnonDir!, "text/plain", filePath);
 
-    [HttpGet($"download/{{*{nameof(filePath)}}}")]
-    [Produces("application/octet-stream", "application/json")]
-    public ActionResult DownloadFile([FromRoute] string filePath) =>
+    [ProducesResponseType(typeof(void), StatusCodes.Status200OK, "application/octet-stream")]
+    [ProducesResponseType(typeof(string), StatusCodes.Status404NotFound, "application/json")]
+    public IResult DownloadFile([FromRoute] string filePath) =>
         CreateGetFileResult(_options.CurrentValue.DownloadDir!, "application/octet-stream", filePath);
 
-    [HttpGet($"view/{{*{nameof(filePath)}}}")]
-    [Produces("text/plain", "application/json")]
-    public ActionResult ViewFile([FromRoute] string filePath) =>
+    [ProducesResponseType(typeof(void), StatusCodes.Status200OK, "text/plain")]
+    [ProducesResponseType(typeof(string), StatusCodes.Status404NotFound, "application/json")]
+    public IResult ViewFile([FromRoute] string filePath) =>
         CreateGetFileResult(_options.CurrentValue.DownloadDir!, "text/plain", filePath);
 
-    [HttpPost("upload")]
-    [Produces("application/json")]
-    [DisableRequestSizeLimit]
-    public async Task<ActionResult<UploadFileResponse>> UploadFile()
+    [ProducesResponseType(typeof(void), StatusCodes.Status200OK, "application/json")]
+    [ProducesResponseType(typeof(string), StatusCodes.Status409Conflict, "application/json")]
+    public async Task<IResult> UploadFile()
     {
+        IHttpMaxRequestBodySizeFeature? bodySizeFeature = Context.Features.Get<IHttpMaxRequestBodySizeFeature>();
+        bodySizeFeature!.MaxRequestBodySize = null;
+
         string? formDataBoundary = TryGetFormDataBoundary();
         if (formDataBoundary is null)
-            return BadRequest("Not a form-data request.");
+            return Results.BadRequest("Not a form-data request.");
 
         (string? fileName, Stream fileContent) = await TryGetFirstFormDataFile(formDataBoundary!);
         if (fileName is null)
-            return BadRequest("No files in request.");
+            return Results.BadRequest("No files in request.");
 
         (string targetFileName, bool saved) = await _fileService.SaveFileIfNotExists(fileName, fileContent, Ct);
         return saved
-            ? new UploadFileResponse() { CreatedFileName = targetFileName }
-            : Conflict($"File with name '{targetFileName}' already exists.");
+            ? Results.Ok(new UploadFileResponse() { CreatedFileName = targetFileName })
+            : Results.Conflict($"File with name '{targetFileName}' already exists.");
     }
 
-    private ActionResult CreateGetFileResult(string rootDir, string mimeType, string filePath)
+    private static IResult CreateGetFileResult(string rootDir, string mimeType, string filePath)
     {
         using PhysicalFileProvider fileProvider = new(rootDir);
         IFileInfo file = fileProvider.GetFileInfo(filePath);
         return file.Exists
-            ? PhysicalFile(file.PhysicalPath!, mimeType)
-            : NotFound("File not found.");
+            ? Results.File(file.PhysicalPath!, mimeType)
+            : Results.NotFound("File not found.");
     }
 
     private string? TryGetFormDataBoundary()
@@ -129,7 +132,7 @@ public class FilesController(
 
     private bool IsAuthenticated()
     {
-        ClaimsPrincipal user = _httpContextAccessor.HttpContext!.User;
+        ClaimsPrincipal user = Context.User;
         return user.Identities.Any(x =>
             x.IsAuthenticated
             && x.AuthenticationType == Constants.DoubleTokenAuthenticationSchemeAuthenticationType

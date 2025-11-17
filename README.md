@@ -135,7 +135,7 @@ Replace these steps from the container image usage example:
     ```
     dotnet publish "FileServer/FileServer.csproj" -c Release -o FileServer/bin/publish
     ```
-    Add `-r <RID> --self-contained` to publish as self-contained.
+    Add `-r <RID> -p:PublishTrimmed` to publish as self-contained (trimming implicitly enables self-contained).
 
     Commonly used RIDs: `win-x64`, `linux-x64`, `linux-musl-x64`.
 

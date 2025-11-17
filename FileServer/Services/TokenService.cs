@@ -31,7 +31,7 @@ public class TokenService(
 
     public string EncodeToken(Token token)
     {
-        string tokenJson = JsonSerializer.Serialize(token, StaticSettings.JsonOptions)!;
+        string tokenJson = JsonSerializer.Serialize(token, Jsc.Default.Token);
         string tokenBase64String = Convert.ToBase64String(Encoding.UTF8.GetBytes(tokenJson));
         return WebUtility.UrlEncode(tokenBase64String);
     }
@@ -42,7 +42,7 @@ public class TokenService(
         {
             string base64TokenString = WebUtility.UrlDecode(encodedTokenString);
             string tokenJson = Encoding.UTF8.GetString(Convert.FromBase64String(base64TokenString));
-            return JsonSerializer.Deserialize<Token>(tokenJson, StaticSettings.JsonOptions);
+            return JsonSerializer.Deserialize(tokenJson, Jsc.Default.Token);
         }
         catch (Exception)
         {
@@ -52,7 +52,7 @@ public class TokenService(
 
     private string ComputeClaimSignature(Claim claim)
     {
-        string data = JsonSerializer.Serialize(claim);
+        string data = JsonSerializer.Serialize(claim, Jsc.Default.Claim);
         byte[] dataBytes = Encoding.UTF8.GetBytes(data);
         byte[] keyBytes = Encoding.UTF8.GetBytes(_options.CurrentValue.SigningKey!);
         using HMACSHA256 hmac = new(keyBytes);

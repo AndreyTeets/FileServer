@@ -24,7 +24,7 @@ internal sealed class StartServerFixture
     [OneTimeSetUp]
     public void SetUpTestServer()
     {
-        CreateFilesAndFoldersRequiredByServerAndTests();
+        CreateFilesAndDirectoriesRequiredByServerAndTests();
         _process = StartServerProcess(out StringBuilder serverOutput);
         GetServerOutputFunc = serverOutput.ToString;
         WaitUntilServerStarted(GetServerOutputFunc);
@@ -115,7 +115,7 @@ internal sealed class StartServerFixture
         env["FileServer__Settings__LoginKey"] = "012345678912";
     }
 
-    private static void CreateFilesAndFoldersRequiredByServerAndTests()
+    private static void CreateFilesAndDirectoriesRequiredByServerAndTests()
     {
         if (Directory.Exists($"{ServerProjDir}/bin/e2etests"))
             Directory.Delete($"{ServerProjDir}/bin/e2etests", recursive: true);

@@ -3,6 +3,7 @@ using System.Security.Authentication;
 using System.Security.Cryptography.X509Certificates;
 using FileServer.Auth;
 using FileServer.Configuration;
+using FileServer.Controllers;
 using FileServer.Services;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.DataProtection.KeyManagement;
@@ -42,16 +43,12 @@ internal static class Extensions
         logger.LogInformation(LogMessages.UsingCertificate, Utility.GetCertificateDisplayString(cert));
 
         builder.WebHost.ConfigureKestrel(options =>
-        {
             options.Listen(IPAddress.Parse(settings.ListenAddress!), settings.ListenPort!.Value, listenOptions =>
-            {
                 listenOptions.UseHttps(httpsOptions =>
                 {
                     httpsOptions.ServerCertificate = cert;
                     httpsOptions.SslProtocols = SslProtocols.Tls12 | SslProtocols.Tls13;
-                });
-            });
-        });
+                })));
     }
 
     public static void AddAndConfigureServices(this IServiceCollection services)
@@ -59,16 +56,16 @@ internal static class Extensions
         services.AddHttpContextAccessor();
         services.AddSingleton<FileService>();
         services.AddSingleton<TokenService>();
+        services.AddTransient<AuthController>();
+        services.AddTransient<FilesController>();
 
         services.AddAuthentication()
             .AddScheme<DoubleTokenAuthenticationSchemeOptions, DoubleTokenAuthenticationHandler>(
                 Constants.DoubleTokenAuthenticationSchemeName, options => { });
+        services.AddAuthorization();
 
-        services.AddControllers().AddJsonOptions(options =>
-        {
-            options.JsonSerializerOptions.PropertyNamingPolicy = StaticSettings.JsonOptions.PropertyNamingPolicy;
-        });
-
+        services.ConfigureHttpJsonOptions(options =>
+            options.SerializerOptions.TypeInfoResolverChain.Insert(0, Jsc.Default));
         services.AddSingleton<IConfigureOptions<KeyManagementOptions>>(services =>
             new ConfigureOptions<KeyManagementOptions>(options =>
             {   // DataProtection isn't used but can't be disabled, this is just to get rid of the warnings
@@ -82,15 +79,12 @@ internal static class Extensions
         ILogger logger = app.Services.GetRequiredService<ILogger<Program>>();
         IOptionsMonitor<Settings> settingsMonitor = app.Services.GetRequiredService<IOptionsMonitor<Settings>>();
         IDebouncer debouncer = app.Services.GetRequiredService<IDebouncer>();
-
         try
         {
             Settings currentSettings = settingsMonitor.CurrentValue;
             logger.LogInformation(LogMessages.UsingSettings, Utility.GetSettingsDisplayString(currentSettings));
             settingsMonitor.OnChange(settings => debouncer.Debounce(nameof(LogMessages.SettingsChanged), () =>
-            {
-                logger.LogInformation(LogMessages.SettingsChanged, Utility.GetSettingsDisplayString(settings));
-            }));
+                logger.LogInformation(LogMessages.SettingsChanged, Utility.GetSettingsDisplayString(settings))));
         }
         catch (OptionsValidationException ove)
         {
@@ -120,14 +114,26 @@ internal static class Extensions
         });
     }
 
-    public static void UseControllersWithAuthorization(this IEndpointRouteBuilder endpoints)
+    public static void MapRoutes(this IEndpointRouteBuilder endpoints, IServiceProvider services)
     {
-        endpoints.MapControllers()
+        RouteGroupBuilder group = endpoints.MapGroup("/api")
             .RequireAuthorization(
                 new AuthorizationPolicyBuilder()
                     .AddAuthenticationSchemes(Constants.DoubleTokenAuthenticationSchemeName)
                     .RequireUserName(Constants.MainUserName)
                     .Build());
+
+        AuthController authController = services.GetService<AuthController>()!;
+        group.MapPost("/auth/login", authController.Login);
+        group.MapPost("/auth/logout", authController.Logout);
+
+        FilesController filesController = services.GetService<FilesController>()!;
+        group.MapGet("/files/list", filesController.GetFilesList);
+        group.MapGet("/files/downloadanon/{*filePath}", filesController.DownloadFileAnon);
+        group.MapGet("/files/viewanon/{*filePath}", filesController.ViewFileAnon);
+        group.MapGet("/files/download/{*filePath}", filesController.DownloadFile);
+        group.MapGet("/files/view/{*filePath}", filesController.ViewFile);
+        group.MapPost("/files/upload", filesController.UploadFile);
     }
 
     public static void UseNoCacheHeaders(this IApplicationBuilder app)

@@ -7,25 +7,28 @@ using Microsoft.Extensions.Options;
 
 namespace FileServer.Controllers;
 
-[Route("api/auth")]
-public class AuthController(
+internal sealed class AuthController(
+    IHttpContextAccessor httpContextAccessor,
     IOptionsMonitor<Settings> options,
     TokenService tokenService)
-    : ControllerBase
 {
+    private readonly IHttpContextAccessor _httpContextAccessor = httpContextAccessor;
     private readonly IOptionsMonitor<Settings> _options = options;
     private readonly TokenService _tokenService = tokenService;
 
-    [HttpPost("login")]
-    [Consumes("application/json")]
-    [Produces("application/json")]
+    private HttpRequest Request => _httpContextAccessor.HttpContext!.Request;
+    private HttpResponse Response => _httpContextAccessor.HttpContext!.Response;
+
+    [ProducesResponseType(typeof(LoginResponse), StatusCodes.Status200OK, "application/json")]
+    [ProducesResponseType(typeof(string), StatusCodes.Status400BadRequest, "application/json")]
+    [ProducesResponseType(typeof(string), StatusCodes.Status401Unauthorized, "application/json")]
     [AllowAnonymous]
-    public ActionResult<LoginResponse> Login([FromBody] LoginRequest request)
+    public IResult Login([FromBody] LoginRequest request)
     {
-        if (!ModelState.IsValid)
-            return BadRequest("Invalid login request.");
+        if (request is null)
+            return Results.BadRequest("Invalid login request.");
         if (request.Password != _options.CurrentValue.LoginKey)
-            return Unauthorized("Wrong password.");
+            return Results.Unauthorized();
 
         const string user = Constants.MainUserName;
         DateTime tokensExpire = GetUtcNowWithoutFractionalSeconds()
@@ -46,7 +49,7 @@ public class AuthController(
             });
 
         SetAuthTokenCookie(authToken);
-        return new LoginResponse()
+        return Results.Ok(new LoginResponse()
         {
             LoginInfo = new()
             {
@@ -54,15 +57,14 @@ public class AuthController(
                 TokensExpire = tokensExpire,
             },
             AntiforgeryToken = _tokenService.EncodeToken(antiforgeryToken),
-        };
+        });
     }
 
-    [HttpPost("logout")]
-    [Produces("application/json")]
-    public ActionResult Logout()
+    [ProducesResponseType(StatusCodes.Status200OK)]
+    public IResult Logout()
     {
         DeleteAuthTokenCookie();
-        return Ok();
+        return Results.Ok();
     }
 
     private void SetAuthTokenCookie(Token token)

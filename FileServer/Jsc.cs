@@ -1,0 +1,16 @@
+﻿using System.Text.Json.Serialization;
+using FileServer.Models;
+
+namespace FileServer;
+
+[JsonSourceGenerationOptions(
+    WriteIndented = true,
+    PropertyNamingPolicy = JsonKnownNamingPolicy.CamelCase,
+    GenerationMode = JsonSourceGenerationMode.Default)]
+[JsonSerializable(typeof(GetFilesListResponse))]
+[JsonSerializable(typeof(UploadFileResponse))]
+[JsonSerializable(typeof(LoginRequest))]
+[JsonSerializable(typeof(LoginResponse))]
+[JsonSerializable(typeof(Token))]
+[JsonSerializable(typeof(Claim))]
+internal sealed partial class Jsc : JsonSerializerContext;
