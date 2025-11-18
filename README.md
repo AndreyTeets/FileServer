@@ -135,9 +135,8 @@ Replace these steps from the container image usage example:
     ```
     dotnet publish "FileServer/FileServer.csproj" -c Release -o FileServer/bin/publish
     ```
-    Add `-r <RID> -p:PublishTrimmed` to publish as self-contained (trimming implicitly enables self-contained).
-
-    Commonly used RIDs: `win-x64`, `linux-x64`, `linux-musl-x64`.
+    + Add `-r <RID> -p:PublishTrimmed` to publish as self-contained (trimming implicitly enables self-contained). Commonly used RIDs: `win-x64`, `linux-x64`, `linux-musl-x64`.
+    + Add `-p:FsUseEmbeddedStaticFiles=true` to embed wwwroot static files into the published DLL and serve them from there.
 
 + ###### Step 5.
     Place the `appsettings.json` file from the container image usage example to FileServer/bin/publish and set correct full paths for:
