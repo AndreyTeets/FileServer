@@ -28,7 +28,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <Content Include="..\FileServer\wwwroot\*" LinkBase="wwwroot" CopyToOutputDirectory="PreserveNewest" />
+    <Content Include="..\FileServer\wwwroot\**\*" LinkBase="wwwroot" CopyToOutputDirectory="PreserveNewest" />
     <Content Include=".\fs_data\**\*" CopyToOutputDirectory="PreserveNewest" />
   </ItemGroup>
 

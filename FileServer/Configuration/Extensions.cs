@@ -1,4 +1,5 @@
 ﻿using System.Net;
+using System.Reflection;
 using System.Security.Authentication;
 using System.Security.Cryptography.X509Certificates;
 using FileServer.Auth;
@@ -7,6 +8,7 @@ using FileServer.Controllers;
 using FileServer.Services;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.DataProtection.KeyManagement;
+using Microsoft.Extensions.FileProviders;
 using Microsoft.Extensions.Options;
 
 namespace FileServer.Configuration;
@@ -105,13 +107,18 @@ internal static class Extensions
 
     public static void UseStaticFilesWithNoCacheHeaders(this IApplicationBuilder app)
     {
-        app.UseStaticFiles(new StaticFileOptions()
-        {
-            OnPrepareResponse = sfrContext =>
-            {
-                sfrContext.Context.Response.Headers.CacheControl = "no-cache, no-store";
-            },
-        });
+        StaticFileOptions sfo = new();
+        Assembly assembly = typeof(Program).Assembly;
+        if (UseEmbeddedStaticFiles(assembly))
+            sfo.FileProvider = new EmbeddedFileProvider(assembly, $"{assembly.GetName().Name}.wwwroot");
+        sfo.OnPrepareResponse = sfrContext =>
+            sfrContext.Context.Response.Headers.CacheControl = "no-cache, no-store";
+        app.UseStaticFiles(sfo);
+
+        static bool UseEmbeddedStaticFiles(Assembly assembly) =>
+            assembly.GetCustomAttributes<AssemblyMetadataAttribute>()
+                .FirstOrDefault(x => x.Key == "UseEmbeddedStaticFiles")
+                ?.Value == "true";
     }
 
     public static void MapRoutes(this IEndpointRouteBuilder endpoints, IServiceProvider services)

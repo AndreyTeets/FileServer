@@ -19,4 +19,13 @@
     <None Include="appsettings.template.json" CopyToOutputDirectory="Never" />
   </ItemGroup>
 
+  <ItemGroup Condition="'$(FsUseEmbeddedStaticFiles)' == 'true'">
+    <EmbeddedResource Include="wwwroot\**\*" />
+    <Content Update="wwwroot\**" CopyToOutputDirectory="Never" CopyToPublishDirectory="Never" />
+    <AssemblyAttribute Include="System.Reflection.AssemblyMetadataAttribute">
+      <_Parameter1>UseEmbeddedStaticFiles</_Parameter1>
+      <_Parameter2>true</_Parameter2>
+    </AssemblyAttribute>
+  </ItemGroup>
+
 </Project>
