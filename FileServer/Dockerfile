@@ -21,6 +21,29 @@ FROM app-base AS app
 COPY --from=build /app/publish .
 #}
 
+#===app-aot==={
+FROM sdk AS build-aot-sysroot
+ARG TARGETARCH
+COPY --from=app-base / /sysroot/
+RUN if [ "$TARGETARCH" == "amd64" ]; then ALPINE_ARCH="x86_64"; \
+    elif [ "$TARGETARCH" == "arm64" ]; then ALPINE_ARCH="aarch64"; \
+    elif [ "$TARGETARCH" == "arm" ]; then ALPINE_ARCH="armv7"; \
+    else exit 10; fi && \
+    apk add --no-cache --root /sysroot --arch $ALPINE_ARCH build-base zlib-dev
+
+FROM sdk AS build-aot
+ARG TARGETARCH APP_VERSION
+RUN apk add --no-cache clang make cmake lld llvm
+COPY --from=build-aot-sysroot /sysroot/ /sysroot/
+
+COPY . .
+RUN dotnet publish "FileServer/FileServer.csproj" -r "linux-musl-$TARGETARCH" -o /app/publish -p:FsPublishAot=true \
+    -p:CppCompilerAndLinker=clang -p:LinkerFlavor=lld -p:SysRoot=/sysroot
+
+FROM app-base AS app-aot
+COPY --from=build-aot /app/publish .
+#}
+
 #===tests==={
 FROM sdk AS tests
 COPY --from=dev-and-tests-runtime /usr/share/dotnet/shared /usr/share/dotnet/shared

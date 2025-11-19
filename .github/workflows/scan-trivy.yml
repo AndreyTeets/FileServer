@@ -61,13 +61,13 @@ jobs:
         run: |
           echo "Preparing container image for event '${{ matrix.event }}'"
           if [ "${{ matrix.event }}" == "commit" ]; then
-            image="app-base-image:${{ github.sha }}"
-            docker build . -f ./FileServer/Dockerfile --target app-base -t $image
+            IMAGE="app-base-image:${{ github.sha }}"
+            docker build . -f ./FileServer/Dockerfile --target app-base -t $IMAGE
           else
-            image="${{ vars.DOCKERHUB_NAMESPACE }}/${{ vars.DOCKERHUB_REPOSITORY }}:${{ matrix.image-tag }}"
-            docker pull $image
+            IMAGE="${{ vars.DOCKERHUB_NAMESPACE }}/${{ vars.DOCKERHUB_REPOSITORY }}:${{ matrix.image-tag }}"
+            docker pull $IMAGE
           fi
-          echo "image-ref=${image}" >> $GITHUB_OUTPUT
+          echo "image-ref=$IMAGE" >> $GITHUB_OUTPUT
 
       - name: Set up .NET SDK
         if: ${{ matrix.scan-type == 'repo' && matrix.target == 'vuln-library' }}

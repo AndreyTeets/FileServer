@@ -18,66 +18,200 @@ permissions:
 
 env:
   PLATFORMS: |-
-    linux-x64
-    linux-arm64
-    linux-arm
+    linux-glibc-x64
+    linux-glibc-arm64
+    linux-glibc-armv7
     linux-musl-x64
     linux-musl-arm64
-    win-x86
-    win-x64
-    win-arm64
-    osx-x64
-    osx-arm64
+    macos-x64
+    macos-arm64
+    windows-x64
+    windows-x86
+    windows-arm64
 
 jobs:
-  build-binaries:
+  setup-vars:
     runs-on: ubuntu-latest
+    outputs:
+      version: ${{ steps.vars.outputs.version }}
     steps:
-      - name: Check out repository
-        uses: actions/checkout@v5
-
       - name: Set up vars
         id: vars
         shell: bash
         run: |
-          tag_version="${GITHUB_REF#refs/tags/v}"
-          [ "${tag_version:0:5}" == "refs/" ] && app_version='1.0.0' || app_version="$tag_version"
-          echo "app_version=${app_version}" >> $GITHUB_OUTPUT
+          TAG_VERSION="${GITHUB_REF#refs/tags/v}"
+          [ "${TAG_VERSION:0:5}" == "refs/" ] && VERSION="1.0.0" || VERSION="$TAG_VERSION"
+          echo "version=$VERSION" >> $GITHUB_OUTPUT
+
+  build-binaries:
+    name: build-binaries-${{ matrix.type }}
+    runs-on: ${{ matrix.runner }}
+    needs: [setup-vars]
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - type: 'JIT'
+            runner: 'ubuntu-latest'
+          - type: 'AOT-linux'
+            runner: 'ubuntu-latest'
+          - type: 'AOT-macos'
+            runner: 'macos-latest'
+          - type: 'AOT-windows'
+            runner: 'windows-latest'
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v5
 
       - name: Set up .NET SDK
+        if: ${{ matrix.type != 'AOT-linux' }}
         uses: actions/setup-dotnet@v5
         with:
           dotnet-version: 10.0.x
 
-      - name: Build all platforms
+      - name: Set up Docker Buildx
+        if: ${{ matrix.type == 'AOT-linux' }}
+        uses: docker/setup-buildx-action@v3
+
+      - name: Set up env for Docker cache
+        if: ${{ matrix.type == 'AOT-linux' }}
+        uses: actions/github-script@v8
+        with:
+          script: |
+            core.exportVariable('ACTIONS_RUNTIME_TOKEN', process.env['ACTIONS_RUNTIME_TOKEN'])
+            core.exportVariable('ACTIONS_RESULTS_URL', process.env['ACTIONS_RESULTS_URL'])
+            core.exportVariable('ACTIONS_CACHE_SERVICE_V2', process.env['ACTIONS_CACHE_SERVICE_V2'])
+
+      - name: Prepare cross-build containers
+        if: ${{ matrix.type == 'AOT-linux' }}
         shell: bash
         run: |
-          export APP_VERSION=${{ steps.vars.outputs.app_version }}
-          echo "Building portable"
-          ART_NAME="fileserver-${{ steps.vars.outputs.app_version }}-portable"
+          echo "$PLATFORMS" | while IFS= read -r PLAT; do
+            [ "${PLAT:0:6}" != "linux-" ] && continue
+            ARCH="$(echo -n "$PLAT" | awk -F '-' '{print $NF}')"
+            TARGET="$(echo -n "$PLAT" | sed "s/-${ARCH}//g")"
+            ARCH="$(echo -n "$ARCH" | sed 's/x64/amd64/g; s/armv/arm\/v/g')"
+
+            echo "Building cross-build:${PLAT}"
+            docker buildx build --build-arg TARGET_ARCH=${ARCH} --target sysroot \
+              --cache-from type=gha,scope=cross-build-${PLAT}-sysroot \
+              --cache-to type=gha,scope=cross-build-${PLAT}-sysroot,mode=max,compression=zstd,compression-level=22,force-compression=true \
+              - < ./build/Dockerfile.cross-build-${TARGET}-x
+            docker buildx build --build-arg TARGET_ARCH=${ARCH} --load -t cross-build:${PLAT} \
+              --cache-from type=gha,scope=cross-build-${PLAT}-sysroot \
+              - < ./build/Dockerfile.cross-build-${TARGET}-x
+          done
+
+      - name: Build cross-platform JIT
+        if: ${{ matrix.type == 'JIT' }}
+        shell: bash
+        env:
+          APP_VERSION: ${{ needs.setup-vars.outputs.version }}
+        run: |
+          ART_NAME="fileserver-$APP_VERSION-cross-platform"
           dotnet publish "FileServer/FileServer.csproj" -o "artifacts/${ART_NAME}" -p:UseAppHost=false
           pushd artifacts
           zip -rq "${ART_NAME}.zip" $ART_NAME
           tar -czf "${ART_NAME}.tar.gz" $ART_NAME
           popd
           rm -rf "artifacts/${ART_NAME}"
-          echo "${{ env.PLATFORMS }}" | while IFS= read -r RID; do
-            echo "Building $RID"
-            ART_NAME="fileserver-${{ steps.vars.outputs.app_version }}-$RID"
+
+      - name: Build all platforms JIT
+        if: ${{ matrix.type == 'JIT' }}
+        shell: bash
+        env:
+          APP_VERSION: ${{ needs.setup-vars.outputs.version }}
+        run: |
+          echo "$PLATFORMS" | while IFS= read -r PLAT; do
+            ART_NAME="fileserver-$APP_VERSION-$PLAT"
+            RID="$(echo -n "$PLAT" | sed 's/-armv./-arm/g; s/-glibc//g; s/windows/win/g; s/macos/osx/g')"
+
+            echo "Building $PLAT"
             dotnet publish "FileServer/FileServer.csproj" -o "artifacts/${ART_NAME}" -r $RID -p:PublishTrimmed=true
             pushd artifacts
-            [ "${RID:0:4}" == "win-" ] && zip -rq "${ART_NAME}.zip" $ART_NAME || tar -czf "${ART_NAME}.tar.gz" $ART_NAME
+            [ "${PLAT:0:8}" == "windows-" ] && zip -rq "${ART_NAME}.zip" $ART_NAME || tar -czf "${ART_NAME}.tar.gz" $ART_NAME
             popd
             rm -rf "artifacts/${ART_NAME}"
           done
-          sha256sum artifacts/* | tee artifacts/sha256sums.txt
 
-      - name: Upload artifacts
-        if: ${{ github.event_name == 'push' && startsWith(github.ref, 'refs/tags/v') }}
+      - name: Build all architectures AOT
+        if: ${{ startsWith(matrix.type, 'AOT-') }}
+        shell: bash
+        env:
+          APP_VERSION: ${{ needs.setup-vars.outputs.version }}
+          IS_LINUX: ${{ matrix.type == 'AOT-linux' }}
+          IS_MACOS: ${{ matrix.type == 'AOT-macos' }}
+          IS_WINDOWS: ${{ matrix.type == 'AOT-windows' }}
+        run: |
+          echo "$PLATFORMS" | while IFS= read -r PLAT; do
+            $IS_LINUX && [ "${PLAT:0:6}" != "linux-" ] && continue
+            $IS_MACOS && [ "${PLAT:0:6}" != "macos-" ] && continue
+            $IS_WINDOWS && [ "${PLAT:0:8}" != "windows-" ] && continue
+
+            ART_NAME="fileserver-$APP_VERSION-aot-$PLAT"
+            RID="$(echo -n "$PLAT" | sed 's/-armv./-arm/g; s/-glibc//g; s/windows/win/g; s/macos/osx/g')"
+
+            echo "Building $PLAT"
+            if $IS_LINUX; then
+              docker run --rm --pull=never -u $(id -u):$(id -g) -v "`pwd`:/src" -e APP_VERSION="$APP_VERSION" cross-build:${PLAT} \
+                "FileServer/FileServer.csproj" -o "artifacts/${ART_NAME}" -r $RID -p:FsPublishAot=true
+              mv "artifacts/${ART_NAME}/FileServer" "artifacts/${ART_NAME}/${ART_NAME}"
+              tar -czf "artifacts/${ART_NAME}.tar.gz" --directory "artifacts/${ART_NAME}" $ART_NAME
+            elif $IS_MACOS; then
+              dotnet publish "FileServer/FileServer.csproj" -o "artifacts/${ART_NAME}" -r $RID -p:FsPublishAot=true
+              mv "artifacts/${ART_NAME}/FileServer" "artifacts/${ART_NAME}/${ART_NAME}"
+              tar -czf "artifacts/${ART_NAME}.tar.gz" --directory "artifacts/${ART_NAME}" $ART_NAME
+            elif $IS_WINDOWS; then
+              dotnet publish "FileServer/FileServer.csproj" -o "artifacts/${ART_NAME}" -r $RID -p:FsPublishAot=true
+              mv "artifacts/${ART_NAME}/FileServer.exe" "artifacts/${ART_NAME}/${ART_NAME}.exe"
+              pushd "artifacts/${ART_NAME}" && "C:/Windows/System32/tar.exe" -acf "../${ART_NAME}.zip" "${ART_NAME}.exe" && popd
+            else exit 10; fi
+            rm -rf "artifacts/${ART_NAME}"
+          done
+
+      - name: Calculate sha256sums
+        shell: bash
+        run: sha256sum artifacts/* | tee artifacts/sha256sums-binaries-${{ matrix.type }}.txt
+
+      - name: Upload sha256sums
         uses: actions/upload-artifact@v4
         with:
-          name: built-binaries
+          name: sha256sums-binaries-${{ matrix.type }}
           if-no-files-found: error
-          retention-days: 7
+          path: artifacts/sha256sums-*.txt
+
+      - name: Upload binaries
+        uses: actions/upload-artifact@v4
+        with:
+          name: built-binaries-${{ matrix.type }}
+          if-no-files-found: error
+          retention-days: ${{ github.event_name == 'push' && startsWith(github.ref, 'refs/tags/v') && 7 || 1 }}
           compression-level: 0
-          path: artifacts/*
+          path: |
+            artifacts/*
+            !artifacts/sha256sums-*.txt
+
+  merge-sums-binaries:
+    runs-on: ubuntu-latest
+    needs: [build-binaries]
+    steps:
+      - name: Download sha256sums
+        uses: actions/download-artifact@v5
+        with:
+          pattern: sha256sums-binaries-*
+          path: .
+          merge-multiple: true
+
+      - name: Merge sha256sums
+        shell: bash
+        run: |
+          cat sha256sums-binaries-AOT-linux.txt sha256sums-binaries-AOT-macos.txt sha256sums-binaries-AOT-windows.txt \
+            sha256sums-binaries-JIT.txt \
+            > sha256sums-binaries.txt
+
+      - name: Upload merged sha256sums
+        uses: actions/upload-artifact@v4
+        with:
+          name: built-binaries-sha256sums
+          if-no-files-found: error
+          path: sha256sums-binaries.txt

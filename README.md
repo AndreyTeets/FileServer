@@ -50,9 +50,11 @@ Settings that can be configured:
 ## Usage requirements
 + To build the container image and/or run it - docker or an alternative container engine (e.g. podman).
 + To build (publish) a dotnet application - dotnet sdk 10.0 or higher.
-+ To run a portable dotnet application - aspnetcore runtime 10.0.
++ To run a cross-platform dotnet application - aspnetcore runtime 10.0.
 + To run a self-contained dotnet application on linux - dotnet runtime dependencies.
 + To run a self-contained dotnet application on windows - nothing.
+
+The above information doesn't take into account non-containerized Native AOT variants. Running pre-built AOT binaries should work out of the box on most systems without any special requirements (other than having the appropriate libc and openssl libraries on linux), but it's not well tested. As for requirements to build AOT binaries - refer to the dotnet documentation (also commands in AOT-related dockerfiles may be informative examples).
 
 ## Usage (container image)
 + ###### 1. Get the source code.
@@ -103,6 +105,8 @@ Settings that can be configured:
     ```
     docker run --rm -it --pull=never --name my_file_server \
         --security-opt no-new-privileges \
+        --cap-drop=all \
+        -u $(id -u):$(id -g) \
         -p 8443:8443/tcp \
         -e "FileServer_SettingsFilePath=/app/appsettings.json" \
         -v "`pwd`/appsettings.json:/app/appsettings.json:ro" \
@@ -151,12 +155,12 @@ Replace these steps from the container image usage example:
 
 + ###### Step 6.
     `cd FileServer/bin/publish` (current working directory is `!important!`).
-    + `dotnet ./FileServer.dll` for portable (framework-dependent cross-platform).
+    + `dotnet ./FileServer.dll` for cross-platform (framework-dependent).
     + `"./FileServer.exe"` for self-contained when using windows cmd.
     + `./FileServer.exe` for self-contained when using windows pwsh.
     + `./FileServer` for self-contained when using linux.
 
-A practical end-to-end working example of setting up, publishing and running a portable server for local development can be found in [_setup-server.bat](_setup-server.bat) and [_run-server.bat](_run-server.bat) scripts.
+A practical end-to-end working example of setting up, publishing and running a cross-platform server for local development can be found in [_setup-server.bat](_setup-server.bat) and [_run-server.bat](_run-server.bat) scripts.
 
 ## Additional information
 The `master` branch is where the development happens, it may be unstable. Use the `stable` branch or one of the `v*` tags (releases) to build from the source code (the `stable` branch always points to the latest release, so it is essentially an analog to the "latest" tag for container images).
