@@ -1,0 +1,16 @@
+ARG TARGET_ARCH
+FROM mcr.microsoft.com/dotnet/sdk:10.0.100-alpine3.22 AS sdk
+FROM --platform=linux/$TARGET_ARCH mcr.microsoft.com/dotnet/runtime-deps:10.0.0-alpine3.22 AS sysroot-base
+
+FROM sysroot-base AS sysroot
+RUN apk add --no-cache build-base zlib-dev
+
+FROM sdk AS build
+WORKDIR /src
+RUN apk add --no-cache clang make cmake lld llvm
+COPY --from=sysroot / /sysroot/
+
+RUN mkdir /arbitrary_user_home && chmod a=rwx,o+t /arbitrary_user_home
+ENV HOME=/arbitrary_user_home
+ENTRYPOINT ["dotnet", "publish", "-p:CppCompilerAndLinker=clang", "-p:LinkerFlavor=lld", "-p:SysRoot=/sysroot"]
+CMD []

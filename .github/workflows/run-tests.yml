@@ -16,26 +16,26 @@ permissions: {}
 
 jobs:
   run-tests:
-    name: run-tests (${{ matrix.os }} ${{ matrix.browser }} sdk${{ matrix.netsdkver }} ${{ matrix.netcfg }})
-    runs-on: ${{ matrix.os }}-latest
+    name: run-tests (${{ matrix.runner }} ${{ matrix.browser }} sdk${{ matrix.netsdkver }} ${{ matrix.netcfg }})
+    runs-on: ${{ matrix.runner }}
     strategy:
       fail-fast: false
       matrix:
-        os: [ubuntu, windows, macos]
+        runner: [ubuntu-latest, macos-latest, windows-latest]
         browser: [chromium]
         netsdkver: ['10.0']
         netcfg: ['Release']
         include:
-          - os: 'ubuntu'
+          - runner: 'ubuntu-24.04-arm'
             browser: 'firefox'
             netsdkver: '10.0'
             netcfg: 'Debug'
-          - os: 'windows'
-            browser: 'firefox'
-            netsdkver: '10.0'
-            netcfg: 'Debug'
-          - os: 'macos'
+          - runner: 'macos-15-intel'
             browser: 'webkit'
+            netsdkver: '10.0'
+            netcfg: 'Debug'
+          - runner: 'windows-11-arm'
+            browser: 'firefox'
             netsdkver: '10.0'
             netcfg: 'Debug'
     steps:
