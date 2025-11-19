@@ -1,7 +1,7 @@
 FROM mcr.microsoft.com/dotnet/sdk:10.0.100-alpine3.22 AS build
 WORKDIR /src
 COPY . .
-RUN dotnet publish "FileServer/FileServer.csproj" -c Release -o /app/publish -p:UseAppHost=false
+RUN dotnet publish "FileServer/FileServer.csproj" -o /app/publish -p:UseAppHost=false
 
 FROM mcr.microsoft.com/dotnet/aspnet:10.0.0-alpine3.22 AS app
 WORKDIR /app

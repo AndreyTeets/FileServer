@@ -11,7 +11,7 @@ set "FileServer__Settings__UploadDir=%cd%\FileServer\bin\fs_data\upload"
 
 echo -^> Publishing...
 if exist "FileServer\bin\publish" (rmdir "FileServer\bin\publish" /S /Q)>nul 2>&1
-dotnet publish "FileServer/FileServer.csproj" -c Release -p:UseAppHost=false -o "FileServer/bin/publish" -v q
+dotnet publish "FileServer/FileServer.csproj" -o "FileServer/bin/publish" -p:UseAppHost=false -v q
 if %errorlevel% neq 0 goto :Error
 
 echo -^> Running...

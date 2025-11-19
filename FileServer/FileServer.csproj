@@ -19,6 +19,31 @@
     <None Include="appsettings.template.json" CopyToOutputDirectory="Never" />
   </ItemGroup>
 
+  <PropertyGroup>
+    <CompressionEnabled>false</CompressionEnabled>
+  </PropertyGroup>
+
+  <PropertyGroup Condition="'$(FsPublishSingleFile)' == 'true' Or '$(FsPublishAot)' == 'true'">
+    <FsUseEmbeddedStaticFiles>true</FsUseEmbeddedStaticFiles>
+    <IsTransformWebConfigDisabled>true</IsTransformWebConfigDisabled>
+  </PropertyGroup>
+
+  <PropertyGroup Condition="'$(FsPublishSingleFile)' == 'true'">
+    <PublishSingleFile>true</PublishSingleFile>
+    <IncludeNativeLibrariesForSelfExtract>true</IncludeNativeLibrariesForSelfExtract>
+    <DebugType>embedded</DebugType>
+  </PropertyGroup>
+
+  <PropertyGroup Condition="'$(FsPublishAot)' == 'true'">
+    <PublishAot>true</PublishAot>
+    <StripSymbols>true</StripSymbols>
+    <CopyOutputSymbolsToPublishDirectory>false</CopyOutputSymbolsToPublishDirectory>
+  </PropertyGroup>
+
+  <PropertyGroup Condition="'$(FsUseEmbeddedStaticFiles)' == 'true'">
+    <StaticWebAssetsEnabled>false</StaticWebAssetsEnabled>
+  </PropertyGroup>
+
   <ItemGroup Condition="'$(FsUseEmbeddedStaticFiles)' == 'true'">
     <EmbeddedResource Include="wwwroot\**\*" />
     <Content Update="wwwroot\**" CopyToOutputDirectory="Never" CopyToPublishDirectory="Never" />
