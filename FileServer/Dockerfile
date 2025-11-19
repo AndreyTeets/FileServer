@@ -1,32 +1,36 @@
-FROM mcr.microsoft.com/dotnet/aspnet:10.0.0-alpine3.22 AS app-base
+FROM --platform=$BUILDPLATFORM mcr.microsoft.com/dotnet/aspnet:10.0.0-alpine3.22 AS dev-and-tests-runtime
 
-FROM --platform=$BUILDPLATFORM mcr.microsoft.com/dotnet/sdk:10.0.100-alpine3.22 AS build
-ARG TARGETARCH APP_VERSION
+FROM --platform=$BUILDPLATFORM mcr.microsoft.com/dotnet/sdk:10.0.100-alpine3.22 AS sdk
 WORKDIR /src
-COPY ["Directory.Build.props", "global.json", ".editorconfig", "./"]
-COPY ["FileServer/FileServer.csproj", "FileServer/"]
-RUN dotnet restore "FileServer/FileServer.csproj" -a $TARGETARCH
-COPY ["FileServer.Tests/FileServer.Tests.csproj", "FileServer.Tests/"]
-RUN dotnet restore "FileServer.Tests/FileServer.Tests.csproj" -a $TARGETARCH
-COPY ["FileServer/", "FileServer/"]
-RUN dotnet build "FileServer/FileServer.csproj" -a $TARGETARCH -c Release --no-restore
 
-FROM build AS publish
-ARG TARGETARCH APP_VERSION
-RUN dotnet publish "FileServer/FileServer.csproj" -o /app/publish -a $TARGETARCH -p:UseAppHost=false --no-build
-
-FROM build AS tests
-ARG TARGETARCH APP_VERSION
-COPY ["FileServer.Tests/", "FileServer.Tests/"]
-RUN dotnet build "FileServer.Tests/FileServer.Tests.csproj" -a $TARGETARCH -c Release --no-restore
-COPY --from=app-base /usr/share/dotnet/shared /usr/share/dotnet/shared
-RUN dotnet test "FileServer.Tests/FileServer.Tests.csproj" -a $TARGETARCH -c Release --no-build
-
-FROM app-base AS app
+FROM mcr.microsoft.com/dotnet/runtime-deps:10.0.0-alpine3.22 AS app-base
 WORKDIR /app
-COPY --from=publish /app/publish .
 ENV ASPNETCORE_URLS=""
 ENV DOTNET_USE_POLLING_FILE_WATCHER=1
 ENV FileServer_SettingsFilePath="/app/settings/appsettings.json"
-ENTRYPOINT ["dotnet", "FileServer.dll"]
+ENTRYPOINT ["./FileServer"]
 CMD []
+
+#===app==={
+FROM sdk AS build
+ARG TARGETARCH APP_VERSION
+COPY . .
+RUN dotnet publish "FileServer/FileServer.csproj" -o /app/publish -r "linux-musl-$TARGETARCH" -p:PublishTrimmed=true
+
+FROM app-base AS app
+COPY --from=build /app/publish .
+#}
+
+#===tests==={
+FROM sdk AS tests
+COPY --from=dev-and-tests-runtime /usr/share/dotnet/shared /usr/share/dotnet/shared
+
+COPY ["Directory.Build.props", "global.json", ".editorconfig", "./"]
+COPY ["FileServer/FileServer.csproj", "FileServer/"]
+COPY ["FileServer.Tests/FileServer.Tests.csproj", "FileServer.Tests/"]
+RUN dotnet restore "FileServer.Tests/FileServer.Tests.csproj"
+
+COPY . .
+RUN dotnet build "FileServer.Tests/FileServer.Tests.csproj" -c Release --no-restore
+RUN dotnet test "FileServer.Tests/FileServer.Tests.csproj" -c Release --no-build
+#}

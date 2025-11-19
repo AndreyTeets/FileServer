@@ -64,7 +64,7 @@ jobs:
           echo "${{ env.PLATFORMS }}" | while IFS= read -r RID; do
             echo "Building $RID"
             ART_NAME="fileserver-${{ steps.vars.outputs.app_version }}-$RID"
-            dotnet publish "FileServer/FileServer.csproj" -o "artifacts/${ART_NAME}" -r $RID --self-contained
+            dotnet publish "FileServer/FileServer.csproj" -o "artifacts/${ART_NAME}" -r $RID -p:PublishTrimmed=true
             pushd artifacts
             [ "${RID:0:4}" == "win-" ] && zip -rq "${ART_NAME}.zip" $ART_NAME || tar -czf "${ART_NAME}.tar.gz" $ART_NAME
             popd
