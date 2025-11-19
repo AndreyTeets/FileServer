@@ -55,7 +55,7 @@ jobs:
           export APP_VERSION=${{ steps.vars.outputs.app_version }}
           echo "Building portable"
           ART_NAME="fileserver-${{ steps.vars.outputs.app_version }}-portable"
-          dotnet publish "FileServer/FileServer.csproj" -c Release -p:UseAppHost=false -o "artifacts/${ART_NAME}"
+          dotnet publish "FileServer/FileServer.csproj" -o "artifacts/${ART_NAME}" -p:UseAppHost=false
           pushd artifacts
           zip -rq "${ART_NAME}.zip" $ART_NAME
           tar -czf "${ART_NAME}.tar.gz" $ART_NAME
@@ -64,7 +64,7 @@ jobs:
           echo "${{ env.PLATFORMS }}" | while IFS= read -r RID; do
             echo "Building $RID"
             ART_NAME="fileserver-${{ steps.vars.outputs.app_version }}-$RID"
-            dotnet publish "FileServer/FileServer.csproj" -c Release --self-contained -r $RID -o "artifacts/${ART_NAME}"
+            dotnet publish "FileServer/FileServer.csproj" -o "artifacts/${ART_NAME}" -r $RID --self-contained
             pushd artifacts
             [ "${RID:0:4}" == "win-" ] && zip -rq "${ART_NAME}.zip" $ART_NAME || tar -czf "${ART_NAME}.tar.gz" $ART_NAME
             popd

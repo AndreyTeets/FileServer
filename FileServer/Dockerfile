@@ -13,7 +13,7 @@ RUN dotnet build "FileServer/FileServer.csproj" -a $TARGETARCH -c Release --no-r
 
 FROM build AS publish
 ARG TARGETARCH APP_VERSION
-RUN dotnet publish "FileServer/FileServer.csproj" -a $TARGETARCH -c Release --no-build -o /app/publish -p:UseAppHost=false
+RUN dotnet publish "FileServer/FileServer.csproj" -o /app/publish -a $TARGETARCH -p:UseAppHost=false --no-build
 
 FROM build AS tests
 ARG TARGETARCH APP_VERSION

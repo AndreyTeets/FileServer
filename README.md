@@ -133,10 +133,11 @@ Note: This is not recommended as it does not provide an extra layer of security 
 Replace these steps from the container image usage example:
 + ###### Step 2.
     ```
-    dotnet publish "FileServer/FileServer.csproj" -c Release -o FileServer/bin/publish
+    dotnet publish "FileServer/FileServer.csproj" -o FileServer/bin/publish
     ```
     + Add `-r <RID> -p:PublishTrimmed` to publish as self-contained (trimming implicitly enables self-contained). Commonly used RIDs: `win-x64`, `linux-x64`, `linux-musl-x64`.
     + Add `-p:FsUseEmbeddedStaticFiles=true` to embed wwwroot static files into the published DLL and serve them from there.
+    + Add `-p:FsPublishSingleFile=true --no-self-contained` or `-p:FsPublishSingleFile=true -p:PublishTrimmed -p:EnableCompressionInSingleFile` or `-p:FsPublishAot=true` to publish as a framework-dependent single-file JIT-compiled executable or as a self-contained single-file JIT-compiled executable or as a self-contained single-file AOT-compiled executable respectively (`FsPublishSingleFile` and `FsPublishAot` options enable `FsUseEmbeddedStaticFiles` option, disable generating IIS web.config and embed(JIT)/remove(AOT) debug symbols).
 
 + ###### Step 5.
     Place the `appsettings.json` file from the container image usage example to FileServer/bin/publish and set correct full paths for:
