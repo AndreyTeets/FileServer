@@ -1,13 +1,13 @@
 @echo off
 pushd "%~dp0"
 
-set "SETTINGS_DIR=%cd%\FileServer\bin\settings"
-set "FS_DATA_DIR=%cd%\FileServer\bin\fs_data"
+set "SETTINGS_DIR=src\FileServer\bin\settings"
+set "FS_DATA_DIR=src\FileServer\bin\fs_data"
 
 :CopyAppSettingsJsonFromTemplate
 if exist "%SETTINGS_DIR%\appsettings.json" goto :SetUpFsDataDirectory
 echo -^> Copying appsettings.json from template...
-echo F| xcopy "%cd%\FileServer\appsettings.template.json" "%SETTINGS_DIR%\appsettings.json" /Y /R /Q>nul
+echo F| xcopy "src\FileServer\appsettings.template.json" "%SETTINGS_DIR%\appsettings.json" /Y /R /Q>nul
 echo Don't forget to manually set SigningKey/LoginKey
 
 :SetUpFsDataDirectory

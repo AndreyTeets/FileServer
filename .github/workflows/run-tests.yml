@@ -3,10 +3,24 @@ name: run-tests
 on:
   push:
     branches: ['master']
-    paths: ['FileServer**', 'Directory.Build.props', '.editorconfig', 'global.json', '.github/workflows/run-tests.yml']
+    paths:
+      - 'src/**'
+      - 'tests/**'
+      - '.editorconfig'
+      - 'Directory.Build.props'
+      - 'FileServer.sln'
+      - 'global.json'
+      - '.github/workflows/run-tests.yml'
   pull_request:
     branches: ['master']
-    paths: ['FileServer**', 'Directory.Build.props', '.editorconfig', 'global.json', '.github/workflows/run-tests.yml']
+    paths:
+      - 'src/**'
+      - 'tests/**'
+      - '.editorconfig'
+      - 'Directory.Build.props'
+      - 'FileServer.sln'
+      - 'global.json'
+      - '.github/workflows/run-tests.yml'
 
 concurrency: # head_ref is only defined on pull_request events, run_id is unique for each workflow run
   group: ${{ github.workflow }}-${{ github.head_ref || github.run_id }}
@@ -63,13 +77,13 @@ jobs:
         run: dotnet format --verify-no-changes --no-restore
 
       - name: Run tests
-        run: dotnet test FileServer.Tests -c ${{ matrix.netcfg }} --no-build
+        run: dotnet test tests/FileServer.Tests -c ${{ matrix.netcfg }} --no-build
 
       - name: Install Playwright
-        run: pwsh FileServer.E2ETests/bin/${{ matrix.netcfg }}/net10.0/playwright.ps1 install --with-deps --only-shell ${{ matrix.browser }}
+        run: pwsh tests/FileServer.E2ETests/bin/${{ matrix.netcfg }}/net10.0/playwright.ps1 install --with-deps --only-shell ${{ matrix.browser }}
 
       - name: Run E2E tests
-        run: dotnet test FileServer.E2ETests -c ${{ matrix.netcfg }} --no-build -- Playwright.BrowserName=${{ matrix.browser }}
+        run: dotnet test tests/FileServer.E2ETests -c ${{ matrix.netcfg }} --no-build -- Playwright.BrowserName=${{ matrix.browser }}
 
   run-container-tests:
     name: run-container-tests (${{ matrix.runner }})
@@ -89,21 +103,21 @@ jobs:
         uses: docker/build-push-action@v6
         with:
           context: .
-          file: ./FileServer/Dockerfile
+          file: src/FileServer/Dockerfile
           target: tests
 
       - name: Run E2E tests
         uses: docker/build-push-action@v6
         with:
           context: .
-          file: ./FileServer.E2ETests/Dockerfile
+          file: tests/FileServer.E2ETests/Dockerfile
 
       - name: Run Dockerfile-simple tests
         shell: bash
         run: |
           echo "-jit,-aot" | tr ',' '\n' | while IFS= read -r SUFFIX; do
             echo "Testing simple${SUFFIX}"
-            docker build . -f ./FileServer/Dockerfile-simple${SUFFIX} -t fs:simple${SUFFIX}
+            docker build . -f src/FileServer/Dockerfile-simple${SUFFIX} -t fs:simple${SUFFIX}
             docker run --rm --pull=never fs:simple${SUFFIX} --usage | grep -e "Version: 1.0.0" || exit 10
             docker run --rm --pull=never fs:simple${SUFFIX} --usage | grep -e "Commit: ${GITHUB_SHA:0:10}" || exit 11
           done

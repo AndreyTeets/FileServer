@@ -1,14 +1,15 @@
 # Exclude all items in repo root except required for build
 *
+!src
+!tests
+!.editorconfig
 !Directory.Build.props
 !global.json
-!.editorconfig
-!FileServer*
 
 # Exclude all git items except minimal required for SourceLink
 **/.git
-!.git/HEAD
 !.git/config
+!.git/HEAD
 !.git/refs
 
 # Other standard exclusions

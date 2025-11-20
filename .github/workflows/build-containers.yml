@@ -3,10 +3,22 @@ name: build-containers
 on:
   push:
     branches: ['master']
-    paths: ['FileServer**', 'Directory.Build.props', '.editorconfig', 'global.json', '.github/workflows/build-containers.yml']
+    paths:
+      - 'src/**'
+      - 'tests/**'
+      - '.editorconfig'
+      - 'Directory.Build.props'
+      - 'global.json'
+      - '.github/workflows/build-containers.yml'
   pull_request:
     branches: ['master']
-    paths: ['FileServer**', 'Directory.Build.props', '.editorconfig', 'global.json', '.github/workflows/build-containers.yml']
+    paths:
+      - 'src/**'
+      - 'tests/**'
+      - '.editorconfig'
+      - 'Directory.Build.props'
+      - 'global.json'
+      - '.github/workflows/build-containers.yml'
   workflow_call:
     secrets:
       DOCKERHUB_TOKEN:
@@ -66,7 +78,7 @@ jobs:
         uses: docker/build-push-action@v6
         with:
           context: .
-          file: ./FileServer/Dockerfile
+          file: src/FileServer/Dockerfile
           target: app${{ matrix.suffix }}
           build-args: APP_VERSION=${{ needs.setup-vars.outputs.version }}
           platforms: ${{ env.PLATFORMS }}
@@ -83,7 +95,7 @@ jobs:
             ARCH="$(echo -n "$PLAT" | sed 's/linux\///g' | sed 's/amd64/x64/g; s/arm\/v/armv/g')"
             TAG="${VERSION}${SUFFIX}-$ARCH"
             docker buildx build --load . -t ${IMAGE}:${TAG} \
-              -f ./FileServer/Dockerfile \
+              -f src/FileServer/Dockerfile \
               --target app${{ matrix.suffix }} \
               --build-arg APP_VERSION=${{ needs.setup-vars.outputs.version }} \
               --platform $PLAT
@@ -194,7 +206,7 @@ jobs:
         uses: docker/build-push-action@v6
         with:
           context: .
-          file: ./FileServer/Dockerfile
+          file: src/FileServer/Dockerfile
           target: app${{ matrix.suffix }}
           build-args: APP_VERSION=${{ needs.setup-vars.outputs.version }}
           platforms: ${{ env.PLATFORMS }}
@@ -222,7 +234,7 @@ jobs:
         uses: docker/build-push-action@v6
         with:
           context: .
-          file: ./FileServer/Dockerfile
+          file: src/FileServer/Dockerfile
           target: app${{ matrix.suffix }}
           build-args: APP_VERSION=${{ needs.setup-vars.outputs.version }}
           platforms: ${{ env.PLATFORMS }}
