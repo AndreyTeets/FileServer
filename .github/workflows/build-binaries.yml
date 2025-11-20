@@ -37,6 +37,7 @@ env:
     linux-glibc-armv7
     linux-musl-x64
     linux-musl-arm64
+    linux-musl-armv7
     macos-x64
     macos-arm64
     windows-x64
