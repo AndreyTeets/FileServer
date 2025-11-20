@@ -112,6 +112,40 @@ jobs:
             artifacts/*
             !artifacts/sha256sums-*.txt
 
+  test-containers:
+    name: test-containers (${{ matrix.runner }})
+    runs-on: ${{ matrix.runner }}
+    needs: [setup-vars, build-containers]
+    strategy:
+      fail-fast: false
+      matrix:
+        runner: [ubuntu-latest, ubuntu-24.04-arm]
+    steps:
+      - name: Download container images
+        uses: actions/download-artifact@v5
+        with:
+          pattern: built-containers-*
+          path: .
+          merge-multiple: true
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Test container images
+        shell: bash
+        env:
+          IMAGE: fileserver
+          VERSION: ${{ needs.setup-vars.outputs.version }}
+          ARCH: ${{ matrix.runner == 'ubuntu-latest' && 'x64' || 'arm64' }}
+        run: |
+          echo ",-aot" | tr ',' '\n' | while IFS= read -r SUFFIX; do
+            TAG="${VERSION}${SUFFIX}-$ARCH"
+            echo "Testing $TAG"
+            gunzip < fileserver-container-image-${TAG}.tar.gz | docker load
+            docker run --rm --pull=never ${IMAGE}:${TAG} --usage | grep -e "Version: $VERSION" || exit 10
+            docker run --rm --pull=never ${IMAGE}:${TAG} --usage | grep -e "Commit: ${GITHUB_SHA:0:10}" || exit 11
+          done
+
   merge-sums-containers:
     runs-on: ubuntu-latest
     needs: [build-containers]
@@ -140,7 +174,7 @@ jobs:
     name: build-push-containers-${{ matrix.type }}
     if: ${{ github.event_name == 'push' && startsWith(github.ref, 'refs/tags/v') }}
     runs-on: ubuntu-latest
-    needs: [setup-vars, build-containers, merge-sums-containers]
+    needs: [setup-vars, build-containers, test-containers, merge-sums-containers]
     strategy:
       fail-fast: false
       matrix:
