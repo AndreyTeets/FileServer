@@ -62,19 +62,6 @@ jobs:
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v3
 
-      - name: Run tests
-        uses: docker/build-push-action@v6
-        with:
-          context: .
-          file: ./FileServer/Dockerfile
-          target: tests
-
-      - name: Run E2E tests
-        uses: docker/build-push-action@v6
-        with:
-          context: .
-          file: ./FileServer.E2ETests/Dockerfile
-
       - name: Build all platforms
         uses: docker/build-push-action@v6
         with:

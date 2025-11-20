@@ -15,8 +15,8 @@ concurrency: # head_ref is only defined on pull_request events, run_id is unique
 permissions: {}
 
 jobs:
-  run-tests:
-    name: run-tests (${{ matrix.runner }} ${{ matrix.browser }} sdk${{ matrix.netsdkver }} ${{ matrix.netcfg }})
+  run-dotnet-tests:
+    name: run-dotnet-tests (${{ matrix.runner }} ${{ matrix.browser }} sdk${{ matrix.netsdkver }} ${{ matrix.netcfg }})
     runs-on: ${{ matrix.runner }}
     strategy:
       fail-fast: false
@@ -70,3 +70,40 @@ jobs:
 
       - name: Run E2E tests
         run: dotnet test FileServer.E2ETests -c ${{ matrix.netcfg }} --no-build -- Playwright.BrowserName=${{ matrix.browser }}
+
+  run-container-tests:
+    name: run-container-tests (${{ matrix.runner }})
+    runs-on: ${{ matrix.runner }}
+    strategy:
+      fail-fast: false
+      matrix:
+        runner: [ubuntu-latest, ubuntu-24.04-arm]
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v5
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Run tests
+        uses: docker/build-push-action@v6
+        with:
+          context: .
+          file: ./FileServer/Dockerfile
+          target: tests
+
+      - name: Run E2E tests
+        uses: docker/build-push-action@v6
+        with:
+          context: .
+          file: ./FileServer.E2ETests/Dockerfile
+
+      - name: Run Dockerfile-simple tests
+        shell: bash
+        run: |
+          echo ",-aot" | tr ',' '\n' | while IFS= read -r SUFFIX; do
+            echo "Testing simple${SUFFIX}"
+            docker build . -f ./FileServer/Dockerfile-simple${SUFFIX} -t fs:simple${SUFFIX}
+            docker run --rm --pull=never fs:simple${SUFFIX} --usage | grep -e "Version: 1.0.0" || exit 10
+            docker run --rm --pull=never fs:simple${SUFFIX} --usage | grep -e "Commit: ${GITHUB_SHA:0:10}" || exit 11
+          done
