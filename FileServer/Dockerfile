@@ -11,14 +11,14 @@ ENV FileServer_SettingsFilePath="/app/settings/appsettings.json"
 ENTRYPOINT ["./FileServer"]
 CMD []
 
-#===app==={
-FROM sdk AS build
+#===app-jit==={
+FROM sdk AS build-jit
 ARG TARGETARCH APP_VERSION
 COPY . .
 RUN dotnet publish "FileServer/FileServer.csproj" -o /app/publish -r "linux-musl-$TARGETARCH" -p:PublishTrimmed=true
 
-FROM app-base AS app
-COPY --from=build /app/publish .
+FROM app-base AS app-jit
+COPY --from=build-jit /app/publish .
 #}
 
 #===app-aot==={

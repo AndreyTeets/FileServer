@@ -101,7 +101,7 @@ jobs:
       - name: Run Dockerfile-simple tests
         shell: bash
         run: |
-          echo ",-aot" | tr ',' '\n' | while IFS= read -r SUFFIX; do
+          echo "-jit,-aot" | tr ',' '\n' | while IFS= read -r SUFFIX; do
             echo "Testing simple${SUFFIX}"
             docker build . -f ./FileServer/Dockerfile-simple${SUFFIX} -t fs:simple${SUFFIX}
             docker run --rm --pull=never fs:simple${SUFFIX} --usage | grep -e "Version: 1.0.0" || exit 10
