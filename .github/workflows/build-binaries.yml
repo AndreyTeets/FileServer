@@ -108,7 +108,7 @@ jobs:
         env:
           APP_VERSION: ${{ needs.setup-vars.outputs.version }}
         run: |
-          ART_NAME="fileserver-$APP_VERSION-cross-platform"
+          ART_NAME="fileserver-$APP_VERSION-jit-cross-platform"
           dotnet publish "FileServer/FileServer.csproj" -o "artifacts/${ART_NAME}" -p:UseAppHost=false
           pushd artifacts
           zip -rq "${ART_NAME}.zip" $ART_NAME
@@ -123,7 +123,7 @@ jobs:
           APP_VERSION: ${{ needs.setup-vars.outputs.version }}
         run: |
           echo "$PLATFORMS" | while IFS= read -r PLAT; do
-            ART_NAME="fileserver-$APP_VERSION-$PLAT"
+            ART_NAME="fileserver-$APP_VERSION-jit-$PLAT"
             RID="$(echo -n "$PLAT" | sed 's/-armv./-arm/g; s/-glibc//g; s/windows/win/g; s/macos/osx/g')"
 
             echo "Building $PLAT"
@@ -233,9 +233,9 @@ jobs:
         shell: bash
         run: |
           PLAT="$X_RUNNER_OS_TYPE-$X_RUNNER_ARCH"
-          echo ",-aot" | tr ',' '\n' | while IFS= read -r SUFFIX; do
+          echo "-jit,-aot" | tr ',' '\n' | while IFS= read -r SUFFIX; do
             ART_NAME="fileserver-${VERSION}${SUFFIX}-$PLAT"
-            [ "$SUFFIX" == "" ] && EXECUTABLE_PATH="${ART_NAME}/FileServer" || EXECUTABLE_PATH="$ART_NAME"
+            [ "$SUFFIX" == "-jit" ] && EXECUTABLE_PATH="${ART_NAME}/FileServer" || EXECUTABLE_PATH="$ART_NAME"
             [ "$X_RUNNER_OS_TYPE" == "windows" ] && EXECUTABLE_PATH="${EXECUTABLE_PATH}.exe"
 
             echo "Testing ${VERSION}${SUFFIX}-$PLAT"
@@ -252,7 +252,7 @@ jobs:
       - name: Test framework-dependent binaries
         shell: bash
         run: |
-          ART_NAME="fileserver-$VERSION-cross-platform"
+          ART_NAME="fileserver-$VERSION-jit-cross-platform"
           [ "$X_RUNNER_OS_TYPE" == "windows" ] && unzip -q "${ART_NAME}.zip" || tar -xzf "${ART_NAME}.tar.gz"
           dotnet "${ART_NAME}/FileServer.dll" --usage | grep -e "Version: $VERSION" || exit 10
           dotnet "${ART_NAME}/FileServer.dll" --usage | grep -e "Commit: ${GITHUB_SHA:0:10}" || exit 11

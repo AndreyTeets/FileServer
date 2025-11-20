@@ -52,7 +52,7 @@ jobs:
       matrix:
         include:
           - type: 'JIT'
-            suffix: ''
+            suffix: '-jit'
           - type: 'AOT'
             suffix: '-aot'
     steps:
@@ -138,7 +138,7 @@ jobs:
           VERSION: ${{ needs.setup-vars.outputs.version }}
           ARCH: ${{ matrix.runner == 'ubuntu-latest' && 'x64' || 'arm64' }}
         run: |
-          echo ",-aot" | tr ',' '\n' | while IFS= read -r SUFFIX; do
+          echo "-jit,-aot" | tr ',' '\n' | while IFS= read -r SUFFIX; do
             TAG="${VERSION}${SUFFIX}-$ARCH"
             echo "Testing $TAG"
             gunzip < fileserver-container-image-${TAG}.tar.gz | docker load
@@ -180,7 +180,7 @@ jobs:
       matrix:
         include:
           - type: 'JIT'
-            suffix: ''
+            suffix: '-jit'
           - type: 'AOT'
             suffix: '-aot'
     steps:
@@ -207,6 +207,7 @@ jobs:
           tags: |-
             type=semver,pattern={{version}}
             ${{ needs.setup-vars.outputs.is_pre != 'true' && 'type=semver,pattern={{major}}.{{minor}}' || '' }}
+            ${{ needs.setup-vars.outputs.is_latest == 'true' && matrix.suffix == '-jit' && 'type=raw,suffix=,value=latest' || '' }}
           flavor: |
             latest=${{ needs.setup-vars.outputs.is_latest }}
             suffix=${{ matrix.suffix }},onlatest=true

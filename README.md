@@ -67,7 +67,7 @@ The above information doesn't take into account non-containerized Native AOT var
 + ###### 2. Build the container image.
     For example, using docker:
     ```
-    docker build . -f ./FileServer/Dockerfile-simple -t my_file_server:latest
+    docker build . -f ./FileServer/Dockerfile-simple-jit -t my_file_server:latest
     ```
 
 + ###### 3. Create/prepare the `server certificate` in PEM format.
