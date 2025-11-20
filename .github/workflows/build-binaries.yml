@@ -53,6 +53,8 @@ jobs:
         include:
           - type: 'JIT'
             runner: 'ubuntu-latest'
+          - type: 'JITSF'
+            runner: 'ubuntu-latest'
           - type: 'AOT-linux'
             runner: 'ubuntu-latest'
           - type: 'AOT-macos'
@@ -131,6 +133,29 @@ jobs:
             pushd artifacts
             [ "${PLAT:0:8}" == "windows-" ] && zip -rq "${ART_NAME}.zip" $ART_NAME || tar -czf "${ART_NAME}.tar.gz" $ART_NAME
             popd
+            rm -rf "artifacts/${ART_NAME}"
+          done
+
+      - name: Build all platforms JITSF
+        if: ${{ matrix.type == 'JITSF' }}
+        shell: bash
+        env:
+          APP_VERSION: ${{ needs.setup-vars.outputs.version }}
+        run: |
+          echo "$PLATFORMS" | while IFS= read -r PLAT; do
+            ART_NAME="fileserver-$APP_VERSION-jitsf-$PLAT"
+            RID="$(echo -n "$PLAT" | sed 's/-armv./-arm/g; s/-glibc//g; s/windows/win/g; s/macos/osx/g')"
+
+            echo "Building $PLAT"
+            dotnet publish "FileServer/FileServer.csproj" -o "artifacts/${ART_NAME}" -r $RID -p:PublishTrimmed=true \
+              -p:FsPublishSingleFile=true -p:EnableCompressionInSingleFile=true
+            if [ "${PLAT:0:8}" == "windows-" ]; then
+              mv "artifacts/${ART_NAME}/FileServer.exe" "artifacts/${ART_NAME}/${ART_NAME}.exe"
+              pushd "artifacts/${ART_NAME}" && zip -q "../${ART_NAME}.zip" "${ART_NAME}.exe" && popd
+            else
+              mv "artifacts/${ART_NAME}/FileServer" "artifacts/${ART_NAME}/${ART_NAME}"
+              tar -czf "artifacts/${ART_NAME}.tar.gz" --directory "artifacts/${ART_NAME}" $ART_NAME
+            fi
             rm -rf "artifacts/${ART_NAME}"
           done
 
@@ -233,7 +258,7 @@ jobs:
         shell: bash
         run: |
           PLAT="$X_RUNNER_OS_TYPE-$X_RUNNER_ARCH"
-          echo "-jit,-aot" | tr ',' '\n' | while IFS= read -r SUFFIX; do
+          echo "-jit,-jitsf,-aot" | tr ',' '\n' | while IFS= read -r SUFFIX; do
             ART_NAME="fileserver-${VERSION}${SUFFIX}-$PLAT"
             [ "$SUFFIX" == "-jit" ] && EXECUTABLE_PATH="${ART_NAME}/FileServer" || EXECUTABLE_PATH="$ART_NAME"
             [ "$X_RUNNER_OS_TYPE" == "windows" ] && EXECUTABLE_PATH="${EXECUTABLE_PATH}.exe"
@@ -272,7 +297,7 @@ jobs:
         shell: bash
         run: |
           cat sha256sums-binaries-AOT-linux.txt sha256sums-binaries-AOT-macos.txt sha256sums-binaries-AOT-windows.txt \
-            sha256sums-binaries-JIT.txt \
+            sha256sums-binaries-JIT.txt sha256sums-binaries-JITSF.txt \
             > sha256sums-binaries.txt
 
       - name: Upload merged sha256sums
