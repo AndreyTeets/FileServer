@@ -12,7 +12,7 @@ internal sealed class StartServerFixture
 #else
     private const string Configuration = "Release";
 #endif
-    private const string ServerProjDir = "../../../../FileServer";
+    private const string ServerProjDir = "../../../../../src/FileServer";
     private const int PortCheckTimeoutMilliseconds = 500;
     private const int PortCheckWaitNextTryMilliseconds = 1000;
     private const int StartTimeoutSec = 15;

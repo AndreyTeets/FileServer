@@ -4,7 +4,7 @@
     "checkJs": false
   },
   "include": [
-    "FileServer/wwwroot/**/*"
+    "src/FileServer/wwwroot/**/*"
   ],
   "exclude": []
 }

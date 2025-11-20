@@ -3,10 +3,28 @@ name: scan-trivy
 on:
   push:
     branches: ['master']
-    paths: ['FileServer**', 'Directory.Build.props', '.editorconfig', 'global.json', '.github/workflows/scan-trivy.yml', '.github/.trivyignore']
+    paths:
+      - 'build/**'
+      - 'src/**'
+      - 'tests/**'
+      - '.editorconfig'
+      - 'Directory.Build.props'
+      - 'FileServer.sln'
+      - 'global.json'
+      - '.github/workflows/scan-trivy.yml'
+      - '.github/.trivyignore'
   pull_request:
     branches: ['master']
-    paths: ['FileServer**', 'Directory.Build.props', '.editorconfig', 'global.json', '.github/workflows/scan-trivy.yml', '.github/.trivyignore']
+    paths:
+      - 'build/**'
+      - 'src/**'
+      - 'tests/**'
+      - '.editorconfig'
+      - 'Directory.Build.props'
+      - 'FileServer.sln'
+      - 'global.json'
+      - '.github/workflows/scan-trivy.yml'
+      - '.github/.trivyignore'
   schedule:
     - cron: '30 15 * * *'
 
@@ -62,7 +80,7 @@ jobs:
           echo "Preparing container image for event '${{ matrix.event }}'"
           if [ "${{ matrix.event }}" == "commit" ]; then
             IMAGE="app-base-image:${{ github.sha }}"
-            docker build . -f ./FileServer/Dockerfile --target app-base -t $IMAGE
+            docker build . -f src/FileServer/Dockerfile --target app-base -t $IMAGE
           else
             IMAGE="${{ vars.DOCKERHUB_NAMESPACE }}/${{ vars.DOCKERHUB_REPOSITORY }}:${{ matrix.image-tag }}"
             docker pull $IMAGE

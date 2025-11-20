@@ -67,7 +67,7 @@ The above information doesn't take into account non-containerized Native AOT var
 + ###### 2. Build the container image.
     For example, using docker:
     ```
-    docker build . -f ./FileServer/Dockerfile-simple-jit -t my_file_server:latest
+    docker build . -f src/FileServer/Dockerfile-simple-jit -t my_file_server:latest
     ```
 
 + ###### 3. Create/prepare the `server certificate` in PEM format.
@@ -89,7 +89,7 @@ The above information doesn't take into account non-containerized Native AOT var
     On linux set up permissions if necessary.
 
 + ###### 5. Create/prepare the settings file.
-    Template settings file can be found here [FileServer/appsettings.template.json](FileServer/appsettings.template.json). At a bare minimum the `signing key` and `login key` have to be changed, as they are empty in the template and the server will refuse to start with invalid settings.
+    Template settings file can be found here [src/FileServer/appsettings.template.json](src/FileServer/appsettings.template.json). At a bare minimum the `signing key` and `login key` have to be changed, as they are empty in the template and the server will refuse to start with invalid settings.
 
     The next step in this example assumes that the settings file is located in the current directory with the name `appsettings.json` and that the settings are set to:
     ```
@@ -137,14 +137,14 @@ Note: This is not recommended as it does not provide an extra layer of security 
 Replace these steps from the container image usage example:
 + ###### Step 2.
     ```
-    dotnet publish "FileServer/FileServer.csproj" -o FileServer/bin/publish
+    dotnet publish src/FileServer -o artifacts/publish
     ```
     + Add `-r <RID> -p:PublishTrimmed` to publish as self-contained (trimming implicitly enables self-contained). Commonly used RIDs: `win-x64`, `linux-x64`, `linux-musl-x64`.
     + Add `-p:FsUseEmbeddedStaticFiles=true` to embed wwwroot static files into the published DLL and serve them from there.
     + Add `-p:FsPublishSingleFile=true --no-self-contained` or `-p:FsPublishSingleFile=true -p:PublishTrimmed -p:EnableCompressionInSingleFile` or `-p:FsPublishAot=true` to publish as a framework-dependent single-file JIT-compiled executable or as a self-contained single-file JIT-compiled executable or as a self-contained single-file AOT-compiled executable respectively (`FsPublishSingleFile` and `FsPublishAot` options enable `FsUseEmbeddedStaticFiles` option, disable generating IIS web.config and embed(JIT)/remove(AOT) debug symbols).
 
 + ###### Step 5.
-    Place the `appsettings.json` file from the container image usage example to FileServer/bin/publish and set correct full paths for:
+    Place the `appsettings.json` file from the container image usage example to artifacts/publish and set correct full paths for:
     ```
     "CertFilePath": "/full/path/to/server_cert/cert.crt",
     "CertKeyPath": "/full/path/to/server_cert/cert.key",
@@ -154,8 +154,8 @@ Replace these steps from the container image usage example:
     ```
 
 + ###### Step 6.
-    `cd FileServer/bin/publish` (current working directory is `!important!`).
-    + `dotnet ./FileServer.dll` for cross-platform (framework-dependent).
+    `cd artifacts/publish` (current working directory is `!important!`).
+    + `dotnet FileServer.dll` for cross-platform (framework-dependent).
     + `"./FileServer.exe"` for self-contained when using windows cmd.
     + `./FileServer.exe` for self-contained when using windows pwsh.
     + `./FileServer` for self-contained when using linux.

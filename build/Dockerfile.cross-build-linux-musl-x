@@ -6,7 +6,7 @@ FROM sysroot-base AS sysroot
 RUN apk add --no-cache build-base zlib-dev
 
 FROM sdk AS build
-WORKDIR /src
+WORKDIR /repo
 RUN apk add --no-cache clang make cmake lld llvm
 COPY --from=sysroot / /sysroot/
 

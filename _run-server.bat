@@ -1,22 +1,22 @@
 @echo off
 pushd "%~dp0"
 
-set "FileServer_SettingsFilePath=%cd%\FileServer\bin\settings\appsettings.json"
+set "FileServer_SettingsFilePath=%cd%\src\FileServer\bin\settings\appsettings.json"
 set "FileServer__Settings__ListenAddress=127.0.0.1"
-set "FileServer__Settings__CertFilePath=%cd%\FileServer\bin\settings\cert.crt"
-set "FileServer__Settings__CertKeyPath=%cd%\FileServer\bin\settings\cert.key"
-set "FileServer__Settings__DownloadAnonDir=%cd%\FileServer\bin\fs_data\download_anon"
-set "FileServer__Settings__DownloadDir=%cd%\FileServer\bin\fs_data\download"
-set "FileServer__Settings__UploadDir=%cd%\FileServer\bin\fs_data\upload"
+set "FileServer__Settings__CertFilePath=%cd%\src\FileServer\bin\settings\cert.crt"
+set "FileServer__Settings__CertKeyPath=%cd%\src\FileServer\bin\settings\cert.key"
+set "FileServer__Settings__DownloadAnonDir=%cd%\src\FileServer\bin\fs_data\download_anon"
+set "FileServer__Settings__DownloadDir=%cd%\src\FileServer\bin\fs_data\download"
+set "FileServer__Settings__UploadDir=%cd%\src\FileServer\bin\fs_data\upload"
 
 echo -^> Publishing...
-if exist "FileServer\bin\publish" (rmdir "FileServer\bin\publish" /S /Q)>nul 2>&1
-dotnet publish "FileServer/FileServer.csproj" -o "FileServer/bin/publish" -p:UseAppHost=false -v q
+if exist "artifacts\publish" (rmdir "artifacts\publish" /S /Q)>nul 2>&1
+dotnet publish src/FileServer -o artifacts/publish -p:UseAppHost=false -v q
 if %errorlevel% neq 0 goto :Error
 
 echo -^> Running...
-pushd "%cd%\FileServer\bin\publish"
-call dotnet "FileServer.dll"
+pushd "artifacts\publish"
+call dotnet FileServer.dll
 if %errorlevel% neq 0 goto :Error
 
 :Success

@@ -3,10 +3,24 @@ name: scan-codeql
 on:
   push:
     branches: ['master']
-    paths: ['FileServer**', 'Directory.Build.props', '.editorconfig', 'global.json', '.github/workflows/scan-codeql.yml']
+    paths:
+      - '.github/**'
+      - 'src/**'
+      - 'tests/**'
+      - '.editorconfig'
+      - 'Directory.Build.props'
+      - 'global.json'
+      - '.github/workflows/scan-codeql.yml'
   pull_request:
     branches: ['master']
-    paths: ['FileServer**', 'Directory.Build.props', '.editorconfig', 'global.json', '.github/workflows/scan-codeql.yml']
+    paths:
+      - '.github/**'
+      - 'src/**'
+      - 'tests/**'
+      - '.editorconfig'
+      - 'Directory.Build.props'
+      - 'global.json'
+      - '.github/workflows/scan-codeql.yml'
 
 concurrency: # head_ref is only defined on pull_request events, run_id is unique for each workflow run
   group: ${{ github.workflow }}-${{ github.head_ref || github.run_id }}
@@ -59,9 +73,9 @@ jobs:
         shell: bash
         run: |
           echo "Building all csharp projects separately and consecutively"
-          dotnet build ./FileServer -c Release
-          dotnet build ./FileServer.Tests -c Release
-          dotnet build ./FileServer.E2ETests -c Release
+          dotnet build src/FileServer -c Release
+          dotnet build tests/FileServer.Tests -c Release
+          dotnet build tests/FileServer.E2ETests -c Release
 
       - name: Perform CodeQL Analysis
         uses: github/codeql-action/analyze@v4
