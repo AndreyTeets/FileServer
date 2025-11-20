@@ -84,8 +84,101 @@ jobs:
           build-args: APP_VERSION=${{ needs.setup-vars.outputs.version }}
           platforms: ${{ env.PLATFORMS }}
 
+      - name: Tag all platforms from build cache and save
+        shell: bash
+        env:
+          IMAGE: fileserver
+          VERSION: ${{ needs.setup-vars.outputs.version }}
+          SUFFIX: ${{ matrix.suffix }}
+        run: |
+          mkdir artifacts
+          echo "$PLATFORMS" | tr ',' '\n' | while IFS= read -r PLAT; do
+            ARCH="$(echo -n "$PLAT" | sed 's/linux\///g' | sed 's/amd64/x64/g; s/arm\/v/armv/g')"
+            TAG="${VERSION}${SUFFIX}-$ARCH"
+            docker buildx build --load . -t ${IMAGE}:${TAG} \
+              -f ./FileServer/Dockerfile \
+              --target app${{ matrix.suffix }} \
+              --build-arg APP_VERSION=${{ needs.setup-vars.outputs.version }} \
+              --platform $PLAT
+            docker save ${IMAGE}:${TAG} | gzip > artifacts/fileserver-container-image-${TAG}.tar.gz
+          done
+
+      - name: Calculate sha256sums
+        shell: bash
+        run: sha256sum artifacts/* | tee artifacts/sha256sums-containers-${{ matrix.type }}.txt
+
+      - name: Upload sha256sums
+        uses: actions/upload-artifact@v4
+        with:
+          name: sha256sums-containers-${{ matrix.type }}
+          if-no-files-found: error
+          path: artifacts/sha256sums-*.txt
+
+      - name: Upload container images
+        uses: actions/upload-artifact@v4
+        with:
+          name: built-containers-${{ matrix.type }}
+          if-no-files-found: error
+          retention-days: ${{ github.event_name == 'push' && startsWith(github.ref, 'refs/tags/v') && 7 || 1 }}
+          compression-level: 0
+          path: |
+            artifacts/*
+            !artifacts/sha256sums-*.txt
+
+  merge-sums-containers:
+    runs-on: ubuntu-latest
+    needs: [build-containers]
+    steps:
+      - name: Download sha256sums
+        uses: actions/download-artifact@v5
+        with:
+          pattern: sha256sums-containers-*
+          path: .
+          merge-multiple: true
+
+      - name: Merge sha256sums
+        shell: bash
+        run: |
+          cat sha256sums-containers-JIT.txt sha256sums-containers-AOT.txt \
+            > sha256sums-containers.txt
+
+      - name: Upload merged sha256sums
+        uses: actions/upload-artifact@v4
+        with:
+          name: built-containers-sha256sums
+          if-no-files-found: error
+          path: sha256sums-containers.txt
+
+  build-push-containers:
+    name: build-push-containers-${{ matrix.type }}
+    if: ${{ github.event_name == 'push' && startsWith(github.ref, 'refs/tags/v') }}
+    runs-on: ubuntu-latest
+    needs: [setup-vars, build-containers, merge-sums-containers]
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - type: 'JIT'
+            suffix: ''
+          - type: 'AOT'
+            suffix: '-aot'
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v5
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Build all platforms
+        uses: docker/build-push-action@v6
+        with:
+          context: .
+          file: ./FileServer/Dockerfile
+          target: app${{ matrix.suffix }}
+          build-args: APP_VERSION=${{ needs.setup-vars.outputs.version }}
+          platforms: ${{ env.PLATFORMS }}
+
       - name: Extract docker metadata
-        if: ${{ github.event_name == 'push' && startsWith(github.ref, 'refs/tags/v') }}
         id: meta
         uses: docker/metadata-action@v5
         with:
@@ -98,14 +191,12 @@ jobs:
             suffix=${{ matrix.suffix }},onlatest=true
 
       - name: Login to Docker Hub
-        if: ${{ github.event_name == 'push' && startsWith(github.ref, 'refs/tags/v') }}
         uses: docker/login-action@v3
         with:
           username: ${{ vars.DOCKERHUB_USERNAME }}
           password: ${{ secrets.DOCKERHUB_TOKEN }}
 
       - name: Tag all platforms from build cache and push
-        if: ${{ github.event_name == 'push' && startsWith(github.ref, 'refs/tags/v') }}
         uses: docker/build-push-action@v6
         with:
           context: .
