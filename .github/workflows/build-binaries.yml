@@ -191,6 +191,72 @@ jobs:
             artifacts/*
             !artifacts/sha256sums-*.txt
 
+  test-binaries:
+    name: test-binaries (${{ matrix.runner }})
+    runs-on: ${{ matrix.runner }}
+    needs: [setup-vars, build-binaries]
+    strategy:
+      fail-fast: false
+      matrix:
+        runner:
+          - ubuntu-latest
+          - ubuntu-24.04-arm
+          - macos-latest
+          - macos-15-intel
+          - windows-latest
+          - windows-11-arm
+    env:
+      VERSION: ${{ needs.setup-vars.outputs.version }}
+      X_RUNNER_OS_TYPE: >-
+        ${{
+        startsWith(matrix.runner, 'ubuntu-') && 'linux-glibc' ||
+        startsWith(matrix.runner, 'macos-') && 'macos' ||
+        startsWith(matrix.runner, 'windows-') && 'windows' ||
+        'FAILED_TO_DETERMINE_RUNNER_OS_TYPE'
+        }}
+      X_RUNNER_ARCH: >-
+        ${{
+        matrix.runner == 'ubuntu-latest' && 'x64' ||
+        matrix.runner == 'macos-15-intel' && 'x64' ||
+        matrix.runner == 'windows-latest' && 'x64' ||
+        'arm64'
+        }}
+    steps:
+      - name: Download binaries
+        uses: actions/download-artifact@v5
+        with:
+          pattern: built-binaries-*
+          path: .
+          merge-multiple: true
+
+      - name: Test self-contained binaries
+        shell: bash
+        run: |
+          PLAT="$X_RUNNER_OS_TYPE-$X_RUNNER_ARCH"
+          echo ",-aot" | tr ',' '\n' | while IFS= read -r SUFFIX; do
+            ART_NAME="fileserver-${VERSION}${SUFFIX}-$PLAT"
+            [ "$SUFFIX" == "" ] && EXECUTABLE_PATH="${ART_NAME}/FileServer" || EXECUTABLE_PATH="$ART_NAME"
+            [ "$X_RUNNER_OS_TYPE" == "windows" ] && EXECUTABLE_PATH="${EXECUTABLE_PATH}.exe"
+
+            echo "Testing ${VERSION}${SUFFIX}-$PLAT"
+            [ "$X_RUNNER_OS_TYPE" == "windows" ] && unzip -q "${ART_NAME}.zip" || tar -xzf "${ART_NAME}.tar.gz"
+            "./${EXECUTABLE_PATH}" --usage | grep -e "Version: $VERSION" || exit 10
+            "./${EXECUTABLE_PATH}" --usage | grep -e "Commit: ${GITHUB_SHA:0:10}" || exit 11
+          done
+
+      - name: Set up .NET 10.0
+        uses: actions/setup-dotnet@v5
+        with:
+          dotnet-version: 10.0.x
+
+      - name: Test framework-dependent binaries
+        shell: bash
+        run: |
+          ART_NAME="fileserver-$VERSION-cross-platform"
+          [ "$X_RUNNER_OS_TYPE" == "windows" ] && unzip -q "${ART_NAME}.zip" || tar -xzf "${ART_NAME}.tar.gz"
+          dotnet "${ART_NAME}/FileServer.dll" --usage | grep -e "Version: $VERSION" || exit 10
+          dotnet "${ART_NAME}/FileServer.dll" --usage | grep -e "Commit: ${GITHUB_SHA:0:10}" || exit 11
+
   merge-sums-binaries:
     runs-on: ubuntu-latest
     needs: [build-binaries]
