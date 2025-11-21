@@ -22,9 +22,17 @@ on:
       - 'global.json'
       - '.github/workflows/build-binaries.yml'
   workflow_call:
+    inputs:
+      version:
+        required: true
+        type: string
+      is_workflow_call:
+        type: boolean
+        required: false
+        default: true
 
 concurrency: # head_ref is only defined on pull_request events, run_id is unique for each workflow run
-  group: ${{ github.workflow }}-${{ github.head_ref || github.run_id }}
+  group: build-binaries-${{ github.head_ref || github.run_id }}
   cancel-in-progress: true
 
 permissions:
@@ -48,15 +56,10 @@ jobs:
   setup-vars:
     runs-on: ubuntu-latest
     outputs:
-      version: ${{ steps.vars.outputs.version }}
+      version: ${{ inputs.is_workflow_call && inputs.version || '1.0.0' }}
     steps:
-      - name: Set up vars
-        id: vars
-        shell: bash
-        run: |
-          TAG_VERSION="${GITHUB_REF#refs/tags/v}"
-          [ "${TAG_VERSION:0:5}" == "refs/" ] && VERSION="1.0.0" || VERSION="$TAG_VERSION"
-          echo "version=$VERSION" >> $GITHUB_OUTPUT
+      - name: NOOP
+        run: echo "Doing nothing"
 
   build-binaries:
     name: build-binaries-${{ matrix.type }}
