@@ -27,6 +27,7 @@ concurrency: # head_ref is only defined on pull_request events, run_id is unique
   cancel-in-progress: true
 
 permissions:
+  contents: read
   security-events: write
 
 jobs:
