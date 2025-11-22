@@ -5,9 +5,9 @@ set "FileServer_SettingsFilePath=%cd%\src\FileServer\bin\settings\appsettings.js
 set "FileServer__Settings__ListenAddress=127.0.0.1"
 set "FileServer__Settings__CertFilePath=%cd%\src\FileServer\bin\settings\cert.crt"
 set "FileServer__Settings__CertKeyPath=%cd%\src\FileServer\bin\settings\cert.key"
-set "FileServer__Settings__DownloadAnonDir=%cd%\src\FileServer\bin\fs_data\download_anon"
-set "FileServer__Settings__DownloadDir=%cd%\src\FileServer\bin\fs_data\download"
-set "FileServer__Settings__UploadDir=%cd%\src\FileServer\bin\fs_data\upload"
+set "FileServer__Settings__DownloadAnonDir=%cd%\src\FileServer\bin\fs_data\anonymous_downloads"
+set "FileServer__Settings__DownloadDir=%cd%\src\FileServer\bin\fs_data\downloads"
+set "FileServer__Settings__UploadDir=%cd%\src\FileServer\bin\fs_data\uploads"
 
 echo -^> Publishing...
 if exist "artifacts\publish" (rmdir "artifacts\publish" /S /Q)>nul 2>&1

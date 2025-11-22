@@ -10,9 +10,9 @@
         "FileServer__Settings__ListenAddress": "127.0.0.1",
         "FileServer__Settings__CertFilePath": "$(MSBuildProjectDirectory)\\bin\\settings\\cert.crt",
         "FileServer__Settings__CertKeyPath": "$(MSBuildProjectDirectory)\\bin\\settings\\cert.key",
-        "FileServer__Settings__DownloadAnonDir": "$(MSBuildProjectDirectory)\\bin\\fs_data\\download_anon",
-        "FileServer__Settings__DownloadDir": "$(MSBuildProjectDirectory)\\bin\\fs_data\\download",
-        "FileServer__Settings__UploadDir": "$(MSBuildProjectDirectory)\\bin\\fs_data\\upload"
+        "FileServer__Settings__DownloadAnonDir": "$(MSBuildProjectDirectory)\\bin\\fs_data\\anonymous_downloads",
+        "FileServer__Settings__DownloadDir": "$(MSBuildProjectDirectory)\\bin\\fs_data\\downloads",
+        "FileServer__Settings__UploadDir": "$(MSBuildProjectDirectory)\\bin\\fs_data\\uploads"
       },
       "dotnetRunMessages": true
     },
@@ -27,9 +27,9 @@
         "FileServer__Settings__ListenPort": "8443",
         "FileServer__Settings__CertFilePath": "/app/bin/settings/cert.crt",
         "FileServer__Settings__CertKeyPath": "/app/bin/settings/cert.key",
-        "FileServer__Settings__DownloadAnonDir": "/fs_data/download_anon",
-        "FileServer__Settings__DownloadDir": "/fs_data/download",
-        "FileServer__Settings__UploadDir": "/fs_data/upload"
+        "FileServer__Settings__DownloadAnonDir": "/fs_data/anonymous_downloads",
+        "FileServer__Settings__DownloadDir": "/fs_data/downloads",
+        "FileServer__Settings__UploadDir": "/fs_data/uploads"
       },
       "dotnetRunMessages": true,
       "publishAllPorts": false

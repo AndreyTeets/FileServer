@@ -13,9 +13,9 @@ echo Don't forget to manually set SigningKey/LoginKey
 :SetUpFsDataDirectory
 if exist "%FS_DATA_DIR%" goto :GenerateCertificate
 echo -^> Setting up fs_data directory...
-(mkdir "%FS_DATA_DIR%\download_anon")>nul 2>&1 && echo test_anonfile1_content>"%FS_DATA_DIR%\download_anon\anonfile1.txt"
-(mkdir "%FS_DATA_DIR%\download")>nul 2>&1 && echo test_file1_content>"%FS_DATA_DIR%\download\file1.txt"
-(mkdir "%FS_DATA_DIR%\upload")>nul 2>&1
+(mkdir "%FS_DATA_DIR%\anonymous_downloads")>nul 2>&1 && echo test_anonfile1_content> "%FS_DATA_DIR%\anonymous_downloads\anonfile1.txt"
+(mkdir "%FS_DATA_DIR%\downloads")>nul 2>&1 && echo test_file1_content> "%FS_DATA_DIR%\downloads\file1.txt"
+(mkdir "%FS_DATA_DIR%\uploads")>nul 2>&1
 
 :GenerateCertificate
 if exist "%SETTINGS_DIR%\cert.crt" goto :Success
