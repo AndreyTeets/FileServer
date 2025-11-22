@@ -97,7 +97,7 @@ jobs:
 
       - name: Calculate sha256sums
         shell: bash
-        run: sha256sum artifacts/* | tee artifacts/sha256sums-containers-${{ matrix.type }}.txt
+        run: sha256sum -b artifacts/* | tee artifacts/sha256sums-containers-${{ matrix.type }}.txt
 
       - name: Upload sha256sums
         uses: actions/upload-artifact@v4
