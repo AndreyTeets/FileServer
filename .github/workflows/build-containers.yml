@@ -165,7 +165,7 @@ jobs:
       - name: Merge sha256sums
         shell: bash
         run: |
-          cat sha256sums-containers-JIT.txt sha256sums-containers-AOT.txt \
+          cat sha256sums-containers-AOT.txt sha256sums-containers-JIT.txt \
             > sha256sums-containers.txt
 
       - name: Upload merged sha256sums

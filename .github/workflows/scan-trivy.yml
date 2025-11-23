@@ -49,6 +49,7 @@ jobs:
           - ${{ github.event_name != 'schedule' && 'commit' || 'schedule' }}
         image-tag:
           - ${{ github.event_name != 'schedule' && 'commit' || 'latest' }}
+          - ${{ github.event_name != 'schedule' && 'exclude_for_commit' || '1.1' }}
           - ${{ github.event_name != 'schedule' && 'exclude_for_commit' || '1.0' }}
         exclude:
           - target: 'vuln-os'
