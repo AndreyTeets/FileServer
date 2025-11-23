@@ -1,3 +1,9 @@
 ## Misconfigurations
 # The container can run with arbitrary user UID and it shouldn't be pinned here, but instead specified when the container is started.
 AVD-DS-0002
+
+## Vulnerabilities
+# Not affected. Unignore once runtime-deps:10.0.0-alpine3.22 is updated.
+CVE-2024-58251
+# Not affected. Unignore once runtime-deps:10.0.0-alpine3.22 is updated.
+CVE-2025-46394
