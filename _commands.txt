@@ -2,20 +2,20 @@ docker build . -f tests/FileServer.E2ETests/Dockerfile -t fs_e2etests:latest
 docker build . -f src/FileServer/Dockerfile -t fs_tests:latest --target tests
 docker build . -f src/FileServer/Dockerfile -t fs:latest-jit --target app-jit --platform linux/amd64 --build-arg APP_VERSION=0.0.1-rc.1
 docker build . -f src/FileServer/Dockerfile -t fs:latest-aot --target app-aot --platform linux/arm/v7 --build-arg APP_VERSION=0.9.99
-docker build . -f src/FileServer/Dockerfile-simple-jit -t fs:latest-jit
-docker build . -f src/FileServer/Dockerfile-simple-aot -t fs:latest-aot
-docker run --rm -it --pull=never --name fs -p 127.0.0.1:8443:8443/tcp -v "$pwd/src/FileServer/bin/settings:/app/settings" -v "$pwd/src/FileServer/bin/fs_data:/fs_data" fs:latest-aot
+docker build . -f src/FileServer/Dockerfile-simple-jit -t fs:latest-simple-jit
+docker build . -f src/FileServer/Dockerfile-simple-aot -t fs:latest-simple-aot
+docker run --rm -it --pull=never --name fs -p 127.0.0.1:8443:8443/tcp -v "$pwd/src/FileServer/bin/settings:/app/settings" -v "$pwd/src/FileServer/bin/fs_data:/fs_data" fs:latest-simple-aot
 
-dotnet publish src/FileServer -o artifacts/publish --no-self-contained -p:UseAppHost=false
-dotnet publish src/FileServer -o artifacts/publish --self-contained -p:PublishTrimmed=true
-dotnet publish src/FileServer -o artifacts/publish --no-self-contained -p:FsPublishSingleFile=true
-dotnet publish src/FileServer -o artifacts/publish --self-contained -p:FsPublishSingleFile=true -p:PublishTrimmed=true -p:EnableCompressionInSingleFile=true
-dotnet publish src/FileServer -o artifacts/publish -p:FsPublishAot=true
+dotnet publish src/FileServer -o artifacts/publish-jit-cross-platform --no-self-contained -p:UseAppHost=false
+dotnet publish src/FileServer -o artifacts/publish-jit-self-contained-current-platform -p:PublishTrimmed=true
+dotnet publish src/FileServer -o artifacts/publish-jitsf-framework-dependent-current-os --no-self-contained -p:FsPublishSingleFile=true
+dotnet publish src/FileServer -o artifacts/publish-jitsf-self-contained-current-platform -p:PublishTrimmed=true -p:FsPublishSingleFile=true -p:EnableCompressionInSingleFile=true
+dotnet publish src/FileServer -o artifacts/publish-aot-current-platform -p:FsPublishAot=true
 
 $trivyExePath = [System.IO.Path]::GetFullPath("../../trivy/trivy.exe")
 dotnet clean . && dotnet restore . -p:RestorePackagesWithLockFile=True
-&"$trivyExePath" image --scanners vuln --vuln-type 'os' fs:latest
-&"$trivyExePath" image --scanners vuln --vuln-type 'library' fs:latest
+&"$trivyExePath" image --scanners vuln --vuln-type 'os' --ignorefile .github/.trivyignore --show-suppressed fs:latest-jit
+&"$trivyExePath" image --scanners vuln --vuln-type 'library' fs:latest-jit
 &"$trivyExePath" fs --scanners vuln --file-patterns "dockerfile:Dockerfile.*" --skip-dirs "**/bin" --skip-dirs "**/obj" .
 &"$trivyExePath" fs --scanners misconfig --severity CRITICAL,HIGH,MEDIUM --file-patterns "dockerfile:Dockerfile.*" --skip-dirs "**/bin" .
 &"$trivyExePath" fs --scanners secret --severity CRITICAL,HIGH,MEDIUM --skip-dirs "**/bin" .

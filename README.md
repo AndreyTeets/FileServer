@@ -3,7 +3,7 @@ Is a minimalistic https file server with a simple password-only authentication. 
 
 It's useful, for example, to transfer files over LAN directly between 2 devices if enabling/installing things like SSH, Samba, FTP, Windows folder sharing, e.t.c. on them is undesired. Also mobile devices often miss the client tools necessary to use those, but they do have a browser.
 
-It's implemented as a dotnet AspNetCore server with a plain JavaScript single page mini-site (which basically consists of only several buttons). Server code base is also very small - about 10 files containing actual logic around 100 lines each, half of which are related to startup/settings/logging. There are no dependencies except for aspnetcore runtime, which is included when published as self-contained.
+It's implemented as a dotnet AspNetCore Kestrel server with a plain JavaScript single page mini-site (which basically consists of only several buttons). Server code base is also very small - about 10 files containing actual logic around 100 lines each, half of which are related to startup/settings/logging. There are no dependencies except for AspNetCore runtime, which is included when published as self-contained.
 
 ## What can it do?
 It starts an https server at the specified `listen address` and `listen port` using the provided `server certificate`. The server hosts a simple single page application (SPA) which provides a browser UI to:
@@ -17,23 +17,24 @@ It starts an https server at the specified `listen address` and `listen port` us
 
 ## Nuances
 + There are no file size restrictions for downloading and uploading.
-+ Uploaded files names are sanitized before the server saves them: any characters except the whitelisted (which are any ASCII letter, any digit, space and any of ``` !#$%&'()+,-.;=@[]^_`{}~ ```) are replaced with `_`, then the name is shortened to the first 120 symbols, and then the result is prefixed and postfixed with "upl." and ".oad" respectively.
++ Uploaded files names are sanitized before the server saves them: any characters except the whitelisted (which are any ASCII letter, any digit, space and any of ``` !#$%&'()+,-.;=@[]^_`{}~ ```) are replaced with `_`, then the name is shortened to the first 120 symbols, and then the result is prefixed and postfixed with `upl.` and `.oad` respectively.
 + The server won't accept an upload if a file with the same (sanitized) name already exists.
-+ Some browsers on mobile devices (e.g. Safari on IPhone/IPad) ignore "Content-Type" header and may try to interpret the content based on the file name extension, which may lead to "Download" button viewing the file or "View" button downloading the file. This can be solved by renaming the file on the server to a name without extension.
++ Some browsers on mobile devices (e.g. Safari on IPhone/IPad) ignore the "Content-Type" header and may try to interpret the content based on the file name extension, which may lead to "Download" button viewing the file or "View" button downloading the file. This can be solved by renaming the file on the server to a name without extension.
++ Volume mounting Windows directories (for use as downloads/uploads folders) into container running in WSL can result in slow download/upload speeds. It's a common issue and isn't specific to this server. This can be solved by keeping the downloads/uploads folders within the Linux file system or by using native Windows binaries instead of container images.
 
 ## Authentication system
-To authenticate an incoming request that requires authorization, the server expects a client to provide 2 tokens: an auth token in the request http-only cookie and an antiforgery token in the request header/query-parameter. The antiforgery token is kept by the SPA client in a browser local storage (which is scoped to protocol://host:port) and the cookie is managed by the browser. Both tokens have to be a HMACSHA256-signed-claim for [user name, corresponding token type, expiration time]. Authentication succeeds only if both tokens are valid (that is, they are signed by the server `signing key` and are not expired) and have the same user name (the server issues tokens during a login operation only for one hardcoded `Main` user).
+To authenticate an incoming request that requires authorization, the server expects a client to provide 2 tokens: an auth token in the request HttpOnly cookie and an antiforgery token in the request header/query-parameter. The antiforgery token is kept by the SPA client in a browser local storage (which is scoped to protocol://host:port) and the cookie is managed by the browser. Both tokens have to be a HMACSHA256-signed-claim for "user name;token type;expiration time". Authentication succeeds only if both tokens are valid (that is, they are signed with the server `signing key`, have the correct token types, and are not expired) and have the same user name (the server issues tokens during a login operation only for one hardcoded `Main` user).
 
-For a login operation to succeed, the server expects a client to provide a login request with the same password as the server `login key`. The auth token ensures that the client has performed a successful login operation (and thus knows the `login key`). And the antiforgery token ensures that the incoming request was initiated by the SPA client site (protocol://host:port). The latter is necessary because browsers may automatically send cookies to the target site even if the request was initiated by another site.
+For a login operation to succeed, the server expects a client to provide a login request with the same password as the server `login key`. If successful, the server responds with a pair of newly created tokens: an auth token in the "Set-Cookie ...;Secure;HttpOnly;SameSite=Strict" header, and an antiforgery token in the response body. Two types of tokens are used because cookies generally provide more secure browser-handled storage, while an antiforgery token addresses one of the main weaknesses of cookies: that browsers may automatically send them, even if the request originated from another site (even if the SameSite cookie setting is supported, what browsers consider the same site is a confusing concept, much broader than the same origin).
 
-To perform a logout operation the SPA client sends a logout request to the server which simply responds with "Set-Cookie token=empty;expired" header which is handled by the browser. Then the SPA client removes the antiforgery token from the browser local storage. As a consequence it's still possible to access the server with those tokens until they expire (for example, if they got intercepted or got saved somewhere else or got not deleted). This shouldn't be a problem if `tokens ttl` is configured short. To completely invalidate all issued tokens, the server `signing key` has to be changed.
+To perform a logout operation, the SPA client sends a logout request to the server, which simply responds with the "Set-Cookie token=empty;expired" header, which is then handled by the browser. Then the SPA client removes the antiforgery token from the browser local storage. As a consequence it's still possible to access the server with those tokens until they expire (for example, if they got intercepted or got saved somewhere else or got not deleted). This shouldn't be a problem if the `tokens ttl` is configured short. To completely invalidate all issued tokens, the server `signing key` has to be changed.
 
 As for authorization - the server requires the authenticated user name to be `Main`, but it's kind of redundant since the server doesn't issue tokens for any other users.
 
 ## Configuration
-Server settings are configured using the `appsettings.json` file. The file must exist at the path specified in the `FileServer_SettingsFilePath` environmental variable (which is by default set to `/app/settings/appsettings.json` in the container image) or in the working directory of the application if this environmental variable is unset. The file is hot-reloaded on change (including the logging configuration section).
+Server settings are configured using the `appsettings.json` file. The file must exist at the path specified in the `FileServer_SettingsFilePath` environmental variable (which is by default set to `/app/settings/appsettings.json` in the provided container images) or in the working directory of the server if this environmental variable is unset. The file is hot-reloaded on change (including the logging configuration section).
 
-It's also possible to override the settings specified in the file using environmental variables. For example, setting `FileServer__Settings__ListenAddress` environmental variable will override `Settings.ListenAddress` specified in the `appsettings.json` file.
+It's also possible to override the settings specified in the file using environmental variables. For example, setting the `FileServer__Settings__ListenAddress` environmental variable will override the `Settings.ListenAddress` setting specified in the `appsettings.json` file.
 
 Settings that can be configured:
 + `Settings.ListenAddress` which is referred to in this readme file as `listen address`.
@@ -48,27 +49,28 @@ Settings that can be configured:
 + `Settings.TokensTtlSeconds` which is referred to in this readme file as `tokens ttl`.
 
 ## Usage requirements
-+ To build the container image and/or run it - docker or an alternative container engine (e.g. podman).
-+ To build (publish) a dotnet application - dotnet sdk 10.0 or higher.
-+ To run a cross-platform dotnet application - aspnetcore runtime 10.0.
-+ To run a self-contained dotnet application on linux - dotnet runtime dependencies.
-+ To run a self-contained dotnet application on windows - nothing.
++ To build container images and/or run them - docker or an alternative container engine (e.g. podman).
++ To build (publish) binaries - dotnet SDK 10.0 or higher.
++ To run cross-platform binaries - AspNetCore runtime 10.0.
++ To run self-contained binaries on Linux - dotnet runtime dependencies.
++ To run self-contained binaries on Windows/macOS - nothing.
 
-The above information doesn't take into account non-containerized Native AOT variants. Running pre-built AOT binaries should work out of the box on most systems without any special requirements (other than having the appropriate libc and openssl libraries on linux), but it's not well tested. As for requirements to build AOT binaries - refer to the dotnet documentation (also commands in AOT-related dockerfiles may be informative examples).
+The information above doesn't take into account the AOT variant of binaries. Running AOT binaries should work out of the box on most systems without any special requirements (other than having the appropriate libc and OpenSSL libraries on Linux), but it's not well tested. As for requirements to build AOT binaries - refer to the dotnet documentation (also commands in AOT-related dockerfiles may be informative examples).
 
-## Usage (container image)
-+ ###### 1. Get the source code.
+## Usage (container images)
++ ###### 1. Get the source code (skip if using pre-built container images).
     For example, to get the latest stable sources:
     ```
     git clone -b stable https://github.com/AndreyTeets/FileServer.git
     cd FileServer
     ```
 
-+ ###### 2. Build the container image.
-    For example, using docker:
++ ###### 2. Build the server (skip if using pre-built container images).
+    For example, to build the JIT variant using docker:
     ```
     docker build . -f src/FileServer/Dockerfile-simple-jit -t my_file_server:latest
     ```
+    More examples can be found in the [_commands.txt](_commands.txt) file.
 
 + ###### 3. Create/prepare the `server certificate` in PEM format.
     For example, to create a self signed certificate:
@@ -76,7 +78,7 @@ The above information doesn't take into account non-containerized Native AOT var
     mkdir server_cert
     openssl req -x509 -newkey rsa:4096 -sha256 -days 3650 -nodes -keyout server_cert/cert.key -out server_cert/cert.crt -subj "/CN=localhost"
     ```
-    Note: An HTTPS connection still provides encryption even if the certificate is untrusted by the browser (e.g. if it's self-signed). But to ensure that the connection is not intercepted, the certificate must still be verified by other means, such as manually via browser "view certificate" menu and comparing its fingerprints with those printed in the server logs during startup.
+    Note: An HTTPS connection still provides encryption even if the certificate is untrusted by the browser (e.g. if it's self-signed). But to ensure that the connection is not intercepted, the certificate must still be verified by other means, such as manually via the browser "view certificate" menu and comparing its fingerprints with those printed in the server logs during startup.
 
 + ###### 4. Create/prepare the `anonymous downloads folder`, `downloads folder`, `uploads folder`.
     For example:
@@ -86,12 +88,12 @@ The above information doesn't take into account non-containerized Native AOT var
     mkdir fs_data/downloads
     mkdir fs_data/uploads
     ```
-    On linux set up permissions if necessary.
+    On Linux set up permissions if necessary.
 
 + ###### 5. Create/prepare the settings file.
     Template settings file can be found here [src/FileServer/appsettings.template.json](src/FileServer/appsettings.template.json). At a bare minimum the `signing key` and `login key` have to be changed, as they are empty in the template and the server will refuse to start with invalid settings.
 
-    The next step in this example assumes that the settings file is located in the current directory with the name `appsettings.json` and that the settings are set to:
+    The next step in this example assumes that steps 3 and 4 were strictly followed, the settings file is located in the current directory with the name `appsettings.json` and that the settings are set to:
     ```
     "CertFilePath": "/server_cert/cert.crt",
     "CertKeyPath": "/server_cert/cert.key",
@@ -101,12 +103,12 @@ The above information doesn't take into account non-containerized Native AOT var
     with the rest left as is in the template.
 
 + ###### 6. Start the server.
-    For example, using docker:
+    For example, to run the image built in step 2 using docker:
     ```
-    docker run --rm -it --pull=never --name my_file_server \
+    docker run --rm -it --pull=never --name fs \
         --security-opt no-new-privileges \
         --cap-drop=all \
-        -u $(id -u):$(id -g) \
+        -u "$(id -u):$(id -g)" \
         -p 8443:8443/tcp \
         -e "FileServer_SettingsFilePath=/app/appsettings.json" \
         -v "`pwd`/appsettings.json:/app/appsettings.json:ro" \
@@ -114,37 +116,41 @@ The above information doesn't take into account non-containerized Native AOT var
         -v "`pwd`/fs_data:/fs_data" \
         my_file_server:latest
     ```
-    + Replace ``` `pwd` ``` with `%cd%` or `$pwd` when using windows cmd or pwsh respectively.
-    + Replace `\` with `^` or ``` ` ``` when using windows cmd or pwsh respectively.
+    + Replace ``` `pwd` ``` with `%cd%` or `$pwd` when using Windows cmd or pwsh respectively.
+    + Replace `\` with `^` or ``` ` ``` when using Windows cmd or pwsh respectively.
     + To run in non-interactive (detached) mode use `-d --restart=unless-stopped` instead of `--rm -it`.
 
     Permissions:
     + To avoid confusion: "root-ness outside the container" is referred to as "rootful mode"/"rootless mode", and "root-ness inside the container" as "root user"/"non-root user".
-    + The container image doesn't set any custom users and will run as the root user unless it's explicitly specified in the run command otherwise.
-    + The server does not require root permissions and may run as any user UID. The only requirement is for it to have read access to the settings file, all the files and directories specified in settings, and, if upload functionality is to be used, write access to the uploads directory (from the perspective of the user running inside the container). Neither does it require any capabilities and `--cap-drop=all` option can be added if the previous condition is met.
-    + When running as the root user in rootful mode (which docker by default does), uploaded files will be owned by the root user on the host, which is at least inconvenient. It also poses additional security risks. So it is highly recommended to add `-u $(id -u):$(id -g)` option, which will make uploaded files being owned by the same user who launched the container.
-    + When running as the root user in rootless mode (which e.g. podman by default does), there may be no problem with uploaded files ownership (e.g. with podman, there isn't, as it by default maps the host user who launched the container to the root user inside the container). But changing to a non-root user is still recommended to reduce security risks. For podman it can be done using `--userns=keep-id` option, which will change the previously mentioned mapping to the same UID inside the container as on host, or `--userns=keep-id:uid=12345,gid=12345` option, which will change it to the specified UID.
-    + On systems with SELinux it may be necessary to add `:z` to the volume mount options (with `!care!`, as it will recursively relabel the mapped directory on the host, which may break the host system if used on directories that are used elsewhere besides the container). In case of relabeling, uploaded files will have "system_u:object_r:container_file_t:s0" context. To restore default context `restorecon -RFv /path/to/fs_data` can be used. If relabeling is an issue and has to be avoided `--security-opt label=disable` option can be added instead (which will basically disable SELinux for the containerized process).
+    + The provided container images don't set any custom users and will run as the root user unless it's explicitly specified in the run command otherwise.
+    + The server does not require root permissions and may run as any user UID. The only requirement is for it to have read access to the settings file, all the files and directories specified in settings, and, if upload functionality is to be used, write access to the uploads directory (from the perspective of the user running inside the container). Neither does it require any capabilities and the `--cap-drop=all` option can be added if the previous condition is met.
+    + When running as the root user in rootful mode (which docker by default does), uploaded files will be owned by the root user on the host, which is at least inconvenient. It also poses additional security risks. So it is highly recommended to add the `-u "$(id -u):$(id -g)"` option, which will make uploaded files being owned by the same user who launched the container.
+    + When running as the root user in rootless mode (which e.g. podman by default does), there may be no problem with uploaded files ownership (e.g. with podman, there isn't, as it by default maps the host user who launched the container to the root user inside the container). But changing to a non-root user is still recommended to reduce security risks. For podman it can be done using the `--userns=keep-id` option, which will change the previously mentioned mapping to the same UID inside the container as on the host, or the `--userns=keep-id:uid=12345,gid=12345` option, which will change it to the specified UID.
+    + On systems with SELinux it may be necessary to add `:z` to the volume mount options (with `!care!`, as it will recursively relabel the mapped directory on the host, which may break the host system if used on directories that are used elsewhere besides the container). In case of relabeling, uploaded files will have the "system_u:object_r:container_file_t:s0" context. To restore the default context, the `restorecon -RFv /path/to/fs_data` command can be used. If relabeling is an issue and has to be avoided the `--security-opt label=disable` option can be added instead (which will basically disable SELinux for the containerized process).
 
 + ###### 7. Open the corresponding tcp port in firewall if necessary.
 
 + ###### 8. Visit the site using a browser.
-    In this example to do it from the same machine the address will be https://127.0.0.1:8443 or https://localhost:8443
+    In this example, to do it from the same machine, the address will be https://127.0.0.1:8443 or https://localhost:8443
 
-## Usage (dotnet application directly)
-Note: This is not recommended as it does not provide an extra layer of security through file-system and process isolation like containers do, and it is also much easier to misconfigure.
+## Usage (binaries)
+Note: This option is not recommended unless there is a good reason not to use containers, as it does not provide an extra layer of security through file-system and process isolation like containers do, and it is also much easier to misconfigure.
 
-Replace these steps from the container image usage example:
-+ ###### Step 2.
+Replace these steps from the container images usage example:
++ ###### 2. Build the server (skip if using pre-built binaries).
     ```
     dotnet publish src/FileServer -o artifacts/publish
     ```
-    + Add `-r <RID> -p:PublishTrimmed` to publish as self-contained (trimming implicitly enables self-contained). Commonly used RIDs: `win-x64`, `linux-x64`, `linux-musl-x64`.
-    + Add `-p:FsUseEmbeddedStaticFiles=true` to embed wwwroot static files into the published DLL and serve them from there.
-    + Add `-p:FsPublishSingleFile=true --no-self-contained` or `-p:FsPublishSingleFile=true -p:PublishTrimmed -p:EnableCompressionInSingleFile` or `-p:FsPublishAot=true` to publish as a framework-dependent single-file JIT-compiled executable or as a self-contained single-file JIT-compiled executable or as a self-contained single-file AOT-compiled executable respectively (`FsPublishSingleFile` and `FsPublishAot` options enable `FsUseEmbeddedStaticFiles` option, disable generating IIS web.config and embed(JIT)/remove(AOT) debug symbols).
+    + Use the `--no-self-contained` option to publish as framework-dependent (add `-p:UseAppHost=false` to only publish DLL without executable).
+    + Use the `-p:PublishTrimmed=true` option to publish as self-contained (trimming implicitly enables self-contained).
+    + Use the `-p:FsUseEmbeddedStaticFiles=true` option to embed wwwroot static files into the published DLL and serve them from there.
+    + Use the `-p:FsPublishSingleFile=true` or `-p:FsPublishAot=true` options to publish as a single-file JIT-compiled executable or as a single-file AOT-compiled executable respectively (they implicitly enable the `FsUseEmbeddedStaticFiles` option, disable IIS web.config generation, and set the appropriate publish mode with embedded(JIT)/removed(AOT) debug symbols). When publishing a self-contained single-file JIT-compiled executable, additionally use the `-p:EnableCompressionInSingleFile=true` option to significantly reduce its size.
+    + Add `-r <RID>` to publish for another platform. Some commonly used RIDs: `linux-x64`, `linux-musl-x64`, `osx-arm64`, `win-x64`.
 
-+ ###### Step 5.
-    Place the `appsettings.json` file from the container image usage example to artifacts/publish and set correct full paths for:
+    Examples of the commonly used option combinations can be found in the [_commands.txt](_commands.txt) file.
+
++ ###### 5. Create/prepare the settings file.
+    Place the `appsettings.json` file from the container images usage example into the artifacts/publish directory and set correct full paths for:
     ```
     "CertFilePath": "/full/path/to/server_cert/cert.crt",
     "CertKeyPath": "/full/path/to/server_cert/cert.key",
@@ -153,22 +159,29 @@ Replace these steps from the container image usage example:
     "UploadDir": "C:\\windows_path_example\\to\\fs_data\\uploads",
     ```
 
-+ ###### Step 6.
++ ###### 6. Start the server.
     `cd artifacts/publish` (current working directory is `!important!`).
     + `dotnet FileServer.dll` for cross-platform (framework-dependent).
-    + `"./FileServer.exe"` for self-contained when using windows cmd.
-    + `./FileServer.exe` for self-contained when using windows pwsh.
-    + `./FileServer` for self-contained when using linux.
+    + `"./FileServer.exe"` for self-contained when using Windows cmd.
+    + `./FileServer.exe` for self-contained when using Windows pwsh.
+    + `./FileServer` for self-contained when using Linux/macOS.
 
-A practical end-to-end working example of setting up, publishing and running a cross-platform server for local development can be found in [_setup-server.bat](_setup-server.bat) and [_run-server.bat](_run-server.bat) scripts.
+A practical end-to-end working example of setting up, publishing and running a cross-platform server for local development can be found in the [_setup-server.bat](_setup-server.bat) and [_run-server.bat](_run-server.bat) scripts.
 
 ## Additional information
-The `master` branch is where the development happens, it may be unstable. Use the `stable` branch or one of the `v*` tags (releases) to build from the source code (the `stable` branch always points to the latest release, so it is essentially an analog to the "latest" tag for container images).
+The `master` branch is where the development happens. It may be unstable and/or contain mismatched documentation (e.g. for something not yet released). Use the `stable` branch or one of the `v*` tags (releases) to build from the source code and/or to view the relevant documentation (the `stable` branch always points to the latest release, so it is essentially an analog to the `latest` tag for container images).
 
 Pre-built binaries can be found [here](https://github.com/AndreyTeets/FileServer/releases) in GitHub Releases.\
-Pre-built container images can be found [here](https://hub.docker.com/r/andreyteets/fileserver) on Docker Hub, and also in GitHub Releases (`gunzip < image.tar.gz | docker load` command can be used to load them).
+Pre-built container images can be found [here](https://hub.docker.com/r/andreyteets/fileserver) on Docker Hub, and also in GitHub Releases.\
+Changelog for each release can be found in the [CHANGELOG.md](CHANGELOG.md) file, and is also duplicated in GitHub Releases.\
+Changes for upcoming releases can be found in GitHub Pull requests, filtered by the corresponding Milestone and the `noteworthy` label (e.g. `milestone:2.0.0 label:noteworthy`).
 
-Changelog for each release can be found in [CHANGELOG.md](CHANGELOG.md) file, and is also duplicated in GitHub Releases.
+Some clarifications on pre-built binaries, container images and their variants:
++ The `jit-cross-platform` variant of binaries is the result of the standard framework-dependent dotnet publish with the `-p:UseAppHost=false` option. It can only be run by the `dotnet FileServer.dll` command and requires the appropriate dotnet runtime installed.
++ The `jitsf` variant of binaries stands for "JIT single-file".
++ The `aot` variant of pre-built container images is the result of building the main Dockerfile, which is a bit different from the Dockerfile-simple-aot. The latter uses static linking for libc and OpenSSL libraries and the `scratch` pseudo-image as base, thus producing an image containing only a single self-sufficient executable, which may be preferable (in which case it should be built from the source code).
++ The `latest` tag for container images published on Docker Hub points to the same image as the `latest-jit` tag.
++ Container images published in GitHub Releases are the result of the `docker save` command, which has then been gzipped. They can be loaded, for example, using the `gunzip < image.tar.gz | docker load` command in the bash shell.
 
 # License
 MIT License. See [LICENSE](LICENSE) file.
