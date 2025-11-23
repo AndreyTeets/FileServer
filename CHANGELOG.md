@@ -1,5 +1,26 @@
 # Changelog
 
+## [2.0.0] - 2025-11-23
+
+**BREAKING CHANGES**:
++ Update dotnet target framework from 8.0 to 10.0 (#24). As a consequence, running a cross-platform (framework-dependent) dotnet application now requires AspNetCore runtime 10.0, and building it requires dotnet SDK 10.0 or higher.
++ Add `-jit` suffix for JIT variant of container images and pre-built binaries (#34). As a consequence, Dockerfile-simple is now called Dockerfile-simple-jit and `app` target in the main Dockerfile is now called `app-jit`. Docker `latest` tag still exists and points to the same image as `latest-jit`.
++ Move FileServer, FileServer.Tests, FileServer.E2ETests to src/tests subdirectories (#36). As a consequence, many file paths are now different.
+
+**Notable Changes**:
++ Rewrite server from MVC to trimmable minimal API (#27).
++ Use trimming for all container images and self-contained pre-built binaries (#30).
++ Add build option to serve wwwroot static files from assembly resources (#28).
++ Add build options to publish as single file or as Native AOT (#29).
++ Add AOT variant for container images and pre-built binaries (#31).
++ Add JIT single file (JITSF) variant for pre-built binaries (#35).
++ Add pre-built binaries for linux-musl-armv7 (#37).
++ Upload pre-built container images to GitHub Releases (#32).
++ Get rid of warnings about DataProtection-Keys (which aren't used) (#26).
++ Fix commit info from SourceLink not being included in container images (#25).
+
+[All Changes](https://github.com/AndreyTeets/FileServer/compare/v1.1.2...v2.0.0)
+
 ## [1.1.2] - 2025-11-12
 
 **Notable Changes**:
@@ -59,6 +80,7 @@ It starts an https server at the specified `listen address` and `listen port` us
 
 [All Commits](https://github.com/AndreyTeets/FileServer/commits/v1.0.1)
 
+[2.0.0]: https://github.com/AndreyTeets/FileServer/releases/tag/v2.0.0
 [1.1.2]: https://github.com/AndreyTeets/FileServer/releases/tag/v1.1.2
 [1.1.1]: https://github.com/AndreyTeets/FileServer/releases/tag/v1.1.1
 [1.1.0]: https://github.com/AndreyTeets/FileServer/releases/tag/v1.1.0
