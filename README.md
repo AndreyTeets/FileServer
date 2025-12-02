@@ -3,15 +3,15 @@ Is a minimalistic https file server with a simple password-only authentication. 
 
 It's useful, for example, to transfer files over LAN directly between 2 devices if enabling/installing things like SSH, Samba, FTP, Windows folder sharing, e.t.c. on them is undesired. Also mobile devices often miss the client tools necessary to use those, but they do have a browser.
 
-It's implemented as a dotnet AspNetCore Kestrel server with a plain JavaScript single page mini-site (which basically consists of only several buttons). Server code base is also very small - about 10 files containing actual logic around 100 lines each, half of which are related to startup/settings/logging. There are no dependencies except for AspNetCore runtime, which is included when published as self-contained.
+It's implemented as a dotnet AspNetCore Kestrel server with a plain JavaScript single page mini-site (which basically consists of only several buttons). Server code base is also very small - about 10 files containing actual logic around 100 lines each, half of which are related to startup/settings/logging. There are no dependencies except for AspNetCore runtime, which is included when built (published) as self-contained.
 
 ## What can it do?
 It starts an https server at the specified `listen address` and `listen port` using the provided `server certificate`. The server hosts a simple single page application (SPA) which provides a browser UI to:
 + Login using the `login key` (password) specified in server settings.
 + Logout.
-+ Show the list of files in the `anonymous downloads folder` specified in server settings.
++ Show a list of files in the `anonymous downloads folder` specified in server settings.
 + Download or view in text mode any file in the `anonymous downloads folder` specified in server settings.
-+ Show the list of files in the `downloads folder` specified in server settings (only if authorized).
++ Show a list of files in the `downloads folder` specified in server settings (only if authorized).
 + Download or view in text mode any file in the `downloads folder` specified in server settings (only if authorized).
 + Upload a file to the `uploads folder` specified in server settings (only if authorized).
 
@@ -34,6 +34,8 @@ As for authorization - the server requires the authenticated user name to be `Ma
 ## Configuration
 Server settings are configured using the `appsettings.json` file. The file must exist at the path specified in the `FileServer_SettingsFilePath` environmental variable (which is by default set to `/app/settings/appsettings.json` in the provided container images) or in the working directory of the server if this environmental variable is unset. The file is hot-reloaded on change (including the logging configuration section).
 
+Template settings file can be found here [src/FileServer/appsettings.template.json](src/FileServer/appsettings.template.json). At a bare minimum the `signing key` and `login key` have to be changed, as they are empty in the template and the server will refuse to start with invalid settings.
+
 It's also possible to override the settings specified in the file using environmental variables. For example, setting the `FileServer__Settings__ListenAddress` environmental variable will override the `Settings.ListenAddress` setting specified in the `appsettings.json` file.
 
 Settings that can be configured:
@@ -55,17 +57,17 @@ Settings that can be configured:
 + To run self-contained binaries on Linux - dotnet runtime dependencies.
 + To run self-contained binaries on Windows/macOS - nothing.
 
-The information above doesn't take into account the AOT variant of binaries. Running AOT binaries should work out of the box on most systems without any special requirements (other than having the appropriate libc and OpenSSL libraries on Linux), but it's not well tested. As for requirements to build AOT binaries - refer to the dotnet documentation (also commands in AOT-related dockerfiles may be informative examples).
+The information above doesn't take into account the AOT variant of binaries. Running AOT binaries should work out of the box on most systems without any special requirements, other than having the appropriate libc and OpenSSL libraries on Linux. As for requirements to build AOT binaries - refer to the dotnet documentation (also commands in AOT-related dockerfiles may be informative examples).
 
 ## Usage (container images)
-+ ###### 1. Get the source code (skip if using pre-built container images).
++ ###### 1. Get the source code (skip if using pre-built).
     For example, to get the latest stable sources:
     ```
     git clone -b stable https://github.com/AndreyTeets/FileServer.git
     cd FileServer
     ```
 
-+ ###### 2. Build the server (skip if using pre-built container images).
++ ###### 2. Build the server (skip if using pre-built).
     For example, to build the JIT variant using docker:
     ```
     docker build . -f src/FileServer/Dockerfile-simple-jit -t my_file_server:latest
@@ -91,19 +93,16 @@ The information above doesn't take into account the AOT variant of binaries. Run
     On Linux set up permissions if necessary.
 
 + ###### 5. Create/prepare the settings file.
-    Template settings file can be found here [src/FileServer/appsettings.template.json](src/FileServer/appsettings.template.json). At a bare minimum the `signing key` and `login key` have to be changed, as they are empty in the template and the server will refuse to start with invalid settings.
-
-    The next step in this example assumes that steps 3 and 4 were strictly followed, the settings file is located in the current directory with the name `appsettings.json` and that the settings are set to:
+    For example, assuming steps 3 and 4 have been strictly followed, copy the template settings file to `appsettings.json` in the current directory and change:
     ```
     "CertFilePath": "/server_cert/cert.crt",
     "CertKeyPath": "/server_cert/cert.key",
     "SigningKey": "<some string from 20 to 64 symbols>",
     "LoginKey": "<some password, 12 symbols minimum>",
     ```
-    with the rest left as is in the template.
 
 + ###### 6. Start the server.
-    For example, to run the image built in step 2 using docker:
+    For example, assuming steps 3, 4, 5 have been strictly followed, to run the image built in step 2 using docker on Linux:
     ```
     docker run --rm -it --pull=never --name fs \
         --security-opt no-new-privileges \
@@ -116,55 +115,57 @@ The information above doesn't take into account the AOT variant of binaries. Run
         -v "`pwd`/fs_data:/fs_data" \
         my_file_server:latest
     ```
-    + Replace ``` `pwd` ``` with `%cd%` or `$pwd` when using Windows cmd or pwsh respectively.
-    + Replace `\` with `^` or ``` ` ``` when using Windows cmd or pwsh respectively.
+    + Adjust or remove the `-u` option on Windows.
+    + Replace ``` `pwd` ``` with `$pwd` or `%cd%` when using pwsh or Windows cmd respectively.
+    + Replace `\` with ``` ` ``` or `^` when using pwsh or Windows cmd respectively.
     + To run in non-interactive (detached) mode use `-d --restart=unless-stopped` instead of `--rm -it`.
 
     Permissions:
     + To avoid confusion: "root-ness outside the container" is referred to as "rootful mode"/"rootless mode", and "root-ness inside the container" as "root user"/"non-root user".
     + The provided container images don't set any custom users and will run as the root user unless it's explicitly specified in the run command otherwise.
-    + The server does not require root permissions and may run as any user UID. The only requirement is for it to have read access to the settings file, all the files and directories specified in settings, and, if upload functionality is to be used, write access to the uploads directory (from the perspective of the user running inside the container). Neither does it require any capabilities and the `--cap-drop=all` option can be added if the previous condition is met.
-    + When running as the root user in rootful mode (which docker by default does), uploaded files will be owned by the root user on the host, which is at least inconvenient. It also poses additional security risks. So it is highly recommended to add the `-u "$(id -u):$(id -g)"` option, which will make uploaded files being owned by the same user who launched the container.
+    + The server does not require root permissions and can run with an arbitrary user UID. The only requirement is for it to have read access to the settings file, all the files and directories specified in settings, and, if upload functionality is to be used, write access to the uploads directory (from the perspective of the user running inside the container). Neither does it require any capabilities and the `--cap-drop=all` option can be used if the previous condition is met.
+    + When running as the root user in rootful mode (which docker by default does), uploaded files will be owned by the root user on the host, which is at least inconvenient. It also poses additional security risks. So it is highly recommended to use the `-u "$(id -u):$(id -g)"` option, which will make uploaded files being owned by the same user who launched the container.
     + When running as the root user in rootless mode (which e.g. podman by default does), there may be no problem with uploaded files ownership (e.g. with podman, there isn't, as it by default maps the host user who launched the container to the root user inside the container). But changing to a non-root user is still recommended to reduce security risks. For podman it can be done using the `--userns=keep-id` option, which will change the previously mentioned mapping to the same UID inside the container as on the host, or the `--userns=keep-id:uid=12345,gid=12345` option, which will change it to the specified UID.
-    + On systems with SELinux it may be necessary to add `:z` to the volume mount options (with `!care!`, as it will recursively relabel the mapped directory on the host, which may break the host system if used on directories that are used elsewhere besides the container). In case of relabeling, uploaded files will have the "system_u:object_r:container_file_t:s0" context. To restore the default context, the `restorecon -RFv /path/to/fs_data` command can be used. If relabeling is an issue and has to be avoided the `--security-opt label=disable` option can be added instead (which will basically disable SELinux for the containerized process).
+    + On systems with SELinux it may be necessary to use the `:z` volume mount option (with `!care!`, as it will recursively relabel the mapped directory on the host, which may break the host system if used on directories that are used elsewhere besides the container). In case of relabeling, uploaded files will have the "system_u:object_r:container_file_t:s0" context. To restore the default context, the `restorecon -RFv /path/to/fs_data` command can be used. If relabeling is an issue and has to be avoided the `--security-opt label=disable` option can be used instead (which will basically disable SELinux for the containerized process).
 
-+ ###### 7. Open the corresponding tcp port in firewall if necessary.
++ ###### 7. Open the appropriate tcp port in firewall if necessary.
 
 + ###### 8. Visit the site using a browser.
     In this example, to do it from the same machine, the address will be https://127.0.0.1:8443 or https://localhost:8443
 
 ## Usage (binaries)
-Note: This option is not recommended unless there is a good reason not to use containers, as it does not provide an extra layer of security through file-system and process isolation like containers do, and it is also much easier to misconfigure.
-
 Replace these steps from the container images usage example:
-+ ###### 2. Build the server (skip if using pre-built binaries).
++ ###### 2. Build the server (skip if using pre-built).
+    For example:
     ```
     dotnet publish src/FileServer -o artifacts/publish
     ```
     + Use the `--no-self-contained` option to publish as framework-dependent (add `-p:UseAppHost=false` to only publish DLL without executable).
     + Use the `-p:PublishTrimmed=true` option to publish as self-contained (trimming implicitly enables self-contained).
     + Use the `-p:FsUseEmbeddedStaticFiles=true` option to embed wwwroot static files into the published DLL and serve them from there.
-    + Use the `-p:FsPublishSingleFile=true` or `-p:FsPublishAot=true` options to publish as a single-file JIT-compiled executable or as a single-file AOT-compiled executable respectively (they implicitly enable the `FsUseEmbeddedStaticFiles` option, disable IIS web.config generation, and set the appropriate publish mode with embedded(JIT)/removed(AOT) debug symbols). When publishing a self-contained single-file JIT-compiled executable, additionally use the `-p:EnableCompressionInSingleFile=true` option to significantly reduce its size.
-    + Add `-r <RID>` to publish for another platform. Some commonly used RIDs: `linux-x64`, `linux-musl-x64`, `osx-arm64`, `win-x64`.
+    + Use the `-p:FsPublishSingleFile=true` or `-p:FsPublishAot=true` options to publish as a single-file JIT-compiled executable or as a single-file AOT-compiled executable respectively (they implicitly enable the `FsUseEmbeddedStaticFiles` option, disable IIS web.config generation, and set the appropriate publish mode with embedded(JIT)/removed(AOT) debug symbols). When publishing as a self-contained single-file JIT-compiled executable, additionally use the `-p:EnableCompressionInSingleFile=true` option to significantly reduce its size.
+    + Use the `-r <RID>` option to publish for another platform. Some commonly used RIDs: `linux-x64`, `linux-musl-x64`, `osx-arm64`, `win-x64`.
 
-    Examples of the commonly used option combinations can be found in the [_commands.txt](_commands.txt) file.
+    Examples of commonly used option combinations can be found in the [_commands.txt](_commands.txt) file.
 
 + ###### 5. Create/prepare the settings file.
-    Place the `appsettings.json` file from the container images usage example into the artifacts/publish directory and set correct full paths for:
+    For example, assuming steps 3 and 4 have been strictly followed, copy the template settings file to `appsettings.json` in the current directory and change:
     ```
     "CertFilePath": "/full/path/to/server_cert/cert.crt",
     "CertKeyPath": "/full/path/to/server_cert/cert.key",
     "DownloadAnonDir": "/full/path/to/fs_data/anonymous_downloads",
     "DownloadDir": "/full/path/to/fs_data/downloads",
-    "UploadDir": "C:\\windows_path_example\\to\\fs_data\\uploads",
+    "UploadDir": "C:\\windows_full_path_example\\to\\fs_data\\uploads",
+    "SigningKey": "<some string from 20 to 64 symbols>",
+    "LoginKey": "<some password, 12 symbols minimum>",
     ```
 
 + ###### 6. Start the server.
-    `cd artifacts/publish` (current working directory is `!important!`).
-    + `dotnet FileServer.dll` for cross-platform (framework-dependent).
-    + `"./FileServer.exe"` for self-contained when using Windows cmd.
-    + `./FileServer.exe` for self-contained when using Windows pwsh.
-    + `./FileServer` for self-contained when using Linux/macOS.
+    For example, assuming the settings file is in the current directory, to run the server built in step 2:
+    + `dotnet artifacts/publish/FileServer.dll` for cross-platform (framework-dependent).
+    + `"./artifacts/publish/FileServer.exe"` for self-contained when using Windows cmd.
+    + `./artifacts/publish/FileServer.exe` for self-contained when using Windows pwsh.
+    + `./artifacts/publish/FileServer` for self-contained when using Linux/macOS.
 
 A practical end-to-end working example of setting up, publishing and running a cross-platform server for local development can be found in the [_setup-server.bat](_setup-server.bat) and [_run-server.bat](_run-server.bat) scripts.
 
@@ -173,13 +174,13 @@ The `master` branch is where the development happens. It may be unstable and/or 
 
 Pre-built binaries can be found [here](https://github.com/AndreyTeets/FileServer/releases) in GitHub Releases.\
 Pre-built container images can be found [here](https://hub.docker.com/r/andreyteets/fileserver) on Docker Hub, and also in GitHub Releases.\
-Changelog for each release can be found in the [CHANGELOG.md](CHANGELOG.md) file, and is also duplicated in GitHub Releases.\
+Changes for each release can be found in the [CHANGELOG.md](CHANGELOG.md) file, and are also duplicated in GitHub Releases.\
 Changes for upcoming releases can be found in GitHub Pull requests, filtered by the corresponding Milestone and the `noteworthy` label (e.g. `milestone:2.0.0 label:noteworthy`).
 
 Some clarifications on pre-built binaries, container images and their variants:
-+ The `jit-cross-platform` variant of binaries is the result of the standard framework-dependent dotnet publish with the `-p:UseAppHost=false` option. It can only be run by the `dotnet FileServer.dll` command and requires the appropriate dotnet runtime installed.
++ The `jit-cross-platform` variant of binaries is the result of the standard framework-dependent dotnet publish with the `-p:UseAppHost=false` option. It can only be run using the `dotnet FileServer.dll` command and requires the appropriate dotnet runtime installed.
 + The `jitsf` variant of binaries stands for "JIT single-file".
-+ The `aot` variant of pre-built container images is the result of building the main Dockerfile, which is a bit different from the Dockerfile-simple-aot. The latter uses static linking for libc and OpenSSL libraries and the `scratch` pseudo-image as base, thus producing an image containing only a single self-sufficient executable, which may be preferable (in which case it should be built from the source code).
++ The `aot` variant of pre-built container images is the result of building the main Dockerfile, which is a bit different from the Dockerfile-simple-aot. The latter uses static linking for the libc and OpenSSL libraries and the `scratch` pseudo-image as a base, thus producing an image containing only a single self-sufficient executable, which may be preferable (in which case it should be built from the source code).
 + The `latest` tag for container images published on Docker Hub points to the same image as the `latest-jit` tag.
 + Container images published in GitHub Releases are the result of the `docker save` command, which has then been gzipped. They can be loaded, for example, using the `gunzip < image.tar.gz | docker load` command in the bash shell.
 
