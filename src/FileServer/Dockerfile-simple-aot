@@ -2,7 +2,7 @@ FROM mcr.microsoft.com/dotnet/sdk:10.0.100-alpine3.22 AS build
 RUN apk add --no-cache clang cmake build-base zlib-dev openssl-dev openssl-libs-static
 WORKDIR /repo
 COPY . .
-RUN dotnet publish src/FileServer -o /app/publish -p:FsPublishAot=true \
+RUN dotnet publish src/FileServer -o /app/publish -p:FsPublishAot=true -p:FsPinRuntimeFrameworkVersion=true \
     -p:CppCompilerAndLinker=clang -p:StaticExecutable=true -p:StaticOpenSslLinking=true
 
 FROM scratch AS app
