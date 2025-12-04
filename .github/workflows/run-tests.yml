@@ -97,21 +97,11 @@ jobs:
       - name: Check out repository
         uses: actions/checkout@v5
 
-      - name: Set up Docker Buildx
-        uses: docker/setup-buildx-action@v3
-
       - name: Run tests
-        uses: docker/build-push-action@v6
-        with:
-          context: .
-          file: src/FileServer/Dockerfile
-          target: tests
+        run: docker build . -f src/FileServer/Dockerfile --target tests
 
       - name: Run E2E tests
-        uses: docker/build-push-action@v6
-        with:
-          context: .
-          file: tests/FileServer.E2ETests/Dockerfile
+        run: docker build . -f tests/FileServer.E2ETests/Dockerfile
 
       - name: Run Dockerfile-simple tests
         shell: bash
