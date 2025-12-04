@@ -114,17 +114,17 @@ jobs:
           skip-dirs: ${{ matrix.scan-type == 'repo' && '**/bin,**/obj' || '' }}
           severity: ${{ (matrix.target == 'vuln-os' || matrix.target == 'vuln-library') && vars.TRIVY_VULN_SEVERITY || 'CRITICAL,HIGH,MEDIUM' }}
           ignore-unfixed: ${{ (matrix.target == 'vuln-os' || matrix.target == 'vuln-library') && vars.TRIVY_VULN_IGNORE_UNFIXED || false }}
-          format: ${{ matrix.event == 'commit' && 'sarif' || 'table' }}
-          output: ${{ matrix.event == 'commit' && 'trivy-results.sarif' || '' }}
+          format: ${{ matrix.scan-type == 'repo' && 'sarif' || 'table' }}
+          output: ${{ matrix.scan-type == 'repo' && 'trivy-results.sarif' || '' }}
           limit-severities-for-sarif: true
-          exit-code: ${{ matrix.event == 'schedule' && 1 || 0 }}
+          exit-code: ${{ matrix.scan-type != 'repo' && 1 || 0 }}
           skip-setup-trivy: true
           version: v0.67.2
           cache: ${{ (matrix.target == 'vuln-os' || matrix.target == 'vuln-library') && true || false }}
           trivyignores: '.github/.trivyignore'
 
       - name: Upload Trivy scan results to GitHub Security tab
-        if: ${{ matrix.event == 'commit' }}
+        if: ${{ matrix.scan-type == 'repo' }}
         uses: github/codeql-action/upload-sarif@v4
         with:
           sarif_file: 'trivy-results.sarif'
