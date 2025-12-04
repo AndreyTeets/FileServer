@@ -9,7 +9,6 @@ on:
       - 'tests/**'
       - '.editorconfig'
       - 'Directory.Build.props'
-      - 'FileServer.sln'
       - 'global.json'
       - '.github/workflows/scan-trivy.yml'
       - '.github/.trivyignore'
@@ -21,7 +20,6 @@ on:
       - 'tests/**'
       - '.editorconfig'
       - 'Directory.Build.props'
-      - 'FileServer.sln'
       - 'global.json'
       - '.github/workflows/scan-trivy.yml'
       - '.github/.trivyignore'
@@ -55,11 +53,7 @@ jobs:
           - target: 'vuln-os'
             scan-type: 'repo'
           - target: 'vuln-library'
-            scan-type: 'image'
-            event: 'commit'
-          - target: 'vuln-library'
             scan-type: 'repo'
-            event: 'schedule'
           - target: 'misconfig'
             scan-type: 'image'
           - target: 'misconfig'
@@ -72,6 +66,7 @@ jobs:
             event: 'commit'
     steps:
       - name: Check out repository
+        if: ${{ matrix.event == 'commit' }}
         uses: actions/checkout@v5
 
       - name: Prepare container image
@@ -80,9 +75,12 @@ jobs:
         shell: bash
         run: |
           echo "Preparing container image for event '${{ matrix.event }}'"
-          if [ "${{ matrix.event }}" == "commit" ]; then
-            IMAGE="app-base-image:${{ github.sha }}"
+          if [ "${{ matrix.event }}" == "commit" ] && [ "${{ matrix.target }}" == "vuln-os" ]; then
+            IMAGE="app-base:${GITHUB_SHA:0:10}"
             docker build . -f src/FileServer/Dockerfile --target app-base -t $IMAGE
+          elif [ "${{ matrix.event }}" == "commit" ] && [ "${{ matrix.target }}" == "vuln-library" ]; then
+            IMAGE="app-jit:${GITHUB_SHA:0:10}"
+            docker build . -f src/FileServer/Dockerfile --target app-jit -t $IMAGE
           else
             IMAGE="${{ vars.DOCKERHUB_NAMESPACE }}/${{ vars.DOCKERHUB_REPOSITORY }}:${{ matrix.image-tag }}"
             docker pull $IMAGE
@@ -96,16 +94,6 @@ jobs:
           EOF
 
           echo "image-ref=$IMAGE" >> $GITHUB_OUTPUT
-
-      - name: Set up .NET SDK
-        if: ${{ matrix.scan-type == 'repo' && matrix.target == 'vuln-library' }}
-        uses: actions/setup-dotnet@v5
-        with:
-          dotnet-version: 10.0.x
-
-      - name: Generate lock files for all csharp projects
-        if: ${{ matrix.scan-type == 'repo' && matrix.target == 'vuln-library' }}
-        run: dotnet restore . -p:RestorePackagesWithLockFile=True
 
       - name: Set up Trivy
         uses: aquasecurity/setup-trivy@v0.2.4
@@ -123,7 +111,7 @@ jobs:
           image-ref: ${{ steps.prep-image.outputs.image-ref }}
           scanners: ${{ (matrix.target == 'vuln-os' || matrix.target == 'vuln-library') && 'vuln' || matrix.target }}
           vuln-type: ${{ matrix.target == 'vuln-os' && 'os' || matrix.target == 'vuln-library' && 'library' || '' }}
-          skip-dirs: ${{ matrix.target == 'vuln-library' && matrix.scan-type == 'repo' && '**/bin,**/obj' || '' }}
+          skip-dirs: ${{ matrix.scan-type == 'repo' && '**/bin,**/obj' || '' }}
           severity: ${{ (matrix.target == 'vuln-os' || matrix.target == 'vuln-library') && vars.TRIVY_VULN_SEVERITY || 'CRITICAL,HIGH,MEDIUM' }}
           ignore-unfixed: ${{ (matrix.target == 'vuln-os' || matrix.target == 'vuln-library') && vars.TRIVY_VULN_IGNORE_UNFIXED || false }}
           format: ${{ matrix.event == 'commit' && 'sarif' || 'table' }}
