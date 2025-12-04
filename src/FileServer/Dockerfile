@@ -15,7 +15,7 @@ CMD []
 FROM sdk AS build-jit
 ARG TARGETARCH APP_VERSION
 COPY . .
-RUN dotnet publish src/FileServer -o /app/publish -r "linux-musl-$TARGETARCH" -p:PublishTrimmed=true
+RUN dotnet publish src/FileServer -o /app/publish -r "linux-musl-$TARGETARCH" -p:PublishTrimmed=true -p:FsPinRuntimeFrameworkVersion=true
 
 FROM app-base AS app-jit
 COPY --from=build-jit /app/publish .
@@ -37,7 +37,7 @@ RUN apk add --no-cache clang make cmake lld llvm
 COPY --from=build-aot-sysroot /sysroot/ /sysroot/
 
 COPY . .
-RUN dotnet publish src/FileServer -o /app/publish -r "linux-musl-$TARGETARCH" -p:FsPublishAot=true \
+RUN dotnet publish src/FileServer -o /app/publish -r "linux-musl-$TARGETARCH" -p:FsPublishAot=true -p:FsPinRuntimeFrameworkVersion=true \
     -p:CppCompilerAndLinker=clang -p:LinkerFlavor=lld -p:SysRoot=/sysroot
 
 FROM app-base AS app-aot
