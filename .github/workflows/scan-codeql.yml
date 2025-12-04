@@ -49,6 +49,7 @@ jobs:
         uses: actions/checkout@v5
 
       - name: Set up .NET SDK
+        if: ${{ matrix.language == 'csharp' }}
         uses: actions/setup-dotnet@v5
         with:
           dotnet-version: 10.0.x
@@ -70,7 +71,7 @@ jobs:
                     - actions/unpinned-tag
 
       - name: Build csharp
-        if: ${{ matrix.language == 'csharp' && matrix.build-mode == 'manual' }}
+        if: ${{ matrix.language == 'csharp' }}
         shell: bash
         run: |
           echo "Building all csharp projects separately and consecutively"

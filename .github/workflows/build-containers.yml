@@ -133,9 +133,6 @@ jobs:
           path: .
           merge-multiple: true
 
-      - name: Set up Docker Buildx
-        uses: docker/setup-buildx-action@v3
-
       - name: Test container images
         shell: bash
         env:
