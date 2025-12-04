@@ -87,6 +87,14 @@ jobs:
             IMAGE="${{ vars.DOCKERHUB_NAMESPACE }}/${{ vars.DOCKERHUB_REPOSITORY }}:${{ matrix.image-tag }}"
             docker pull $IMAGE
           fi
+
+          [ "${{ matrix.target }}" == "vuln-library" ] && \
+            echo "Changing dotnet runtime deps to a format expected by Trivy (only relevant for self-contained)" && \
+            docker build -t $IMAGE - <<EOF
+          FROM $IMAGE
+          RUN sed -i 's/runtimepack\.Microsoft\./Microsoft\./g; s/"type": "runtimepack"/"type": "package"/g' FileServer.deps.json
+          EOF
+
           echo "image-ref=$IMAGE" >> $GITHUB_OUTPUT
 
       - name: Set up .NET SDK
