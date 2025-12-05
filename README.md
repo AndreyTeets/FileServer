@@ -70,7 +70,7 @@ The information above doesn't take into account the AOT variant of binaries. Run
 + ###### 2. Build the server (skip if using pre-built).
     For example, to build the JIT variant using docker:
     ```
-    docker build . -f src/FileServer/Dockerfile-simple-jit -t my_file_server:latest
+    docker build . --pull -f src/FileServer/Dockerfile-simple-jit -t my_file_server:latest
     ```
     More examples can be found in the [_commands.txt](_commands.txt) file.
 

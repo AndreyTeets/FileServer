@@ -1,9 +1,9 @@
-FROM --platform=$BUILDPLATFORM mcr.microsoft.com/dotnet/aspnet:10.0.0-alpine3.22 AS dev-and-tests-runtime
+FROM --platform=$BUILDPLATFORM mcr.microsoft.com/dotnet/aspnet:10.0-alpine AS dev-and-tests-runtime
 
-FROM --platform=$BUILDPLATFORM mcr.microsoft.com/dotnet/sdk:10.0.100-alpine3.22 AS sdk
+FROM --platform=$BUILDPLATFORM mcr.microsoft.com/dotnet/sdk:10.0-alpine AS sdk
 WORKDIR /repo
 
-FROM mcr.microsoft.com/dotnet/runtime-deps:10.0.0-alpine3.22 AS app-base
+FROM mcr.microsoft.com/dotnet/runtime-deps:10.0-alpine AS app-base
 WORKDIR /app
 ENV ASPNETCORE_URLS=""
 ENV DOTNET_USE_POLLING_FILE_WATCHER=1
@@ -15,7 +15,7 @@ CMD []
 FROM sdk AS build-jit
 ARG TARGETARCH APP_VERSION
 COPY . .
-RUN dotnet publish src/FileServer -o /app/publish -r "linux-musl-$TARGETARCH" -p:PublishTrimmed=true -p:FsPinRuntimeFrameworkVersion=true
+RUN dotnet publish src/FileServer -o /app/publish -r "linux-musl-$TARGETARCH" -p:PublishTrimmed=true
 
 FROM app-base AS app-jit
 COPY --from=build-jit /app/publish .
@@ -37,7 +37,7 @@ RUN apk add --no-cache clang make cmake lld llvm
 COPY --from=build-aot-sysroot /sysroot/ /sysroot/
 
 COPY . .
-RUN dotnet publish src/FileServer -o /app/publish -r "linux-musl-$TARGETARCH" -p:FsPublishAot=true -p:FsPinRuntimeFrameworkVersion=true \
+RUN dotnet publish src/FileServer -o /app/publish -r "linux-musl-$TARGETARCH" -p:FsPublishAot=true \
     -p:CppCompilerAndLinker=clang -p:LinkerFlavor=lld -p:SysRoot=/sysroot
 
 FROM app-base AS app-aot

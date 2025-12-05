@@ -1,9 +1,9 @@
 docker build . -f tests/FileServer.E2ETests/Dockerfile -t fs_e2etests:latest
-docker build . -f src/FileServer/Dockerfile -t fs_tests:latest --target tests
-docker build . -f src/FileServer/Dockerfile -t fs:latest-jit --target app-jit --platform linux/amd64 --build-arg APP_VERSION=0.0.1-rc.1
-docker build . -f src/FileServer/Dockerfile -t fs:latest-aot --target app-aot --platform linux/arm/v7 --build-arg APP_VERSION=0.9.99
-docker build . -f src/FileServer/Dockerfile-simple-jit -t fs:latest-simple-jit
-docker build . -f src/FileServer/Dockerfile-simple-aot -t fs:latest-simple-aot
+docker build . --pull -f src/FileServer/Dockerfile -t fs_tests:latest --target tests
+docker build . --pull -f src/FileServer/Dockerfile -t fs:latest-jit --target app-jit --platform linux/amd64 --build-arg APP_VERSION=0.0.1-rc.1
+docker build . --pull -f src/FileServer/Dockerfile -t fs:latest-aot --target app-aot --platform linux/arm/v7 --build-arg APP_VERSION=0.9.99
+docker build . --pull -f src/FileServer/Dockerfile-simple-jit -t fs:latest-simple-jit
+docker build . --pull -f src/FileServer/Dockerfile-simple-aot -t fs:latest-simple-aot
 docker run --rm -it --pull=never --name fs -p 127.0.0.1:8443:8443/tcp -v "$pwd/src/FileServer/bin/settings:/app/settings" -v "$pwd/src/FileServer/bin/fs_data:/fs_data" fs:latest-simple-aot
 
 dotnet publish src/FileServer -o artifacts/publish-jit-cross-platform --no-self-contained -p:UseAppHost=false
