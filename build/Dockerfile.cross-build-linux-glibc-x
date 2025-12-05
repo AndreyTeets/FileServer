@@ -1,6 +1,6 @@
 ARG TARGET_ARCH
-FROM mcr.microsoft.com/dotnet/sdk:10.0.100-noble AS sdk
-FROM --platform=linux/$TARGET_ARCH mcr.microsoft.com/dotnet/runtime-deps:10.0.0-noble AS sysroot-base
+FROM mcr.microsoft.com/dotnet/sdk:10.0-noble AS sdk
+FROM --platform=linux/$TARGET_ARCH mcr.microsoft.com/dotnet/runtime-deps:10.0-noble AS sysroot-base
 
 FROM sysroot-base AS sysroot
 RUN apt-get update && apt-get install -y --no-install-recommends build-essential zlib1g-dev && apt-get clean

@@ -1,9 +1,9 @@
-FROM mcr.microsoft.com/dotnet/sdk:10.0.100-alpine3.22 AS build
+FROM mcr.microsoft.com/dotnet/sdk:10.0-alpine AS build
 WORKDIR /repo
 COPY . .
-RUN dotnet publish src/FileServer -o /app/publish -p:PublishTrimmed=true -p:FsPinRuntimeFrameworkVersion=true
+RUN dotnet publish src/FileServer -o /app/publish -p:PublishTrimmed=true
 
-FROM mcr.microsoft.com/dotnet/runtime-deps:10.0.0-alpine3.22 AS app
+FROM mcr.microsoft.com/dotnet/runtime-deps:10.0-alpine AS app
 WORKDIR /app
 COPY --from=build /app/publish .
 ENV ASPNETCORE_URLS=""
