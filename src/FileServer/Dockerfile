@@ -29,11 +29,11 @@ RUN if [ "$TARGETARCH" == "amd64" ]; then ALPINE_ARCH="x86_64"; \
     elif [ "$TARGETARCH" == "arm64" ]; then ALPINE_ARCH="aarch64"; \
     elif [ "$TARGETARCH" == "arm" ]; then ALPINE_ARCH="armv7"; \
     else exit 10; fi && \
-    apk add --no-cache --root /sysroot --arch $ALPINE_ARCH build-base zlib-dev
+    apk add --upgrade --no-cache --root /sysroot --arch $ALPINE_ARCH build-base zlib-dev
 
 FROM sdk AS build-aot
 ARG TARGETARCH FS_APP_VERSION FS_PIN_RUNTIME_VERSION
-RUN apk add --no-cache clang make cmake lld llvm
+RUN apk add --upgrade --no-cache clang make cmake lld llvm
 COPY --from=build-aot-sysroot /sysroot/ /sysroot/
 
 COPY . .

@@ -3,11 +3,11 @@ FROM mcr.microsoft.com/dotnet/sdk:10.0-alpine AS sdk
 FROM --platform=linux/$TARGET_ARCH mcr.microsoft.com/dotnet/runtime-deps:10.0-alpine AS sysroot-base
 
 FROM sysroot-base AS sysroot
-RUN apk add --no-cache build-base zlib-dev
+RUN apk add --upgrade --no-cache build-base zlib-dev
 
 FROM sdk AS build
 WORKDIR /repo
-RUN apk add --no-cache clang make cmake lld llvm
+RUN apk add --upgrade --no-cache clang make cmake lld llvm
 COPY --from=sysroot / /sysroot/
 
 RUN mkdir /arbitrary_user_home && chmod a=rwx,o+t /arbitrary_user_home

@@ -1,5 +1,5 @@
 FROM mcr.microsoft.com/dotnet/sdk:10.0-alpine AS build
-RUN apk add --no-cache clang cmake build-base zlib-dev openssl-dev openssl-libs-static
+RUN apk add --upgrade --no-cache clang cmake build-base zlib-dev openssl-dev openssl-libs-static
 WORKDIR /repo
 COPY . .
 RUN dotnet publish src/FileServer -o /app/publish -p:FsPublishAot=true \
