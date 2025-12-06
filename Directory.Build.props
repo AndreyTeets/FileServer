@@ -16,11 +16,11 @@
     <EmitCompilerGeneratedFiles>true</EmitCompilerGeneratedFiles>
   </PropertyGroup>
 
-  <PropertyGroup Condition="'$(APP_VERSION)' != ''">
-    <APP_VERSION_BASE>$(APP_VERSION.Split('-')[0])</APP_VERSION_BASE>
-    <Version>$(APP_VERSION_BASE)</Version>
-    <FileVersion>$(APP_VERSION_BASE)</FileVersion>
-    <InformationalVersion>$(APP_VERSION)</InformationalVersion>
+  <PropertyGroup Condition="'$(FS_APP_VERSION)' != ''">
+    <FS_APP_VERSION_BASE>$(FS_APP_VERSION.Split('-')[0])</FS_APP_VERSION_BASE>
+    <Version>$(FS_APP_VERSION_BASE)</Version>
+    <FileVersion>$(FS_APP_VERSION_BASE)</FileVersion>
+    <InformationalVersion>$(FS_APP_VERSION)</InformationalVersion>
   </PropertyGroup>
 
   <ItemGroup>

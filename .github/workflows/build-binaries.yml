@@ -113,9 +113,9 @@ jobs:
         if: ${{ matrix.type == 'JIT' }}
         shell: bash
         env:
-          APP_VERSION: ${{ needs.setup-vars.outputs.version }}
+          FS_APP_VERSION: ${{ needs.setup-vars.outputs.version }}
         run: |
-          ART_NAME="fileserver-$APP_VERSION-jit-cross-platform"
+          ART_NAME="fileserver-$FS_APP_VERSION-jit-cross-platform"
           dotnet publish src/FileServer -o "artifacts/${ART_NAME}" -p:UseAppHost=false
           pushd artifacts
           zip -rq "${ART_NAME}.zip" $ART_NAME
@@ -127,11 +127,11 @@ jobs:
         if: ${{ matrix.type == 'JIT' }}
         shell: bash
         env:
-          APP_VERSION: ${{ needs.setup-vars.outputs.version }}
+          FS_APP_VERSION: ${{ needs.setup-vars.outputs.version }}
           FS_PIN_RUNTIME_VERSION: 'true'
         run: |
           echo "$PLATFORMS" | while IFS= read -r PLAT; do
-            ART_NAME="fileserver-$APP_VERSION-jit-$PLAT"
+            ART_NAME="fileserver-$FS_APP_VERSION-jit-$PLAT"
             RID="$(echo -n "$PLAT" | sed 's/-armv./-arm/g; s/-glibc//g; s/windows/win/g; s/macos/osx/g')"
 
             echo "Building $PLAT"
@@ -146,11 +146,11 @@ jobs:
         if: ${{ matrix.type == 'JITSF' }}
         shell: bash
         env:
-          APP_VERSION: ${{ needs.setup-vars.outputs.version }}
+          FS_APP_VERSION: ${{ needs.setup-vars.outputs.version }}
           FS_PIN_RUNTIME_VERSION: 'true'
         run: |
           echo "$PLATFORMS" | while IFS= read -r PLAT; do
-            ART_NAME="fileserver-$APP_VERSION-jitsf-$PLAT"
+            ART_NAME="fileserver-$FS_APP_VERSION-jitsf-$PLAT"
             RID="$(echo -n "$PLAT" | sed 's/-armv./-arm/g; s/-glibc//g; s/windows/win/g; s/macos/osx/g')"
 
             echo "Building $PLAT"
@@ -170,7 +170,7 @@ jobs:
         if: ${{ startsWith(matrix.type, 'AOT-') }}
         shell: bash
         env:
-          APP_VERSION: ${{ needs.setup-vars.outputs.version }}
+          FS_APP_VERSION: ${{ needs.setup-vars.outputs.version }}
           FS_PIN_RUNTIME_VERSION: 'true'
           IS_LINUX: ${{ startsWith(matrix.type, 'AOT-linux-') }}
           IS_MACOS: ${{ matrix.type == 'AOT-macos' }}
@@ -181,13 +181,13 @@ jobs:
             $IS_MACOS && [ "${PLAT:0:6}" != "macos-" ] && continue
             $IS_WINDOWS && [ "${PLAT:0:8}" != "windows-" ] && continue
 
-            ART_NAME="fileserver-$APP_VERSION-aot-$PLAT"
+            ART_NAME="fileserver-$FS_APP_VERSION-aot-$PLAT"
             RID="$(echo -n "$PLAT" | sed 's/-armv./-arm/g; s/-glibc//g; s/windows/win/g; s/macos/osx/g')"
 
             echo "Building $PLAT"
             if $IS_LINUX; then
               docker run --rm --pull=never -u $(id -u):$(id -g) -v "`pwd`:/repo" \
-                -e APP_VERSION="$APP_VERSION" -e FS_PIN_RUNTIME_VERSION="$FS_PIN_RUNTIME_VERSION" \
+                -e FS_APP_VERSION="$FS_APP_VERSION" -e FS_PIN_RUNTIME_VERSION="$FS_PIN_RUNTIME_VERSION" \
                 cross-build:${PLAT} src/FileServer -o "artifacts/${ART_NAME}" -r $RID -p:FsPublishAot=true
               mv "artifacts/${ART_NAME}/FileServer" "artifacts/${ART_NAME}/${ART_NAME}"
               tar -czf "artifacts/${ART_NAME}.tar.gz" --directory "artifacts/${ART_NAME}" $ART_NAME

@@ -59,7 +59,7 @@ jobs:
           file: src/FileServer/Dockerfile
           target: app${{ matrix.suffix }}
           build-args: |
-            APP_VERSION=${{ needs.setup-vars.outputs.version }}
+            FS_APP_VERSION=${{ needs.setup-vars.outputs.version }}
             FS_PIN_RUNTIME_VERSION=true
           platforms: ${{ env.PLATFORMS }}
 
@@ -89,7 +89,7 @@ jobs:
           file: src/FileServer/Dockerfile
           target: app${{ matrix.suffix }}
           build-args: |
-            APP_VERSION=${{ needs.setup-vars.outputs.version }}
+            FS_APP_VERSION=${{ needs.setup-vars.outputs.version }}
             FS_PIN_RUNTIME_VERSION=true
           platforms: ${{ env.PLATFORMS }}
           push: true
