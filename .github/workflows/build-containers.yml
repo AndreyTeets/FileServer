@@ -74,7 +74,7 @@ jobs:
           file: src/FileServer/Dockerfile
           target: app${{ matrix.suffix }}
           build-args: |
-            APP_VERSION=${{ needs.setup-vars.outputs.version }}
+            FS_APP_VERSION=${{ needs.setup-vars.outputs.version }}
             FS_PIN_RUNTIME_VERSION=true
           platforms: ${{ env.PLATFORMS }}
 
@@ -92,7 +92,7 @@ jobs:
             docker buildx build --load . -t ${IMAGE}:${TAG} \
               -f src/FileServer/Dockerfile \
               --target app${{ matrix.suffix }} \
-              --build-arg APP_VERSION=${{ needs.setup-vars.outputs.version }} \
+              --build-arg FS_APP_VERSION=${{ needs.setup-vars.outputs.version }} \
               --build-arg FS_PIN_RUNTIME_VERSION=true \
               --platform $PLAT
             docker save ${IMAGE}:${TAG} | gzip > artifacts/fileserver-container-image-${TAG}.tar.gz

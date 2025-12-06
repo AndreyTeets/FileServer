@@ -13,7 +13,7 @@ CMD []
 
 #===app-jit==={
 FROM sdk AS build-jit
-ARG TARGETARCH APP_VERSION FS_PIN_RUNTIME_VERSION
+ARG TARGETARCH FS_APP_VERSION FS_PIN_RUNTIME_VERSION
 COPY . .
 RUN dotnet publish src/FileServer -o /app/publish -r "linux-musl-$TARGETARCH" -p:PublishTrimmed=true
 
@@ -32,7 +32,7 @@ RUN if [ "$TARGETARCH" == "amd64" ]; then ALPINE_ARCH="x86_64"; \
     apk add --no-cache --root /sysroot --arch $ALPINE_ARCH build-base zlib-dev
 
 FROM sdk AS build-aot
-ARG TARGETARCH APP_VERSION FS_PIN_RUNTIME_VERSION
+ARG TARGETARCH FS_APP_VERSION FS_PIN_RUNTIME_VERSION
 RUN apk add --no-cache clang make cmake lld llvm
 COPY --from=build-aot-sysroot /sysroot/ /sysroot/
 
