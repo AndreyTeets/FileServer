@@ -128,13 +128,14 @@ jobs:
         shell: bash
         env:
           APP_VERSION: ${{ needs.setup-vars.outputs.version }}
+          FsPinRuntimeFrameworkVersion: 'true'
         run: |
           echo "$PLATFORMS" | while IFS= read -r PLAT; do
             ART_NAME="fileserver-$APP_VERSION-jit-$PLAT"
             RID="$(echo -n "$PLAT" | sed 's/-armv./-arm/g; s/-glibc//g; s/windows/win/g; s/macos/osx/g')"
 
             echo "Building $PLAT"
-            dotnet publish src/FileServer -o "artifacts/${ART_NAME}" -r $RID -p:PublishTrimmed=true -p:FsPinRuntimeFrameworkVersion=true
+            dotnet publish src/FileServer -o "artifacts/${ART_NAME}" -r $RID -p:PublishTrimmed=true
             pushd artifacts
             [ "${PLAT:0:8}" == "windows-" ] && zip -rq "${ART_NAME}.zip" $ART_NAME || tar -czf "${ART_NAME}.tar.gz" $ART_NAME
             popd
@@ -146,13 +147,14 @@ jobs:
         shell: bash
         env:
           APP_VERSION: ${{ needs.setup-vars.outputs.version }}
+          FsPinRuntimeFrameworkVersion: 'true'
         run: |
           echo "$PLATFORMS" | while IFS= read -r PLAT; do
             ART_NAME="fileserver-$APP_VERSION-jitsf-$PLAT"
             RID="$(echo -n "$PLAT" | sed 's/-armv./-arm/g; s/-glibc//g; s/windows/win/g; s/macos/osx/g')"
 
             echo "Building $PLAT"
-            dotnet publish src/FileServer -o "artifacts/${ART_NAME}" -r $RID -p:PublishTrimmed=true -p:FsPinRuntimeFrameworkVersion=true \
+            dotnet publish src/FileServer -o "artifacts/${ART_NAME}" -r $RID -p:PublishTrimmed=true \
               -p:FsPublishSingleFile=true -p:EnableCompressionInSingleFile=true
             if [ "${PLAT:0:8}" == "windows-" ]; then
               mv "artifacts/${ART_NAME}/FileServer.exe" "artifacts/${ART_NAME}/${ART_NAME}.exe"
@@ -169,6 +171,7 @@ jobs:
         shell: bash
         env:
           APP_VERSION: ${{ needs.setup-vars.outputs.version }}
+          FsPinRuntimeFrameworkVersion: 'true'
           IS_LINUX: ${{ startsWith(matrix.type, 'AOT-linux-') }}
           IS_MACOS: ${{ matrix.type == 'AOT-macos' }}
           IS_WINDOWS: ${{ matrix.type == 'AOT-windows' }}
@@ -183,16 +186,17 @@ jobs:
 
             echo "Building $PLAT"
             if $IS_LINUX; then
-              docker run --rm --pull=never -u $(id -u):$(id -g) -v "`pwd`:/repo" -e APP_VERSION="$APP_VERSION" \
-                cross-build:${PLAT} src/FileServer -o "artifacts/${ART_NAME}" -r $RID -p:FsPublishAot=true -p:FsPinRuntimeFrameworkVersion=true
+              docker run --rm --pull=never -u $(id -u):$(id -g) -v "`pwd`:/repo" \
+                -e APP_VERSION="$APP_VERSION" -e FsPinRuntimeFrameworkVersion="$FsPinRuntimeFrameworkVersion" \
+                cross-build:${PLAT} src/FileServer -o "artifacts/${ART_NAME}" -r $RID -p:FsPublishAot=true
               mv "artifacts/${ART_NAME}/FileServer" "artifacts/${ART_NAME}/${ART_NAME}"
               tar -czf "artifacts/${ART_NAME}.tar.gz" --directory "artifacts/${ART_NAME}" $ART_NAME
             elif $IS_MACOS; then
-              dotnet publish src/FileServer -o "artifacts/${ART_NAME}" -r $RID -p:FsPublishAot=true -p:FsPinRuntimeFrameworkVersion=true
+              dotnet publish src/FileServer -o "artifacts/${ART_NAME}" -r $RID -p:FsPublishAot=true
               mv "artifacts/${ART_NAME}/FileServer" "artifacts/${ART_NAME}/${ART_NAME}"
               tar -czf "artifacts/${ART_NAME}.tar.gz" --directory "artifacts/${ART_NAME}" $ART_NAME
             elif $IS_WINDOWS; then
-              dotnet publish src/FileServer -o "artifacts/${ART_NAME}" -r $RID -p:FsPublishAot=true -p:FsPinRuntimeFrameworkVersion=true
+              dotnet publish src/FileServer -o "artifacts/${ART_NAME}" -r $RID -p:FsPublishAot=true
               mv "artifacts/${ART_NAME}/FileServer.exe" "artifacts/${ART_NAME}/${ART_NAME}.exe"
               pushd "artifacts/${ART_NAME}" && "C:/Windows/System32/tar.exe" -acf "../${ART_NAME}.zip" "${ART_NAME}.exe" && popd
             else exit 10; fi
