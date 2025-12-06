@@ -4,6 +4,7 @@ FROM --platform=$BUILDPLATFORM mcr.microsoft.com/dotnet/sdk:10.0-alpine AS sdk
 WORKDIR /repo
 
 FROM mcr.microsoft.com/dotnet/runtime-deps:10.0-alpine AS app-base
+RUN apk upgrade --no-cache
 WORKDIR /app
 ENV ASPNETCORE_URLS=""
 ENV DOTNET_USE_POLLING_FILE_WATCHER=1

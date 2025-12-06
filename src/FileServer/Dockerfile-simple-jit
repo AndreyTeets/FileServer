@@ -4,6 +4,7 @@ COPY . .
 RUN dotnet publish src/FileServer -o /app/publish -p:PublishTrimmed=true
 
 FROM mcr.microsoft.com/dotnet/runtime-deps:10.0-alpine AS app
+RUN apk upgrade --no-cache
 WORKDIR /app
 COPY --from=build /app/publish .
 ENV ASPNETCORE_URLS=""
