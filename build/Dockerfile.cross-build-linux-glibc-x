@@ -3,11 +3,11 @@ FROM mcr.microsoft.com/dotnet/sdk:10.0-noble AS sdk
 FROM --platform=linux/$TARGET_ARCH mcr.microsoft.com/dotnet/runtime-deps:10.0-noble AS sysroot-base
 
 FROM sysroot-base AS sysroot
-RUN apt-get update && apt-get install -y --no-install-recommends build-essential zlib1g-dev && apt-get clean
+RUN apt-get update && apt-get -y upgrade && apt-get install -y --no-install-recommends build-essential zlib1g-dev && rm -rf /var/lib/apt/lists/*
 
 FROM sdk AS build
 WORKDIR /repo
-RUN apt-get update && apt-get install -y --no-install-recommends clang make cmake lld llvm && apt-get clean
+RUN apt-get update && apt-get -y upgrade && apt-get install -y --no-install-recommends clang make cmake lld llvm && rm -rf /var/lib/apt/lists/*
 COPY --from=sysroot / /sysroot/
 
 RUN mkdir /arbitrary_user_home && chmod a=rwx,o+t /arbitrary_user_home
