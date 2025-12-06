@@ -1,6 +1,9 @@
 ﻿<Project>
 
   <PropertyGroup>
+    <TargetFramework>net10.0</TargetFramework>
+    <Nullable>enable</Nullable>
+    <ImplicitUsings>enable</ImplicitUsings>
     <LangVersion>latest</LangVersion>
     <AnalysisLevel>latest</AnalysisLevel>
     <AnalysisMode>All</AnalysisMode>
@@ -21,6 +24,10 @@
     <Version>$(FS_APP_VERSION_BASE)</Version>
     <FileVersion>$(FS_APP_VERSION_BASE)</FileVersion>
     <InformationalVersion>$(FS_APP_VERSION)</InformationalVersion>
+  </PropertyGroup>
+
+  <PropertyGroup Condition="'$(FS_PIN_RUNTIME_VERSION)' == 'true'">
+    <RuntimeFrameworkVersion>10.0.0</RuntimeFrameworkVersion>
   </PropertyGroup>
 
   <ItemGroup>

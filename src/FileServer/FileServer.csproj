@@ -1,16 +1,10 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk.Web">
 
   <PropertyGroup>
-    <TargetFramework>net10.0</TargetFramework>
-    <Nullable>enable</Nullable>
-    <ImplicitUsings>enable</ImplicitUsings>
+    <CompressionEnabled>false</CompressionEnabled>
     <DockerDefaultTargetOS>Linux</DockerDefaultTargetOS>
     <DockerfileTag>fs:dev</DockerfileTag>
     <DockerfileRunArguments>-p 127.0.0.1:7443:8443 -v "$(MSBuildProjectDirectory)\bin\fs_data:/fs_data"</DockerfileRunArguments>
-  </PropertyGroup>
-
-  <PropertyGroup Condition="'$(FS_PIN_RUNTIME_VERSION)' == 'true'">
-    <RuntimeFrameworkVersion>10.0.0</RuntimeFrameworkVersion>
   </PropertyGroup>
 
   <ItemGroup>
@@ -22,10 +16,6 @@
     <Content Remove="appsettings.template.json" />
     <None Include="appsettings.template.json" CopyToOutputDirectory="Never" />
   </ItemGroup>
-
-  <PropertyGroup>
-    <CompressionEnabled>false</CompressionEnabled>
-  </PropertyGroup>
 
   <PropertyGroup Condition="'$(FsPublishSingleFile)' == 'true' Or '$(FsPublishAot)' == 'true'">
     <FsUseEmbeddedStaticFiles>true</FsUseEmbeddedStaticFiles>
