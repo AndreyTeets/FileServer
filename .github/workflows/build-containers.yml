@@ -75,7 +75,7 @@ jobs:
           target: app${{ matrix.suffix }}
           build-args: |
             APP_VERSION=${{ needs.setup-vars.outputs.version }}
-            FsPinRuntimeFrameworkVersion=true
+            FS_PIN_RUNTIME_VERSION=true
           platforms: ${{ env.PLATFORMS }}
 
       - name: Tag all platforms from build cache and save
@@ -93,7 +93,7 @@ jobs:
               -f src/FileServer/Dockerfile \
               --target app${{ matrix.suffix }} \
               --build-arg APP_VERSION=${{ needs.setup-vars.outputs.version }} \
-              --build-arg FsPinRuntimeFrameworkVersion=true \
+              --build-arg FS_PIN_RUNTIME_VERSION=true \
               --platform $PLAT
             docker save ${IMAGE}:${TAG} | gzip > artifacts/fileserver-container-image-${TAG}.tar.gz
           done
