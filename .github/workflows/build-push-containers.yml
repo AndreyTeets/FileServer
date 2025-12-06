@@ -60,7 +60,7 @@ jobs:
           target: app${{ matrix.suffix }}
           build-args: |
             APP_VERSION=${{ needs.setup-vars.outputs.version }}
-            FsPinRuntimeFrameworkVersion=true
+            FS_PIN_RUNTIME_VERSION=true
           platforms: ${{ env.PLATFORMS }}
 
       - name: Extract docker metadata
@@ -90,7 +90,7 @@ jobs:
           target: app${{ matrix.suffix }}
           build-args: |
             APP_VERSION=${{ needs.setup-vars.outputs.version }}
-            FsPinRuntimeFrameworkVersion=true
+            FS_PIN_RUNTIME_VERSION=true
           platforms: ${{ env.PLATFORMS }}
           push: true
           tags: ${{ steps.meta.outputs.tags }}

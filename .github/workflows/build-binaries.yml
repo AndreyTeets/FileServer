@@ -128,7 +128,7 @@ jobs:
         shell: bash
         env:
           APP_VERSION: ${{ needs.setup-vars.outputs.version }}
-          FsPinRuntimeFrameworkVersion: 'true'
+          FS_PIN_RUNTIME_VERSION: 'true'
         run: |
           echo "$PLATFORMS" | while IFS= read -r PLAT; do
             ART_NAME="fileserver-$APP_VERSION-jit-$PLAT"
@@ -147,7 +147,7 @@ jobs:
         shell: bash
         env:
           APP_VERSION: ${{ needs.setup-vars.outputs.version }}
-          FsPinRuntimeFrameworkVersion: 'true'
+          FS_PIN_RUNTIME_VERSION: 'true'
         run: |
           echo "$PLATFORMS" | while IFS= read -r PLAT; do
             ART_NAME="fileserver-$APP_VERSION-jitsf-$PLAT"
@@ -171,7 +171,7 @@ jobs:
         shell: bash
         env:
           APP_VERSION: ${{ needs.setup-vars.outputs.version }}
-          FsPinRuntimeFrameworkVersion: 'true'
+          FS_PIN_RUNTIME_VERSION: 'true'
           IS_LINUX: ${{ startsWith(matrix.type, 'AOT-linux-') }}
           IS_MACOS: ${{ matrix.type == 'AOT-macos' }}
           IS_WINDOWS: ${{ matrix.type == 'AOT-windows' }}
@@ -187,7 +187,7 @@ jobs:
             echo "Building $PLAT"
             if $IS_LINUX; then
               docker run --rm --pull=never -u $(id -u):$(id -g) -v "`pwd`:/repo" \
-                -e APP_VERSION="$APP_VERSION" -e FsPinRuntimeFrameworkVersion="$FsPinRuntimeFrameworkVersion" \
+                -e APP_VERSION="$APP_VERSION" -e FS_PIN_RUNTIME_VERSION="$FS_PIN_RUNTIME_VERSION" \
                 cross-build:${PLAT} src/FileServer -o "artifacts/${ART_NAME}" -r $RID -p:FsPublishAot=true
               mv "artifacts/${ART_NAME}/FileServer" "artifacts/${ART_NAME}/${ART_NAME}"
               tar -czf "artifacts/${ART_NAME}.tar.gz" --directory "artifacts/${ART_NAME}" $ART_NAME

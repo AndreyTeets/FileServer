@@ -9,7 +9,7 @@
     <DockerfileRunArguments>-p 127.0.0.1:7443:8443 -v "$(MSBuildProjectDirectory)\bin\fs_data:/fs_data"</DockerfileRunArguments>
   </PropertyGroup>
 
-  <PropertyGroup Condition="'$(FsPinRuntimeFrameworkVersion)' == 'true'">
+  <PropertyGroup Condition="'$(FS_PIN_RUNTIME_VERSION)' == 'true'">
     <RuntimeFrameworkVersion>10.0.0</RuntimeFrameworkVersion>
   </PropertyGroup>
 
