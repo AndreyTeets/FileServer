@@ -66,7 +66,25 @@ jobs:
             event: 'commit'
     steps:
       - name: Check out repository
+        if: ${{ matrix.event == 'commit' }}
         uses: actions/checkout@v5
+
+      - name: Get git ref for the scanned release
+        if: ${{ matrix.event == 'schedule' }}
+        id: get-git-ref
+        shell: bash
+        run: |
+          IMAGE_TAG="${{ matrix.image-tag == 'latest' && vars.LATEST_MAJOR_MINOR || matrix.image-tag }}"
+          VERSION="${IMAGE_TAG%%-*}"
+          echo "value=v${VERSION}.x" >> $GITHUB_OUTPUT
+
+      - name: Get .trivyignore for the scanned release
+        if: ${{ matrix.event == 'schedule' }}
+        uses: actions/checkout@v5
+        with:
+          ref: ${{ steps.get-git-ref.outputs.value }}
+          sparse-checkout: .github/.trivyignore
+          sparse-checkout-cone-mode: false
 
       - name: Prepare container image
         if: ${{ matrix.scan-type == 'image' }}
