@@ -4,8 +4,8 @@
 
 **Notable Changes**:
 + Don't pin patch-versions in dockerfiles by default (#46). This is relevant for building from the source code.
-+ Always upgrade all os-packages to latest in dockerfiles (#47). This is relevant for building from the source code.
 + Update pinned dotnet runtime to 10.0.1 (#48). This is relevant for pre-built artifacts, excluding framework-dependent binaries.
++ Always upgrade all os-packages to latest in dockerfiles (#47).
 + Rebuild container images with the latest os-packages.
 
 [All Changes](https://github.com/AndreyTeets/FileServer/compare/v2.0.0...v2.0.1)
