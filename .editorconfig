@@ -9,10 +9,6 @@ insert_final_newline = true
 trim_trailing_whitespace = true
 indent_size = 4
 
-## EditorConfig files
-[.editorconfig]
-trim_trailing_whitespace = false
-
 ## Solution files
 [*.{sln}]
 charset = utf-8-bom
@@ -24,7 +20,7 @@ charset = utf-8-bom
 indent_size = 2
 
 ## XML config files
-[*.{ruleset,config,nuspec,resx,runsettings}]
+[*.{slnx,ruleset,config,nuspec,resx,runsettings}]
 indent_size = 2
 
 ## YAML files
@@ -66,7 +62,6 @@ indent_size = 4
 [*.cs]
 charset = utf-8-bom
 indent_size = 4
-tab_width = 4
 
 #### .NET Code Actions ####
 
@@ -192,6 +187,7 @@ csharp_style_prefer_index_operator = true
 csharp_style_prefer_local_over_anonymous_function = true
 csharp_style_prefer_null_check_over_type_check = true
 csharp_style_prefer_range_operator = true
+csharp_style_prefer_simple_property_accessors = true
 csharp_style_prefer_tuple_swap = true
 csharp_style_prefer_unbound_generic_type_in_nameof = true
 csharp_style_prefer_utf8_string_literals = true
@@ -316,19 +312,19 @@ dotnet_naming_rule.all_other_items_should_be_bad_symbol_kind.style = bad_symbol_
 
 dotnet_naming_symbols.namespace.applicable_kinds = namespace
 dotnet_naming_symbols.namespace.applicable_accessibilities = *
-dotnet_naming_symbols.namespace.required_modifiers = 
+dotnet_naming_symbols.namespace.required_modifiers =
 
 dotnet_naming_symbols.interface.applicable_kinds = interface
 dotnet_naming_symbols.interface.applicable_accessibilities = *
-dotnet_naming_symbols.interface.required_modifiers = 
+dotnet_naming_symbols.interface.required_modifiers =
 
 dotnet_naming_symbols.type.applicable_kinds = class, struct, enum
 dotnet_naming_symbols.type.applicable_accessibilities = *
-dotnet_naming_symbols.type.required_modifiers = 
+dotnet_naming_symbols.type.required_modifiers =
 
 dotnet_naming_symbols.non_field_members.applicable_kinds = property, event, method
 dotnet_naming_symbols.non_field_members.applicable_accessibilities = *
-dotnet_naming_symbols.non_field_members.required_modifiers = 
+dotnet_naming_symbols.non_field_members.required_modifiers =
 
 dotnet_naming_symbols.constant_field.applicable_kinds = field
 dotnet_naming_symbols.constant_field.applicable_accessibilities = *
@@ -336,7 +332,7 @@ dotnet_naming_symbols.constant_field.required_modifiers = const
 
 dotnet_naming_symbols.public_or_internal_field.applicable_kinds = field
 dotnet_naming_symbols.public_or_internal_field.applicable_accessibilities = public, internal
-dotnet_naming_symbols.public_or_internal_field.required_modifiers = 
+dotnet_naming_symbols.public_or_internal_field.required_modifiers =
 
 dotnet_naming_symbols.private_or_protected_static_field.applicable_kinds = field
 dotnet_naming_symbols.private_or_protected_static_field.applicable_accessibilities = private, protected, protected_internal, private_protected
@@ -344,58 +340,58 @@ dotnet_naming_symbols.private_or_protected_static_field.required_modifiers = sta
 
 dotnet_naming_symbols.private_or_protected_field.applicable_kinds = field
 dotnet_naming_symbols.private_or_protected_field.applicable_accessibilities = private, protected, protected_internal, private_protected
-dotnet_naming_symbols.private_or_protected_field.required_modifiers = 
+dotnet_naming_symbols.private_or_protected_field.required_modifiers =
 
 dotnet_naming_symbols.type_parameter.applicable_kinds = type_parameter
 dotnet_naming_symbols.type_parameter.applicable_accessibilities = *
-dotnet_naming_symbols.type_parameter.required_modifiers = 
+dotnet_naming_symbols.type_parameter.required_modifiers =
 
 dotnet_naming_symbols.delegate.applicable_kinds = delegate
 dotnet_naming_symbols.delegate.applicable_accessibilities = *
-dotnet_naming_symbols.delegate.required_modifiers = 
+dotnet_naming_symbols.delegate.required_modifiers =
 
 dotnet_naming_symbols.local_function.applicable_kinds = local_function
 dotnet_naming_symbols.local_function.applicable_accessibilities = *
-dotnet_naming_symbols.local_function.required_modifiers = 
+dotnet_naming_symbols.local_function.required_modifiers =
 
 dotnet_naming_symbols.parameter_or_local.applicable_kinds = parameter, local
 dotnet_naming_symbols.parameter_or_local.applicable_accessibilities = *
-dotnet_naming_symbols.parameter_or_local.required_modifiers = 
+dotnet_naming_symbols.parameter_or_local.required_modifiers =
 
 dotnet_naming_symbols.all_other_items.applicable_kinds = *
 dotnet_naming_symbols.all_other_items.applicable_accessibilities = *
-dotnet_naming_symbols.all_other_items.required_modifiers = 
+dotnet_naming_symbols.all_other_items.required_modifiers =
 
 # Naming styles
 
-dotnet_naming_style.pascal_case.required_prefix = 
-dotnet_naming_style.pascal_case.required_suffix = 
-dotnet_naming_style.pascal_case.word_separator = 
+dotnet_naming_style.pascal_case.required_prefix =
+dotnet_naming_style.pascal_case.required_suffix =
+dotnet_naming_style.pascal_case.word_separator =
 dotnet_naming_style.pascal_case.capitalization = pascal_case
 
 dotnet_naming_style.pascal_case_with_i_prefix.required_prefix = I
-dotnet_naming_style.pascal_case_with_i_prefix.required_suffix = 
-dotnet_naming_style.pascal_case_with_i_prefix.word_separator = 
+dotnet_naming_style.pascal_case_with_i_prefix.required_suffix =
+dotnet_naming_style.pascal_case_with_i_prefix.word_separator =
 dotnet_naming_style.pascal_case_with_i_prefix.capitalization = pascal_case
 
-dotnet_naming_style.camel_case.required_prefix = 
-dotnet_naming_style.camel_case.required_suffix = 
-dotnet_naming_style.camel_case.word_separator = 
+dotnet_naming_style.camel_case.required_prefix =
+dotnet_naming_style.camel_case.required_suffix =
+dotnet_naming_style.camel_case.word_separator =
 dotnet_naming_style.camel_case.capitalization = camel_case
 
 dotnet_naming_style.camel_case_with_s_underscore_prefix.required_prefix = s_
-dotnet_naming_style.camel_case_with_s_underscore_prefix.required_suffix = 
-dotnet_naming_style.camel_case_with_s_underscore_prefix.word_separator = 
+dotnet_naming_style.camel_case_with_s_underscore_prefix.required_suffix =
+dotnet_naming_style.camel_case_with_s_underscore_prefix.word_separator =
 dotnet_naming_style.camel_case_with_s_underscore_prefix.capitalization = camel_case
 
 dotnet_naming_style.camel_case_with_underscore_prefix.required_prefix = _
-dotnet_naming_style.camel_case_with_underscore_prefix.required_suffix = 
-dotnet_naming_style.camel_case_with_underscore_prefix.word_separator = 
+dotnet_naming_style.camel_case_with_underscore_prefix.required_suffix =
+dotnet_naming_style.camel_case_with_underscore_prefix.word_separator =
 dotnet_naming_style.camel_case_with_underscore_prefix.capitalization = camel_case
 
 dotnet_naming_style.bad_symbol_kind.required_prefix = BAD_SYMBOL_KIND
-dotnet_naming_style.bad_symbol_kind.required_suffix = 
-dotnet_naming_style.bad_symbol_kind.word_separator = 
+dotnet_naming_style.bad_symbol_kind.required_suffix =
+dotnet_naming_style.bad_symbol_kind.word_separator =
 dotnet_naming_style.bad_symbol_kind.capitalization = all_upper
 
 #### Analyzers Rules reasonably strict defaults (see overrides at the bottom) ####
@@ -498,6 +494,9 @@ dotnet_diagnostic.CA1054.severity = silent
 # URI return values should not be strings
 dotnet_diagnostic.CA1055.severity = silent
 
+# URI properties should not be strings
+dotnet_diagnostic.CA1056.severity = suggestion
+
 # Validate arguments of public methods
 dotnet_diagnostic.CA1062.severity = silent
 
@@ -558,6 +557,9 @@ dotnet_diagnostic.CA1820.severity = silent
 # Avoid zero-length array allocations
 dotnet_diagnostic.CA1825.severity = suggestion
 
+# Use String.Contains(char) instead of String.Contains(string) with single characters
+dotnet_diagnostic.CA1847.severity = silent
+
 # Use the LoggerMessage delegates
 dotnet_diagnostic.CA1848.severity = silent
 
@@ -580,6 +582,8 @@ dotnet_diagnostic.CA1861.severity = suggestion
 dotnet_diagnostic.CA1862.severity = silent
 
 # Use 'string.Method(char)' instead of 'string.Method(string)' for string with single char
+dotnet_diagnostic.CA1865.severity = silent
+dotnet_diagnostic.CA1866.severity = silent
 dotnet_diagnostic.CA1867.severity = silent
 
 # Do not directly await a Task
@@ -587,6 +591,9 @@ dotnet_diagnostic.CA2007.severity = silent
 
 # Do not create tasks without passing a TaskScheduler
 dotnet_diagnostic.CA2008.severity = silent
+
+# Operator overloads have named alternates
+dotnet_diagnostic.CA2225.severity = silent
 
 # Pass System.Uri objects instead of strings
 dotnet_diagnostic.CA2234.severity = silent
@@ -770,6 +777,9 @@ dotnet_diagnostic.S3267.severity = suggestion
 
 # "IDisposable" should be implemented correctly (use CA1063 instead)
 dotnet_diagnostic.S3881.severity = none
+
+# "StartsWith" and "EndsWith" overloads that take a "char" should be used instead of the ones that take a "string" (use CA1866 instead)
+dotnet_diagnostic.S6610.severity = none
 
 # Controllers should not have mixed responsibilities
 dotnet_diagnostic.S6960.severity = none
