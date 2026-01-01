@@ -1,0 +1,13 @@
+<Solution>
+  <Folder Name="/Solution Items/">
+    <File Path=".editorconfig" />
+    <File Path="Directory.Build.props" />
+  </Folder>
+  <Folder Name="/src/">
+    <Project Path="src/FileServer/FileServer.csproj" />
+  </Folder>
+  <Folder Name="/tests/">
+    <Project Path="tests/FileServer.E2ETests/FileServer.E2ETests.csproj" />
+    <Project Path="tests/FileServer.Tests/FileServer.Tests.csproj" />
+  </Folder>
+</Solution>
