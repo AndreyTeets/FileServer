@@ -58,9 +58,8 @@ internal sealed class FileServerTestClient : IDisposable
         using HttpRequestMessage request = new(HttpMethod.Post, "/api/auth/login");
         request.Content = JsonContent.Create(new { Password = "123456789012" });
         using HttpResponseMessage response = await _httpClient.SendAsync(request);
+        response.EnsureSuccessStatusCode();
         _loginResponse = await response.Content.ReadFromJsonAsync<LoginResponse>();
-        Assert.That(response.StatusCode, Is.EqualTo(HttpStatusCode.OK));
-        Assert.That(_loginResponse, Is.Not.Null);
         return _loginResponse!;
     }
 
@@ -70,6 +69,7 @@ internal sealed class FileServerTestClient : IDisposable
         if (_loginResponse is not null)
             request.Headers.Add(Constants.AntiforgeryTokenHeaderName, _loginResponse.AntiforgeryToken);
         using HttpResponseMessage response = await _httpClient.SendAsync(request);
-        Assert.That(response.StatusCode, Is.EqualTo(HttpStatusCode.OK));
+        response.EnsureSuccessStatusCode();
+        _loginResponse = null;
     }
 }
