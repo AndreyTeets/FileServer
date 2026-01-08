@@ -79,25 +79,18 @@ internal sealed class AuthSystemTests : TestsBase
     [Test]
     public async Task Logout_DeletesAuthCookie_WhenUnauthorized()
     {
-        await Login();
-        await GetFileThatRequiresAuth();
+        await _fsTestClient.Login();
+        Assert.That(GetCookiesCount(), Is.Not.Zero);
+        await LogoutWithoutSendingAntiforgeryToken();
+        Assert.That(GetCookiesCount(), Is.Zero);
 
-        async Task Login()
+        async Task LogoutWithoutSendingAntiforgeryToken()
         {
-            await _fsTestClient.Login();
             using HttpResponseMessage response = await _fsTestClient.Post(
                 "/api/auth/logout", content: null, skipAntiforgeryTokenHeader: true);
             Assert.That(response.StatusCode, Is.EqualTo(HttpStatusCode.Unauthorized));
             Assert.That(await GetContent(response), Is.EqualTo(
                 @"""Failed to authenticate: Antiforgery token absent."""));
-        }
-
-        async Task GetFileThatRequiresAuth()
-        {
-            using HttpResponseMessage response = await _fsTestClient.Get("/api/files/download/file1.txt");
-            Assert.That(response.StatusCode, Is.EqualTo(HttpStatusCode.Unauthorized));
-            Assert.That(await GetContent(response), Is.EqualTo(
-                @"""Failed to authenticate: Auth token absent."""));
         }
     }
 
@@ -113,4 +106,6 @@ internal sealed class AuthSystemTests : TestsBase
             });
         return tokenService.EncodeToken(token);
     }
+
+    private int GetCookiesCount() => _fsTestClient.CookieContainer.GetAllCookies().Count;
 }
