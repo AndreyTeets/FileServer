@@ -77,6 +77,15 @@ internal sealed class AuthSystemTests : TestsBase
     }
 
     [Test]
+    public async Task Logout_DeletesAuthCookie_WhenAuthorized()
+    {
+        await _fsTestClient.Login();
+        Assert.That(GetCookiesCount(), Is.Not.Zero);
+        await _fsTestClient.Logout();
+        Assert.That(GetCookiesCount(), Is.Zero);
+    }
+
+    [Test]
     public async Task Logout_DeletesAuthCookie_WhenUnauthorized()
     {
         await _fsTestClient.Login();
