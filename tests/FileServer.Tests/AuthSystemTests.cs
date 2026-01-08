@@ -1,6 +1,7 @@
 ﻿using System.Net;
 using System.Net.Http.Headers;
 using System.Net.Mime;
+using System.Text;
 using FileServer.Models;
 using FileServer.Services;
 using Microsoft.Extensions.DependencyInjection;
@@ -39,6 +40,31 @@ internal sealed class AuthSystemTests : TestsBase
         Assert.That(response.StatusCode, Is.EqualTo(HttpStatusCode.Unauthorized));
         Assert.That(await GetContent(response), Is.EqualTo(
             @"""Failed to authenticate: Antiforgery token absent."""));
+    }
+
+    [Test]
+    public async Task Auth_WithMalformed_CookieToken_Fails()
+    {
+        await _fsTestClient.Login();
+        _fsTestClient.CookieContainer.SetCookies(
+            _testClient.BaseAddress!,
+            $"{Constants.AuthTokenCookieName}={CreateMalformedToken()}");
+
+        using HttpResponseMessage response = await _fsTestClient.Get("/api/files/download/file1.txt");
+        Assert.That(response.StatusCode, Is.EqualTo(HttpStatusCode.Unauthorized));
+        Assert.That(await GetContent(response), Is.EqualTo(
+            @"""Failed to authenticate: Auth token not valid."""));
+    }
+
+    [Test]
+    public async Task Auth_WithMalformed_AntiforgeryToken_Fails()
+    {
+        LoginResponse loginResponse = await _fsTestClient.Login();
+        loginResponse.AntiforgeryToken = CreateMalformedToken();
+        using HttpResponseMessage response = await _fsTestClient.Get("/api/files/download/file1.txt");
+        Assert.That(response.StatusCode, Is.EqualTo(HttpStatusCode.Unauthorized));
+        Assert.That(await GetContent(response), Is.EqualTo(
+            @"""Failed to authenticate: Antiforgery token not valid."""));
     }
 
     [Test]
@@ -154,6 +180,13 @@ internal sealed class AuthSystemTests : TestsBase
         static StringContent? CreateJsonContent(string? jsonStr) => jsonStr is not null
             ? new(jsonStr, MediaTypeHeaderValue.Parse(MediaTypeNames.Application.Json))
             : null;
+    }
+
+    private static string CreateMalformedToken()
+    {
+        const string tokenJson = /*lang=json,strict*/ @"{ ""somefield"": ""111"" }";
+        string tokenBase64String = Convert.ToBase64String(Encoding.UTF8.GetBytes(tokenJson));
+        return WebUtility.UrlEncode(tokenBase64String);
     }
 
     private static string CreateExpiredToken(string type)
