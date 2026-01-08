@@ -60,7 +60,7 @@ internal sealed class ClientSideTests : PageTest
     {
         await Page.GetByRole(AriaRole.Button, new() { Name = "AuthPage" }).ClickAsync();
         await Page.GetByRole(AriaRole.Textbox).ClickAsync();
-        await Page.GetByRole(AriaRole.Textbox).FillAsync("012345678912");
+        await Page.GetByRole(AriaRole.Textbox).FillAsync("123456789012");
         await Page.GetByRole(AriaRole.Button, new() { Name = "Login" }).ClickAsync();
     }
 

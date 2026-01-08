@@ -111,8 +111,8 @@ internal sealed class StartServerFixture
         env["FileServer__Settings__DownloadAnonDir"] = Path.GetFullPath($"{ServerProjDir}/bin/e2etests/fs_data/download_anon");
         env["FileServer__Settings__DownloadDir"] = Path.GetFullPath($"{ServerProjDir}/bin/e2etests/fs_data/download");
         env["FileServer__Settings__UploadDir"] = Path.GetFullPath($"{ServerProjDir}/bin/e2etests/fs_data/upload");
-        env["FileServer__Settings__SigningKey"] = "01234567890123456789";
-        env["FileServer__Settings__LoginKey"] = "012345678912";
+        env["FileServer__Settings__SigningKey"] = "12345678901234567890";
+        env["FileServer__Settings__LoginKey"] = "123456789012";
     }
 
     private static void CreateFilesAndDirectoriesRequiredByServerAndTests()

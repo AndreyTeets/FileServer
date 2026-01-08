@@ -26,7 +26,7 @@ internal static class SnapshotValues
         - button "AuthPage"
         - paragraph: "AuthPage:"
         - text: "Key:"
-        - textbox: "012345678912"
+        - textbox: "123456789012"
         - button "Login"
         """;
 
