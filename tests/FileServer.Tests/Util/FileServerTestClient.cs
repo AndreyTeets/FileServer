@@ -56,7 +56,7 @@ internal sealed class FileServerTestClient : IDisposable
     public async Task<LoginResponse> Login()
     {
         using HttpRequestMessage request = new(HttpMethod.Post, "/api/auth/login");
-        request.Content = JsonContent.Create(new { Password = "012345678912" });
+        request.Content = JsonContent.Create(new { Password = "123456789012" });
         using HttpResponseMessage response = await _httpClient.SendAsync(request);
         _loginResponse = await response.Content.ReadFromJsonAsync<LoginResponse>();
         Assert.That(response.StatusCode, Is.EqualTo(HttpStatusCode.OK));

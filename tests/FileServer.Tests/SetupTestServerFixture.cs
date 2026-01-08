@@ -80,8 +80,8 @@ internal sealed class SetUpTestServerFixture
         { $"{nameof(Settings)}:{nameof(Settings.DownloadAnonDir)}", Path.GetFullPath("fs_data/download_anon") },
         { $"{nameof(Settings)}:{nameof(Settings.DownloadDir)}", Path.GetFullPath("fs_data/download") },
         { $"{nameof(Settings)}:{nameof(Settings.UploadDir)}", Path.GetFullPath("fs_data/upload") },
-        { $"{nameof(Settings)}:{nameof(Settings.SigningKey)}", "01234567890123456789" },
-        { $"{nameof(Settings)}:{nameof(Settings.LoginKey)}", "012345678912" },
+        { $"{nameof(Settings)}:{nameof(Settings.SigningKey)}", "12345678901234567890" },
+        { $"{nameof(Settings)}:{nameof(Settings.LoginKey)}", "123456789012" },
         { $"{nameof(Settings)}:{nameof(Settings.TokensTtlSeconds)}", "30" },
     };
 
