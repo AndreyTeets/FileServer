@@ -3,10 +3,12 @@
 namespace FileServer.Configuration;
 
 internal sealed class Debouncer(
-    TimeSpan? waitTime = null)
+    TimeSpan? waitTime = null,
+    TimeSpan? disposeWaitTasksTimeout = null)
     : IDebouncer
 {
     private readonly TimeSpan _waitTime = waitTime ?? TimeSpan.FromMilliseconds(1000);
+    private readonly TimeSpan _disposeWaitTasksTimeout = disposeWaitTasksTimeout ?? TimeSpan.FromMilliseconds(1010);
     private readonly CancellationTokenSource _cts = new();
     private readonly ConcurrentDictionary<string, long> _counter = new();
     private readonly ConcurrentDictionary<string, int> _tasksCount = new();
@@ -23,7 +25,7 @@ internal sealed class Debouncer(
             using IDisposable _ = _cts;
             _disposed = true;
             _cts.Cancel();
-            WaitUntilAllTasksFinish();
+            WaitUntilAllTasksFinish(_disposeWaitTasksTimeout);
         }
     }
 
@@ -56,9 +58,9 @@ internal sealed class Debouncer(
         });
     }
 
-    private void WaitUntilAllTasksFinish()
+    private void WaitUntilAllTasksFinish(TimeSpan timeout)
     {
-        using CancellationTokenSource cts = new(TimeSpan.FromMilliseconds(1010));
+        using CancellationTokenSource cts = new(timeout);
         foreach (string category in _tasksCount.Keys)
             WaitUntilZeroTasksInCategory(category, cts.Token);
     }
