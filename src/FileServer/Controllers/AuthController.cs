@@ -1,5 +1,5 @@
 ﻿using FileServer.Configuration;
-using FileServer.Models;
+using FileServer.Models.Auth;
 using FileServer.Services;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;

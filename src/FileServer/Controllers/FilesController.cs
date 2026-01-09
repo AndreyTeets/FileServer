@@ -1,6 +1,6 @@
 ﻿using System.Security.Claims;
 using FileServer.Configuration;
-using FileServer.Models;
+using FileServer.Models.Files;
 using FileServer.Services;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http.Features;
@@ -9,7 +9,7 @@ using Microsoft.AspNetCore.WebUtilities;
 using Microsoft.Extensions.FileProviders;
 using Microsoft.Extensions.Options;
 using Microsoft.Net.Http.Headers;
-using FileInfo = FileServer.Models.FileInfo;
+using FileInfo = FileServer.Models.Files.FileInfo;
 
 namespace FileServer.Controllers;
 

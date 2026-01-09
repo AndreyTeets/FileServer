@@ -1,5 +1,6 @@
 ﻿using System.Text.Json.Serialization;
-using FileServer.Models;
+using FileServer.Models.Auth;
+using FileServer.Models.Files;
 
 namespace FileServer;
 

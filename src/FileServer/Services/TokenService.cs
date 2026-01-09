@@ -3,7 +3,7 @@ using System.Security.Cryptography;
 using System.Text;
 using System.Text.Json;
 using FileServer.Configuration;
-using FileServer.Models;
+using FileServer.Models.Auth;
 using Microsoft.Extensions.Options;
 
 namespace FileServer.Services;

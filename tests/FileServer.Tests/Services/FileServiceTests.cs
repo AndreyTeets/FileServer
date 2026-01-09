@@ -1,7 +1,7 @@
 ﻿using System.Text;
 using FileServer.Services;
 using Microsoft.Extensions.DependencyInjection;
-using FileInfo = FileServer.Models.FileInfo;
+using FileInfo = FileServer.Models.Files.FileInfo;
 
 namespace FileServer.Tests.Services;
 

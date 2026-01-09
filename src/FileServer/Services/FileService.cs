@@ -2,7 +2,7 @@
 using FileServer.Configuration;
 using Microsoft.Extensions.FileProviders;
 using Microsoft.Extensions.Options;
-using FileInfo = FileServer.Models.FileInfo;
+using FileInfo = FileServer.Models.Files.FileInfo;
 
 namespace FileServer.Services;
 

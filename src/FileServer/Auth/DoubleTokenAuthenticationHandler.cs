@@ -1,7 +1,7 @@
 ﻿using System.Security.Claims;
 using System.Text.Encodings.Web;
 using FileServer.Configuration;
-using FileServer.Models;
+using FileServer.Models.Auth;
 using FileServer.Services;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.Extensions.Options;

@@ -1,4 +1,4 @@
-﻿namespace FileServer.Models;
+﻿namespace FileServer.Models.Files;
 
 internal sealed class FileInfo
 {
