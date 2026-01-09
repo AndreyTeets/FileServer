@@ -9,12 +9,12 @@ internal sealed class Program
     {
         if (args.Length > 0)
         {
-            Utility.ShowVersionAndUsage();
+            AppInfo.ShowVersionAndUsage();
             return;
         }
 
         ILogger logger = Utility.CreateConsoleLogger<Program>();
-        logger.LogInformation(LogMessages.StartingServer, Utility.GetVersion(out string commit), commit);
+        logger.LogInformation(LogMessages.StartingServer, AppInfo.GetVersion(out string commit), commit);
 
         WebApplicationBuilder builder = WebApplication.CreateBuilder(args);
         builder.ConfigureSettings();
