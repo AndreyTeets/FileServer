@@ -111,7 +111,7 @@ internal sealed class AuthSystemTests : TestsBase
 
     private static string CreateExpiredToken(string type)
     {
-        TokenService tokenService = TestServer.Services.GetService<TokenService>()!;
+        TokenService tokenService = TestServer.Services.GetRequiredService<TokenService>();
         Token token = tokenService.CreateToken(
             new Claim()
             {

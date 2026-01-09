@@ -6,12 +6,12 @@ namespace FileServer.Tests;
 
 #pragma warning disable CA1001 // Types that own disposable fields should be disposable
 internal abstract class TestsBase : ILoggedTest
-#pragma warning restore CA1001 // Responsibility of NUnit to call the teardown method
+#pragma warning restore CA1001 // Remove when `dotnet format` is fixed (see https://github.com/dotnet/sdk/issues/44867)
 {
 #pragma warning disable CS8618 // Non-nullable variable must contain a non-null value when exiting constructor. Consider declaring it as nullable.
     private protected HttpClient _testClient;
     private protected FileServerTestClient _fsTestClient;
-#pragma warning restore CS8618 // NUnit setup will ensure it's initialized by the time it's used by tests
+#pragma warning restore CS8618 // Remove when `dotnet format` is fixed (see https://github.com/dotnet/sdk/issues/44867)
     protected static TestServer TestServer => SetUpTestServerFixture.Host!.GetTestServer();
 
     public StringBuilder LogsSb => SetUpTestServerFixture.LogsSb;

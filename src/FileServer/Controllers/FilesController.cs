@@ -73,14 +73,14 @@ internal sealed class FilesController(
     [ProducesResponseType(typeof(string), StatusCodes.Status409Conflict, "application/json")]
     public async Task<IResult> UploadFile()
     {
-        IHttpMaxRequestBodySizeFeature? bodySizeFeature = Context.Features.Get<IHttpMaxRequestBodySizeFeature>();
-        bodySizeFeature!.MaxRequestBodySize = null;
+        IHttpMaxRequestBodySizeFeature bodySizeFeature = Context.Features.GetRequiredFeature<IHttpMaxRequestBodySizeFeature>();
+        bodySizeFeature.MaxRequestBodySize = null;
 
         string? formDataBoundary = TryGetFormDataBoundary();
         if (formDataBoundary is null)
             return Results.BadRequest("Not a form-data request.");
 
-        (string? fileName, Stream fileContent) = await TryGetFirstFormDataFile(formDataBoundary!);
+        (string? fileName, Stream fileContent) = await TryGetFirstFormDataFile(formDataBoundary);
         if (fileName is null)
             return Results.BadRequest("No files in request.");
 
