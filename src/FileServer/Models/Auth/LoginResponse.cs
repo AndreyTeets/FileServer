@@ -1,4 +1,4 @@
-﻿namespace FileServer.Models;
+﻿namespace FileServer.Models.Auth;
 
 internal sealed class LoginResponse
 {

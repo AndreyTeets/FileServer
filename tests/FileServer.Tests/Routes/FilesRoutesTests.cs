@@ -1,7 +1,7 @@
 ﻿using System.Net;
 using System.Net.Http.Json;
 using System.Text;
-using FileServer.Models;
+using FileServer.Models.Files;
 using Microsoft.AspNetCore.Http;
 
 namespace FileServer.Tests.Routes;

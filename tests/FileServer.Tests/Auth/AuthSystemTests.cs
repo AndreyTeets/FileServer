@@ -1,6 +1,6 @@
 ﻿using System.Net;
 using System.Text;
-using FileServer.Models;
+using FileServer.Models.Auth;
 using FileServer.Services;
 using Microsoft.Extensions.DependencyInjection;
 

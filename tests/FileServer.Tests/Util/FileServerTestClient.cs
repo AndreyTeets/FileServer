@@ -1,6 +1,6 @@
 ﻿using System.Net;
 using System.Net.Http.Json;
-using FileServer.Models;
+using FileServer.Models.Auth;
 using Microsoft.AspNetCore.Http;
 
 namespace FileServer.Tests.Util;
