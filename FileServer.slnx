@@ -8,7 +8,9 @@
   </Folder>
   <Folder Name="/tests/">
     <File Path="tests/Directory.Build.props" />
-    <Project Path="tests/FileServer.E2ETests/FileServer.E2ETests.csproj" />
+    <Project Path="tests/FileServer.E2ETests/FileServer.E2ETests.csproj">
+      <BuildDependency Project="src/FileServer/FileServer.csproj" />
+    </Project>
     <Project Path="tests/FileServer.Tests/FileServer.Tests.csproj" />
   </Folder>
 </Solution>
