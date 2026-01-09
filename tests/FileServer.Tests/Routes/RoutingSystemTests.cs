@@ -1,7 +1,7 @@
 ﻿using System.Net;
 using System.Text.RegularExpressions;
 
-namespace FileServer.Tests;
+namespace FileServer.Tests.Routes;
 
 internal sealed class RoutingSystemTests : TestsBase
 {

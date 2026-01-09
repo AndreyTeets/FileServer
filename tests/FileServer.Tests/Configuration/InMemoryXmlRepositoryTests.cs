@@ -3,7 +3,7 @@ using FileServer.Configuration;
 using Microsoft.AspNetCore.DataProtection.Repositories;
 using Microsoft.AspNetCore.DataProtection.XmlEncryption;
 
-namespace FileServer.Tests;
+namespace FileServer.Tests.Configuration;
 
 internal sealed class InMemoryXmlRepositoryTests : TestsBase
 {

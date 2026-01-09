@@ -4,7 +4,7 @@ using System.Text;
 using FileServer.Models;
 using Microsoft.AspNetCore.Http;
 
-namespace FileServer.Tests;
+namespace FileServer.Tests.Routes;
 
 internal sealed class FilesRoutesTests : TestsBase
 {

@@ -3,7 +3,7 @@ using FileServer.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Options;
 
-namespace FileServer.Tests;
+namespace FileServer.Tests.Configuration;
 
 internal sealed class SettingsValidatorTests : TestsBase
 {

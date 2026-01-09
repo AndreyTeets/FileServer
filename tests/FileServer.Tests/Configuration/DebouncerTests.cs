@@ -1,7 +1,7 @@
 ﻿using System.Diagnostics;
 using FileServer.Configuration;
 
-namespace FileServer.Tests;
+namespace FileServer.Tests.Configuration;
 
 internal sealed class DebouncerTests : TestsBase
 {

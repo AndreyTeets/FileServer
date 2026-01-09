@@ -3,7 +3,7 @@ using FileServer.Services;
 using Microsoft.Extensions.DependencyInjection;
 using FileInfo = FileServer.Models.FileInfo;
 
-namespace FileServer.Tests;
+namespace FileServer.Tests.Services;
 
 internal sealed class FileServiceTests : TestsBase
 {

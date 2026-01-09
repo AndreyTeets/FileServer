@@ -4,7 +4,7 @@ using FileServer.Models;
 using FileServer.Services;
 using Microsoft.Extensions.DependencyInjection;
 
-namespace FileServer.Tests;
+namespace FileServer.Tests.Services;
 
 internal sealed class TokenServiceTests : TestsBase
 {
