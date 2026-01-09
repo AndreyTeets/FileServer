@@ -1,6 +1,6 @@
 ﻿namespace FileServer.Configuration;
 
-public class Settings
+internal sealed class Settings
 {
     public string ListenAddress { get; set; } = string.Empty;
     public int ListenPort { get; set; } = int.MinValue;

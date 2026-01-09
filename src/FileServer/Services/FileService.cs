@@ -6,7 +6,7 @@ using FileInfo = FileServer.Models.FileInfo;
 
 namespace FileServer.Services;
 
-public class FileService(
+internal sealed class FileService(
     IOptionsMonitor<Settings> options)
 {
     private readonly IOptionsMonitor<Settings> _options = options;

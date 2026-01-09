@@ -5,9 +5,9 @@ root = true
 [*]
 charset = utf-8
 indent_style = space
+indent_size = 4
 insert_final_newline = true
 trim_trailing_whitespace = true
-indent_size = 4
 
 ## Solution files
 [*.{sln}]
@@ -545,6 +545,9 @@ dotnet_diagnostic.CA1816.severity = suggestion
 # Test for empty strings using string length
 dotnet_diagnostic.CA1820.severity = silent
 
+# Mark members as static
+dotnet_diagnostic.CA1822.severity = suggestion
+
 # Avoid zero-length array allocations
 dotnet_diagnostic.CA1825.severity = suggestion
 
@@ -659,8 +662,8 @@ dotnet_diagnostic.MA0075.severity = silent
 # Do not use implicit culture-sensitive ToString in interpolated strings
 dotnet_diagnostic.MA0076.severity = silent
 
-# Optimize string method usage
-dotnet_diagnostic.MA0089.severity = suggestion
+# Optimize string method usage (use CA1866 instead)
+dotnet_diagnostic.MA0089.severity = none
 
 # Use the Regex source generator (use SYSLIB1045 instead)
 dotnet_diagnostic.MA0110.severity = none
@@ -677,7 +680,7 @@ dotnet_diagnostic.RCS1021.severity = none
 dotnet_diagnostic.RCS1070.severity = none
 
 # Add parentheses when necessary
-dotnet_diagnostic.RCS1123.severity = suggestion
+dotnet_diagnostic.RCS1123.severity = silent
 
 # Inline local variable
 dotnet_diagnostic.RCS1124.severity = suggestion
@@ -741,8 +744,8 @@ dotnet_diagnostic.S1135.severity = none
 # Constructors should only call non-overridable methods (use CA2214 instead)
 dotnet_diagnostic.S1699.severity = none
 
-# Methods and properties that don't access instance data should be static (more strict than CA1822)
-dotnet_diagnostic.S2325.severity = suggestion
+# Methods and properties that don't access instance data should be static (use CA1822 instead)
+dotnet_diagnostic.S2325.severity = none
 
 # Flags enumerations zero-value members should be named "None" (use CA1008 instead)
 dotnet_diagnostic.S2346.severity = none
@@ -755,6 +758,9 @@ dotnet_diagnostic.S3217.severity = none
 
 # Loops should be simplified with "LINQ" expressions
 dotnet_diagnostic.S3267.severity = suggestion
+
+# Exception types should be "public" (use CA1064 instead, which excludes executable assemblies)
+dotnet_diagnostic.S3871.severity = none
 
 # "IDisposable" should be implemented correctly (use CA1063 instead)
 dotnet_diagnostic.S3881.severity = none
