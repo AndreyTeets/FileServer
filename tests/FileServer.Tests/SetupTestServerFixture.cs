@@ -1,5 +1,6 @@
 ﻿using System.Text;
 using FileServer.Configuration;
+using FileServer.Configuration.Extensions;
 using FileServer.Tests.Util;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
