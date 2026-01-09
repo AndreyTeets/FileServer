@@ -82,9 +82,9 @@ internal static class Utility
     {
         string[] versionParts = typeof(Program).Assembly
             .GetCustomAttribute<AssemblyInformationalVersionAttribute>()
-            ?.InformationalVersion
-            ?.Split("+")
+            ?.InformationalVersion.Split("+")
             ?? [$"Missing {nameof(AssemblyInformationalVersionAttribute)}"];
+
         string version = versionParts[0];
         commit = versionParts.Length > 1
             ? versionParts[1][..Math.Min(10, versionParts[1].Length)]

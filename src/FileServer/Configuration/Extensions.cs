@@ -130,11 +130,11 @@ internal static class Extensions
                     .RequireUserName(Constants.MainUserName)
                     .Build());
 
-        AuthController authController = services.GetService<AuthController>()!;
+        AuthController authController = services.GetRequiredService<AuthController>();
         group.MapPost("/auth/login", authController.Login);
         group.MapPost("/auth/logout", authController.Logout);
 
-        FilesController filesController = services.GetService<FilesController>()!;
+        FilesController filesController = services.GetRequiredService<FilesController>();
         group.MapGet("/files/list", filesController.GetFilesList);
         group.MapGet("/files/downloadanon/{*filePath}", filesController.DownloadFileAnon);
         group.MapGet("/files/viewanon/{*filePath}", filesController.ViewFileAnon);
