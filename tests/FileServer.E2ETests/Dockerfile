@@ -12,4 +12,4 @@ COPY ["src/FileServer/", "src/FileServer/"]
 RUN dotnet build src/FileServer -c Release --no-restore
 COPY ["tests/FileServer.E2ETests/", "tests/FileServer.E2ETests/"]
 RUN dotnet build tests/FileServer.E2ETests -c Release --no-restore
-RUN dotnet test tests/FileServer.E2ETests -c Release --no-build
+RUN BROWSER="chromium" dotnet test --project tests/FileServer.E2ETests -c Release --no-build
