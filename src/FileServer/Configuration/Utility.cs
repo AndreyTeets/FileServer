@@ -18,7 +18,7 @@ internal static class Utility
     {
         X509Certificate2 cert = X509Certificate2.CreateFromPemFile(settings.CertFilePath, settings.CertKeyPath);
         if (OperatingSystem.IsWindows())
-        {
+        {   // Windows SCHANNEL doesn't work with EphemeralKeySet (see https://github.com/dotnet/runtime/issues/23749)
             using X509Certificate2 originalCert = cert;
             cert = X509CertificateLoader.LoadPkcs12(originalCert.Export(X509ContentType.Pkcs12), password: null);
         }
@@ -102,7 +102,7 @@ internal static class Utility
                 <no arguments>                Start the server.
                 <any other argument(s)>       Show version and usage and exit.
             """;
-#pragma warning restore MA0136 // Raw String contains an implicit end of line character
+#pragma warning restore MA0136 // Will be fixed by the code below
 
         msg = msg.Replace("\r", "").Replace("\n", Environment.NewLine);
         Console.WriteLine(msg);

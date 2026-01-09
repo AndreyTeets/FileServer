@@ -54,7 +54,7 @@ internal sealed class StartServerFixture
 #pragma warning disable IDE2001 // Embedded statements must be on their own line
         process.OutputDataReceived += (_, eventArgs) => { lock (outputLock) { output.AppendLine(eventArgs.Data); } };
         process.ErrorDataReceived += (_, eventArgs) => { lock (outputLock) { output.AppendLine(eventArgs.Data); } };
-#pragma warning restore IDE2001 // Embedded statements must be on their own line
+#pragma warning restore IDE2001 // Improves readability
         process.Start();
         process.BeginOutputReadLine();
         process.BeginErrorReadLine();

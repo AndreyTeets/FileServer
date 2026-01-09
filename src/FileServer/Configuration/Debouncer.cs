@@ -44,7 +44,7 @@ internal sealed class Debouncer(
         }
 
         _ = Task.Delay(_waitTime, _cts.Token).ContinueWith(task =>
-        {
+        {   // Skip execution if new actions in the same category have been queued since the function started
             try
             {
                 if (current == _counter[category])
@@ -77,4 +77,3 @@ internal interface IDebouncer : IDisposable
 {
     public void Debounce(string category, Action action);
 }
-#pragma warning restore MA0048 // File name must match type name
