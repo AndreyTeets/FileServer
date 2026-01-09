@@ -5,6 +5,7 @@ RUN curl -sSL https://dot.net/v1/dotnet-install.sh | bash /dev/stdin --install-d
 COPY ["Directory.Build.props", "global.json", ".editorconfig", "./"]
 COPY ["src/FileServer/FileServer.csproj", "src/FileServer/"]
 RUN dotnet restore src/FileServer
+COPY ["tests/Directory.Build.props", "tests/"]
 COPY ["tests/FileServer.E2ETests/FileServer.E2ETests.csproj", "tests/FileServer.E2ETests/"]
 RUN dotnet restore tests/FileServer.E2ETests
 

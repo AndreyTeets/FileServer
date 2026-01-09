@@ -51,6 +51,7 @@ COPY --from=dev-and-tests-runtime /usr/share/dotnet/shared /usr/share/dotnet/sha
 
 COPY ["Directory.Build.props", "global.json", ".editorconfig", "./"]
 COPY ["src/FileServer/FileServer.csproj", "src/FileServer/"]
+COPY ["tests/Directory.Build.props", "tests/"]
 COPY ["tests/FileServer.Tests/FileServer.Tests.csproj", "tests/FileServer.Tests/"]
 RUN dotnet restore tests/FileServer.Tests
 
