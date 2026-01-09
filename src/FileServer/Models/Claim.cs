@@ -1,6 +1,6 @@
 ﻿namespace FileServer.Models;
 
-public class Claim
+internal sealed class Claim
 {
     public required string User { get; set; }
     public required string Type { get; set; }

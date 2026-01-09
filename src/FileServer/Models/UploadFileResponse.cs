@@ -1,6 +1,6 @@
 ﻿namespace FileServer.Models;
 
-public class UploadFileResponse
+internal sealed class UploadFileResponse
 {
     public required string CreatedFileName { get; set; }
 }

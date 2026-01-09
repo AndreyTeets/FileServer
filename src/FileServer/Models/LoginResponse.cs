@@ -1,6 +1,6 @@
 ﻿namespace FileServer.Models;
 
-public class LoginResponse
+internal sealed class LoginResponse
 {
     public required LoginInfo LoginInfo { get; set; }
     public required string AntiforgeryToken { get; set; }

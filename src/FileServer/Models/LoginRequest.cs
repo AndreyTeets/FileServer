@@ -1,6 +1,6 @@
 ﻿namespace FileServer.Models;
 
-public class LoginRequest
+internal sealed class LoginRequest
 {
     public required string? Password { get; set; }
 }

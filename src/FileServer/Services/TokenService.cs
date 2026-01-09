@@ -8,7 +8,7 @@ using Microsoft.Extensions.Options;
 
 namespace FileServer.Services;
 
-public class TokenService(
+internal sealed class TokenService(
     IOptionsMonitor<Settings> options)
 {
     private readonly IOptionsMonitor<Settings> _options = options;
