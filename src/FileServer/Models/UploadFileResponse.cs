@@ -2,5 +2,5 @@
 
 public class UploadFileResponse
 {
-    public string? CreatedFileName { get; set; }
+    public required string CreatedFileName { get; set; }
 }

@@ -22,9 +22,9 @@ internal sealed class DoubleTokenAuthenticationHandler(
         Token? authToken = TryGetValidToken(Constants.AuthClaimType, out string? authTokenError);
         Token? antiforgeryToken = TryGetValidToken(Constants.AntiforgeryClaimType, out string? antiforgeryTokenError);
         if (authToken is not null && antiforgeryToken is not null
-            && authToken.Claim!.User == antiforgeryToken.Claim!.User)
+            && authToken.Claim.User == antiforgeryToken.Claim.User)
         {
-            return Task.FromResult(AuthenticateResult.Success(CreateAuthTicket(authToken.Claim.User!)));
+            return Task.FromResult(AuthenticateResult.Success(CreateAuthTicket(authToken.Claim.User)));
         }
         return Task.FromResult(AuthenticateResult.Fail(CreateAuthErrorMessage()));
 
@@ -36,7 +36,7 @@ internal sealed class DoubleTokenAuthenticationHandler(
     protected override async Task HandleChallengeAsync(AuthenticationProperties properties)
     {
         AuthenticateResult authResult = await HandleAuthenticateOnceSafeAsync();
-        Response.StatusCode = 401;
+        Response.StatusCode = StatusCodes.Status401Unauthorized;
         Response.Cookies.Delete(Constants.AuthTokenCookieName, StaticSettings.GetAuthTokenCookieOptions(Request.Host.Host));
         await Response.WriteAsJsonAsync("Failed to authenticate: " + authResult.Failure!.Message, Jsc.Default.String);
     }
@@ -48,9 +48,12 @@ internal sealed class DoubleTokenAuthenticationHandler(
         if (encodedTokenString is not null)
         {
             Token? token = _tokenService.TryDecodeToken(encodedTokenString);
-            if (token is not null && _tokenService.TokenIsValid(token) && token.Claim!.Type == tokenType)
+            if (token is null)
+                error = $"{tokenType} token malformed.";
+            else if (!(_tokenService.TokenIsValid(token) && token.Claim.Type == tokenType))
+                error = $"{tokenType} token not valid.";
+            else
                 return token;
-            error = $"{tokenType} token not valid.";
         }
         else
         {

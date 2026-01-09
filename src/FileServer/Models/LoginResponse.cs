@@ -2,6 +2,6 @@
 
 public class LoginResponse
 {
-    public LoginInfo? LoginInfo { get; set; }
-    public string? AntiforgeryToken { get; set; }
+    public required LoginInfo LoginInfo { get; set; }
+    public required string AntiforgeryToken { get; set; }
 }

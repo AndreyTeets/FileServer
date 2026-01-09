@@ -2,7 +2,7 @@
 
 public class Claim
 {
-    public string? User { get; set; }
-    public string? Type { get; set; }
-    public DateTime? Expires { get; set; }
+    public required string User { get; set; }
+    public required string Type { get; set; }
+    public required DateTime Expires { get; set; }
 }

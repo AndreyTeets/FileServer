@@ -60,7 +60,7 @@ internal sealed class AuthSystemTests : TestsBase
         using HttpResponseMessage response = await _fsTestClient.Get("/api/files/download/file1.txt");
         Assert.That(response.StatusCode, Is.EqualTo(HttpStatusCode.Unauthorized));
         Assert.That(await GetContent(response), Is.EqualTo(
-            @"""Failed to authenticate: Antiforgery token not valid."""));
+            @"""Failed to authenticate: Antiforgery token malformed."""));
     }
 
     [Test]
@@ -74,7 +74,7 @@ internal sealed class AuthSystemTests : TestsBase
         using HttpResponseMessage response = await _fsTestClient.Get("/api/files/download/file1.txt");
         Assert.That(response.StatusCode, Is.EqualTo(HttpStatusCode.Unauthorized));
         Assert.That(await GetContent(response), Is.EqualTo(
-            @"""Failed to authenticate: Auth token not valid."""));
+            @"""Failed to authenticate: Auth token malformed."""));
     }
 
     [Test]

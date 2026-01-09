@@ -5,6 +5,7 @@ namespace FileServer;
 
 [JsonSourceGenerationOptions(
     WriteIndented = true,
+    RespectNullableAnnotations = true,
     PropertyNamingPolicy = JsonKnownNamingPolicy.CamelCase,
     GenerationMode = JsonSourceGenerationMode.Default)]
 [JsonSerializable(typeof(GetFilesListResponse))]
