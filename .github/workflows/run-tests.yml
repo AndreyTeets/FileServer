@@ -78,13 +78,14 @@ jobs:
         run: dotnet format --verify-no-changes --no-restore
 
       - name: Run tests
-        run: dotnet test tests/FileServer.Tests -c ${{ matrix.netcfg }} --no-build
+        run: dotnet test --project tests/FileServer.Tests -c ${{ matrix.netcfg }} --no-build
 
       - name: Install Playwright
         run: pwsh tests/FileServer.E2ETests/bin/${{ matrix.netcfg }}/net10.0/playwright.ps1 install --with-deps --only-shell ${{ matrix.browser }}
 
       - name: Run E2E tests
-        run: dotnet test tests/FileServer.E2ETests -c ${{ matrix.netcfg }} --no-build -- Playwright.BrowserName=${{ matrix.browser }}
+        shell: bash
+        run: BROWSER="${{ matrix.browser }}" dotnet test --project tests/FileServer.E2ETests -c ${{ matrix.netcfg }} --no-build
 
   run-container-tests:
     name: run-container-tests (${{ matrix.runner }})

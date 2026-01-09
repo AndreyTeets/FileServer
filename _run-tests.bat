@@ -10,7 +10,7 @@ dotnet format --verify-no-changes --no-restore -v q
 if %errorlevel% neq 0 goto :Error
 
 echo -^> Running tests...
-dotnet test tests/FileServer.Tests -c Release --no-build -v q
+dotnet test --project tests/FileServer.Tests -c Release --no-build -v q
 if %errorlevel% neq 0 goto :Error
 
 echo -^> Installing Playwright...
@@ -18,7 +18,8 @@ pwsh tests/FileServer.E2ETests/bin/Release/net10.0/playwright.ps1 install --only
 if %errorlevel% neq 0 goto :Error
 
 echo -^> Running E2E tests...
-dotnet test tests/FileServer.E2ETests -c Release --no-build -v q
+set "BROWSER=chromium"
+dotnet test --project tests/FileServer.E2ETests -c Release --no-build -v q
 if %errorlevel% neq 0 goto :Error
 
 :Success
