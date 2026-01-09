@@ -29,4 +29,3 @@ internal interface ILoggedTest
 {
     public StringBuilder LogsSb { get; }
 }
-#pragma warning restore MA0048 // File name must match type name

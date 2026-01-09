@@ -12,4 +12,3 @@ internal sealed class AuthException(string? message, Exception? innerException) 
     public AuthException(string? message) : this(message, innerException: null) { }
     public AuthException() : this(message: null, innerException: null) { }
 }
-#pragma warning restore MA0048 // File name must match type name
