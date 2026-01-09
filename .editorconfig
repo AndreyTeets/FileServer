@@ -796,6 +796,6 @@ dotnet_diagnostic.SYSLIB1045.severity = silent
 dotnet_diagnostic.MA0009.severity = silent
 
 ## Test data files should be left as is
-[tests/FileServer.Tests/fs_data/**]
+[tests/FileServer.Tests/TestData/**]
 insert_final_newline = false
 trim_trailing_whitespace = false

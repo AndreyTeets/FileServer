@@ -25,7 +25,7 @@
 
   <ItemGroup>
     <Content Include="..\..\src\FileServer\wwwroot\**\*" LinkBase="wwwroot" CopyToOutputDirectory="PreserveNewest" />
-    <Content Include="fs_data\**\*" CopyToOutputDirectory="PreserveNewest" />
+    <Content Include="TestData\fs_data\**\*" Visible="false" Link="fs_data\%(RecursiveDir)\%(Filename)%(Extension)" CopyToOutputDirectory="PreserveNewest" />
   </ItemGroup>
 
   <ItemGroup>
