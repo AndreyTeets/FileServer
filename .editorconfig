@@ -795,6 +795,11 @@ dotnet_diagnostic.SYSLIB1045.severity = silent
 # Add regex evaluation timeout
 dotnet_diagnostic.MA0009.severity = silent
 
+## Playwright snapshots line endings aren't a problem
+[tests/FileServer.E2ETests/Snapshots/**.cs]
+# Raw String contains an implicit end of line character
+dotnet_diagnostic.MA0136.severity = none
+
 ## Test data files should be left as is
 [tests/FileServer.Tests/TestData/**]
 insert_final_newline = false
