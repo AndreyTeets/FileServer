@@ -30,12 +30,12 @@ internal sealed class SettingsValidatorTests : TestsBase
     [TestCase(nameof(Settings.DownloadDir), "", "is not set")]
     [TestCase(nameof(Settings.UploadDir), null, "is not set")]
     [TestCase(nameof(Settings.UploadDir), "", "is not set")]
-    //[TestCase(nameof(Settings.SigningKey), null, "is not set")]
-    //[TestCase(nameof(Settings.SigningKey), "", "is not set")]
+    [TestCase(nameof(Settings.SigningKey), null, "is not set")]
+    [TestCase(nameof(Settings.SigningKey), "", "is not set")]
     [TestCase(nameof(Settings.SigningKey), "1234567890123456789", "length < 20")]
     [TestCase(nameof(Settings.SigningKey), "12345678901234567890123456789012345678901234567890123456789012345", "length > 64")]
-    //[TestCase(nameof(Settings.LoginKey), null, "is not set")]
-    //[TestCase(nameof(Settings.LoginKey), "", "is not set")]
+    [TestCase(nameof(Settings.LoginKey), null, "is not set")]
+    [TestCase(nameof(Settings.LoginKey), "", "is not set")]
     [TestCase(nameof(Settings.LoginKey), "12345678901", "length < 12")]
     [TestCase(nameof(Settings.TokensTtlSeconds), int.MinValue, "is not set")]
     public async Task Validate_Fails_OnInvalidPropValue(
@@ -53,11 +53,7 @@ internal sealed class SettingsValidatorTests : TestsBase
     [Test]
     public async Task Validate_FailsAndReportsAllProblems_OnUnsetProps()
     {
-        ValidateOptionsResult res = _validator.Validate(name: null, new Settings()
-        {
-            SigningKey = "12345678901234567890",
-            LoginKey = "123456789012",
-        });
+        ValidateOptionsResult res = _validator.Validate(name: null, new Settings());
         List<string> expectedProblems = [.. GetSettingsValidatedPropNames().Select(x => $"{x} is not set")];
 
         Assert.That(res.Failed, Is.True);
@@ -68,8 +64,8 @@ internal sealed class SettingsValidatorTests : TestsBase
             nameof(Settings.DownloadAnonDir),
             nameof(Settings.DownloadDir),
             nameof(Settings.UploadDir),
-            //nameof(Settings.SigningKey),
-            //nameof(Settings.LoginKey),
+            nameof(Settings.SigningKey),
+            nameof(Settings.LoginKey),
             nameof(Settings.TokensTtlSeconds),
         ];
     }

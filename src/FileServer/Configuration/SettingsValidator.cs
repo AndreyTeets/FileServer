@@ -44,12 +44,12 @@ internal sealed class SettingsValidator(
         if (!IsSet(settings.TokensTtlSeconds))
             problems.Add($"{nameof(Settings.TokensTtlSeconds)} is not set");
 
-        if (settings.SigningKey!.Length < MinSigningKeyLength)
+        if (IsSet(settings.SigningKey) && settings.SigningKey.Length < MinSigningKeyLength)
             problems.Add($"{nameof(Settings.SigningKey)} length < {MinSigningKeyLength}");
-        if (settings.SigningKey!.Length > MaxSigningKeyLength)
+        if (IsSet(settings.SigningKey) && settings.SigningKey.Length > MaxSigningKeyLength)
             problems.Add($"{nameof(Settings.SigningKey)} length > {MaxSigningKeyLength}");
 
-        if (settings.LoginKey!.Length < MinLoginKeyLength)
+        if (IsSet(settings.LoginKey) && settings.LoginKey.Length < MinLoginKeyLength)
             problems.Add($"{nameof(Settings.LoginKey)} length < {MinLoginKeyLength}");
 
         return problems.Count == 0;
