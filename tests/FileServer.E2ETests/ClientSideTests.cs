@@ -1,6 +1,6 @@
-﻿using Microsoft.Playwright;
+﻿using FileServer.E2ETests.Snapshots;
+using Microsoft.Playwright;
 using Microsoft.Playwright.NUnit;
-using S = FileServer.E2ETests.Snapshots.SnapshotValues;
 
 namespace FileServer.E2ETests;
 
@@ -32,25 +32,25 @@ internal sealed class ClientSideTests : PageTest
     {
         await OpenInitialPage();
         await Expect(Page).ToHaveTitleAsync("Files");
-        await Expect(Page.Locator("body")).ToMatchAriaSnapshotAsync(S.After_OpenInitialPage);
+        await Expect(Page.Locator("body")).ToMatchAriaSnapshotAsync(new AfterOpenInitialPageSnapshot());
 
         Assert.That(await GetContentForLastFileOnDownloadPage(), Is.EqualTo("test_anonfile1_content"));
-        await Expect(Page.Locator("body")).ToMatchAriaSnapshotAsync(S.After_OpenDownloadPageNoAuth);
+        await Expect(Page.Locator("body")).ToMatchAriaSnapshotAsync(new AfterOpenDownloadPageNoAuthSnapshot());
 
         await Login();
-        await Expect(Page.Locator("body")).ToMatchAriaSnapshotAsync(S.After_Login);
+        await Expect(Page.Locator("body")).ToMatchAriaSnapshotAsync(new AfterLoginSnapshot());
 
         await UploadTestFile();
-        await Expect(Page.Locator("body")).ToMatchAriaSnapshotAsync(S.After_UploadFileSuccessfully);
+        await Expect(Page.Locator("body")).ToMatchAriaSnapshotAsync(new AfterUploadFileSuccessfullySnapshot());
 
         await UploadTestFile();
-        await Expect(Page.Locator("body")).ToMatchAriaSnapshotAsync(S.After_UploadFileWithError);
+        await Expect(Page.Locator("body")).ToMatchAriaSnapshotAsync(new AfterUploadFileWithErrorSnapshot());
 
         Assert.That(await GetContentForLastFileOnDownloadPage(), Is.EqualTo("test_file1_content"));
-        await Expect(Page.Locator("body")).ToMatchAriaSnapshotAsync(S.After_OpenDownloadPageWithAuth);
+        await Expect(Page.Locator("body")).ToMatchAriaSnapshotAsync(new AfterOpenDownloadPageWithAuthSnapshot());
 
         await Logout();
-        await Expect(Page.Locator("body")).ToMatchAriaSnapshotAsync(S.After_Logout);
+        await Expect(Page.Locator("body")).ToMatchAriaSnapshotAsync(new AfterLogoutSnapshot());
     }
 
     private async Task OpenInitialPage() =>
