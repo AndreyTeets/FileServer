@@ -21,14 +21,15 @@ internal sealed class AuthSystemTests : TestsBase
     }
 
     [Test]
-    public async Task Auth_WithAbsent_CookieToken_Fails()
+    public async Task Auth_ReportsAllProblems_WhenBothTokensAreBad()
     {
         await _fsTestClient.Login();
         _fsTestClient.CookieContainer = new();
-        using HttpResponseMessage response = await _fsTestClient.Get("/api/files/download/file1.txt");
+        using HttpResponseMessage response = await _fsTestClient.Get(
+            "/api/files/download/file1.txt", skipAntiforgeryTokenHeader: true);
         Assert.That(response.StatusCode, Is.EqualTo(HttpStatusCode.Unauthorized));
         Assert.That(await GetContent(response), Is.EqualTo(
-            @"""Failed to authenticate: Auth token absent."""));
+            @"""Failed to authenticate: Auth token absent. Antiforgery token absent."""));
     }
 
     [Test]
@@ -43,17 +44,14 @@ internal sealed class AuthSystemTests : TestsBase
     }
 
     [Test]
-    public async Task Auth_WithMalformed_CookieToken_Fails()
+    public async Task Auth_WithAbsent_CookieToken_Fails()
     {
         await _fsTestClient.Login();
-        _fsTestClient.CookieContainer.SetCookies(
-            _testClient.BaseAddress!,
-            $"{Constants.AuthTokenCookieName}={CreateMalformedToken()}");
-
+        _fsTestClient.CookieContainer = new();
         using HttpResponseMessage response = await _fsTestClient.Get("/api/files/download/file1.txt");
         Assert.That(response.StatusCode, Is.EqualTo(HttpStatusCode.Unauthorized));
         Assert.That(await GetContent(response), Is.EqualTo(
-            @"""Failed to authenticate: Auth token not valid."""));
+            @"""Failed to authenticate: Auth token absent."""));
     }
 
     [Test]
@@ -68,12 +66,12 @@ internal sealed class AuthSystemTests : TestsBase
     }
 
     [Test]
-    public async Task Auth_WithNotValid_CookieToken_Fails()
+    public async Task Auth_WithMalformed_CookieToken_Fails()
     {
         await _fsTestClient.Login();
         _fsTestClient.CookieContainer.SetCookies(
             _testClient.BaseAddress!,
-            $"{Constants.AuthTokenCookieName}={CreateExpiredToken(Constants.AuthClaimType)}");
+            $"{Constants.AuthTokenCookieName}={CreateMalformedToken()}");
 
         using HttpResponseMessage response = await _fsTestClient.Get("/api/files/download/file1.txt");
         Assert.That(response.StatusCode, Is.EqualTo(HttpStatusCode.Unauthorized));
@@ -93,42 +91,17 @@ internal sealed class AuthSystemTests : TestsBase
     }
 
     [Test]
-    public async Task Auth_ReportsAllProblems_WhenBothTokensAreBad()
+    public async Task Auth_WithNotValid_CookieToken_Fails()
     {
         await _fsTestClient.Login();
-        _fsTestClient.CookieContainer = new();
-        using HttpResponseMessage response = await _fsTestClient.Get(
-            "/api/files/download/file1.txt", skipAntiforgeryTokenHeader: true);
+        _fsTestClient.CookieContainer.SetCookies(
+            _testClient.BaseAddress!,
+            $"{Constants.AuthTokenCookieName}={CreateExpiredToken(Constants.AuthClaimType)}");
+
+        using HttpResponseMessage response = await _fsTestClient.Get("/api/files/download/file1.txt");
         Assert.That(response.StatusCode, Is.EqualTo(HttpStatusCode.Unauthorized));
         Assert.That(await GetContent(response), Is.EqualTo(
-            @"""Failed to authenticate: Auth token absent. Antiforgery token absent."""));
-    }
-
-    [Test]
-    public async Task Logout_DeletesAuthCookie_WhenAuthorized()
-    {
-        await _fsTestClient.Login();
-        Assert.That(GetCookiesCount(), Is.Not.Zero);
-        await _fsTestClient.Logout();
-        Assert.That(GetCookiesCount(), Is.Zero);
-    }
-
-    [Test]
-    public async Task Logout_DeletesAuthCookie_WhenUnauthorized()
-    {
-        await _fsTestClient.Login();
-        Assert.That(GetCookiesCount(), Is.Not.Zero);
-        await LogoutWithoutSendingAntiforgeryToken();
-        Assert.That(GetCookiesCount(), Is.Zero);
-
-        async Task LogoutWithoutSendingAntiforgeryToken()
-        {
-            using HttpResponseMessage response = await _fsTestClient.Post(
-                "/api/auth/logout", content: null, skipAntiforgeryTokenHeader: true);
-            Assert.That(response.StatusCode, Is.EqualTo(HttpStatusCode.Unauthorized));
-            Assert.That(await GetContent(response), Is.EqualTo(
-                @"""Failed to authenticate: Antiforgery token absent."""));
-        }
+            @"""Failed to authenticate: Auth token not valid."""));
     }
 
     [Test]
@@ -180,6 +153,33 @@ internal sealed class AuthSystemTests : TestsBase
         static StringContent? CreateJsonContent(string? jsonStr) => jsonStr is not null
             ? new(jsonStr, MediaTypeHeaderValue.Parse(MediaTypeNames.Application.Json))
             : null;
+    }
+
+    [Test]
+    public async Task Logout_DeletesAuthCookie_WhenAuthorized()
+    {
+        await _fsTestClient.Login();
+        Assert.That(GetCookiesCount(), Is.Not.Zero);
+        await _fsTestClient.Logout();
+        Assert.That(GetCookiesCount(), Is.Zero);
+    }
+
+    [Test]
+    public async Task Logout_DeletesAuthCookie_WhenUnauthorized()
+    {
+        await _fsTestClient.Login();
+        Assert.That(GetCookiesCount(), Is.Not.Zero);
+        await LogoutWithoutSendingAntiforgeryToken();
+        Assert.That(GetCookiesCount(), Is.Zero);
+
+        async Task LogoutWithoutSendingAntiforgeryToken()
+        {
+            using HttpResponseMessage response = await _fsTestClient.Post(
+                "/api/auth/logout", content: null, skipAntiforgeryTokenHeader: true);
+            Assert.That(response.StatusCode, Is.EqualTo(HttpStatusCode.Unauthorized));
+            Assert.That(await GetContent(response), Is.EqualTo(
+                @"""Failed to authenticate: Antiforgery token absent."""));
+        }
     }
 
     private static string CreateMalformedToken()

@@ -43,17 +43,25 @@ internal sealed class FilesRoutesTests : TestsBase
     }
 
     [Test]
-    public async Task DownloadAnon_NoAuth_Works()
+    public async Task Download_NoAuth_Fails()
     {
-        using HttpResponseMessage response = await _fsTestClient.Get("/api/files/downloadanon/anonfile1.txt");
-        Assert.That(response.StatusCode, Is.EqualTo(HttpStatusCode.OK));
-        Assert.That(await GetContent(response), Is.EqualTo("test_anonfile1_content"));
+        using HttpResponseMessage response = await _fsTestClient.Get("/api/files/download/file1.txt");
+        Assert.That(response.StatusCode, Is.EqualTo(HttpStatusCode.Unauthorized));
     }
 
     [Test]
-    public async Task ViewAnon_NoAuth_Works()
+    public async Task Download_WithAuth_Works()
     {
-        using HttpResponseMessage response = await _fsTestClient.Get("/api/files/viewanon/anonfile1.txt");
+        await _fsTestClient.Login();
+        using HttpResponseMessage response = await _fsTestClient.Get("/api/files/download/file1.txt");
+        Assert.That(response.StatusCode, Is.EqualTo(HttpStatusCode.OK));
+        Assert.That(await GetContent(response), Is.EqualTo("test_file1_content"));
+    }
+
+    [Test]
+    public async Task DownloadAnon_NoAuth_Works()
+    {
+        using HttpResponseMessage response = await _fsTestClient.Get("/api/files/downloadanon/anonfile1.txt");
         Assert.That(response.StatusCode, Is.EqualTo(HttpStatusCode.OK));
         Assert.That(await GetContent(response), Is.EqualTo("test_anonfile1_content"));
     }
@@ -68,35 +76,10 @@ internal sealed class FilesRoutesTests : TestsBase
     }
 
     [Test]
-    public async Task ViewAnon_WithAuth_Works()
-    {
-        await _fsTestClient.Login();
-        using HttpResponseMessage response = await _fsTestClient.Get("/api/files/viewanon/anonfile1.txt");
-        Assert.That(response.StatusCode, Is.EqualTo(HttpStatusCode.OK));
-        Assert.That(await GetContent(response), Is.EqualTo("test_anonfile1_content"));
-    }
-
-    [Test]
-    public async Task Download_NoAuth_Fails()
-    {
-        using HttpResponseMessage response = await _fsTestClient.Get("/api/files/download/file1.txt");
-        Assert.That(response.StatusCode, Is.EqualTo(HttpStatusCode.Unauthorized));
-    }
-
-    [Test]
     public async Task View_NoAuth_Fails()
     {
         using HttpResponseMessage response = await _fsTestClient.Get("/api/files/view/file1.txt");
         Assert.That(response.StatusCode, Is.EqualTo(HttpStatusCode.Unauthorized));
-    }
-
-    [Test]
-    public async Task Download_WithAuth_Works()
-    {
-        await _fsTestClient.Login();
-        using HttpResponseMessage response = await _fsTestClient.Get("/api/files/download/file1.txt");
-        Assert.That(response.StatusCode, Is.EqualTo(HttpStatusCode.OK));
-        Assert.That(await GetContent(response), Is.EqualTo("test_file1_content"));
     }
 
     [Test]
@@ -106,6 +89,23 @@ internal sealed class FilesRoutesTests : TestsBase
         using HttpResponseMessage response = await _fsTestClient.Get("/api/files/view/file1.txt");
         Assert.That(response.StatusCode, Is.EqualTo(HttpStatusCode.OK));
         Assert.That(await GetContent(response), Is.EqualTo("test_file1_content"));
+    }
+
+    [Test]
+    public async Task ViewAnon_NoAuth_Works()
+    {
+        using HttpResponseMessage response = await _fsTestClient.Get("/api/files/viewanon/anonfile1.txt");
+        Assert.That(response.StatusCode, Is.EqualTo(HttpStatusCode.OK));
+        Assert.That(await GetContent(response), Is.EqualTo("test_anonfile1_content"));
+    }
+
+    [Test]
+    public async Task ViewAnon_WithAuth_Works()
+    {
+        await _fsTestClient.Login();
+        using HttpResponseMessage response = await _fsTestClient.Get("/api/files/viewanon/anonfile1.txt");
+        Assert.That(response.StatusCode, Is.EqualTo(HttpStatusCode.OK));
+        Assert.That(await GetContent(response), Is.EqualTo("test_anonfile1_content"));
     }
 
     [Test]
