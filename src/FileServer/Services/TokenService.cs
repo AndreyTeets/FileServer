@@ -21,12 +21,9 @@ public class TokenService(
 
     public bool TokenIsValid(Token token)
     {
-        string signature = ComputeClaimSignature(token.Claim!);
-        if (token.Signature != signature)
-            return false;
-        if (DateTime.UtcNow > token.Claim!.Expires!)
-            return false;
-        return true;
+        string claimSignature = ComputeClaimSignature(token.Claim);
+        return token.Signature == claimSignature
+            && token.Claim.Expires > DateTime.UtcNow;
     }
 
     public string EncodeToken(Token token)

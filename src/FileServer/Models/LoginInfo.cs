@@ -2,6 +2,6 @@
 
 public class LoginInfo
 {
-    public string? User { get; set; }
-    public DateTime? TokensExpire { get; set; }
+    public required string User { get; set; }
+    public required DateTime TokensExpire { get; set; }
 }

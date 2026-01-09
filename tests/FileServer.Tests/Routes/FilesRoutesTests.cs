@@ -28,7 +28,7 @@ internal sealed class FilesRoutesTests : TestsBase
         Assert.That(response.StatusCode, Is.EqualTo(HttpStatusCode.OK));
         GetFilesListResponse? files = await response.Content.ReadFromJsonAsync<GetFilesListResponse>();
         Assert.That(files, Is.Not.Null);
-        Assert.That(files.Files!.Select(x => x.Name), Is.EquivalentTo(["anonfile1.txt"]));
+        Assert.That(files.Files.Select(x => x.Name), Is.EquivalentTo(["anonfile1.txt"]));
     }
 
     [Test]
@@ -39,7 +39,7 @@ internal sealed class FilesRoutesTests : TestsBase
         Assert.That(response.StatusCode, Is.EqualTo(HttpStatusCode.OK));
         GetFilesListResponse? files = await response.Content.ReadFromJsonAsync<GetFilesListResponse>();
         Assert.That(files, Is.Not.Null);
-        Assert.That(files.Files!.Select(x => x.Name), Is.EquivalentTo(["anonfile1.txt", "file1.txt"]));
+        Assert.That(files.Files.Select(x => x.Name), Is.EquivalentTo(["anonfile1.txt", "file1.txt"]));
     }
 
     [Test]

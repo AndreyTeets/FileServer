@@ -20,19 +20,17 @@ internal sealed class AuthController(
     private HttpResponse Response => _httpContextAccessor.HttpContext!.Response;
 
     [ProducesResponseType(typeof(LoginResponse), StatusCodes.Status200OK, "application/json")]
-    [ProducesResponseType(typeof(string), StatusCodes.Status400BadRequest, "application/json")]
     [ProducesResponseType(typeof(string), StatusCodes.Status401Unauthorized, "application/json")]
     [AllowAnonymous]
     public IResult Login([FromBody] LoginRequest request)
     {
-        if (request is null)
-            return Results.BadRequest("Invalid login request.");
         if (request.Password != _options.CurrentValue.LoginKey)
             return Results.Unauthorized();
 
         const string user = Constants.MainUserName;
         DateTime tokensExpire = GetUtcNowWithoutFractionalSeconds()
             .AddSeconds(_options.CurrentValue.TokensTtlSeconds!.Value);
+
         Token authToken = _tokenService.CreateToken(
             new Claim()
             {
@@ -70,7 +68,7 @@ internal sealed class AuthController(
     private void SetAuthTokenCookie(Token token)
     {
         CookieOptions cookieOptions = StaticSettings.GetAuthTokenCookieOptions(Request.Host.Host);
-        cookieOptions.Expires = token.Claim!.Expires;
+        cookieOptions.Expires = (DateTimeOffset)token.Claim.Expires;
         Response.Cookies.Append(Constants.AuthTokenCookieName, _tokenService.EncodeToken(token), cookieOptions);
     }
 

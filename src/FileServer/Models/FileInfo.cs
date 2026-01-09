@@ -2,8 +2,8 @@
 
 public class FileInfo
 {
-    public string? Name { get; set; }
-    public string? Path { get; set; }
-    public long Size { get; set; }
+    public required string Name { get; set; }
+    public required string Path { get; set; }
+    public required long Size { get; set; }
     public string? Anon { get; set; }
 }

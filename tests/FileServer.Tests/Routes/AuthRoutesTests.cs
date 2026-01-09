@@ -33,7 +33,7 @@ internal sealed class AuthRoutesTests : TestsBase
             TokenService tokenService = TestServer.Services.GetRequiredService<TokenService>();
             Token? token = tokenService.TryDecodeToken(encodedTokenString);
             Assert.That(token, Is.Not.Null);
-            Assert.That(token.Claim?.User, Is.EqualTo(Constants.MainUserName));
+            Assert.That(token.Claim.User, Is.EqualTo(Constants.MainUserName));
             Assert.That(token.Claim.Type, Is.EqualTo(tokenType));
             Assert.That(token.Claim.Expires, Is.EqualTo(loginResponse.LoginInfo.TokensExpire));
             Assert.That(tokenService.TokenIsValid(token), Is.True);
@@ -42,8 +42,8 @@ internal sealed class AuthRoutesTests : TestsBase
 
     [TestCase(/*lang=json,strict*/ null, HttpStatusCode.BadRequest)]
     [TestCase(/*lang=json,strict*/ "", HttpStatusCode.BadRequest)]
-    [TestCase(/*lang=json,strict*/ "{}", HttpStatusCode.Unauthorized)]
-    [TestCase(/*lang=json,strict*/ @"{ ""SomeField"": ""111"" }", HttpStatusCode.Unauthorized)]
+    [TestCase(/*lang=json,strict*/ "{}", HttpStatusCode.BadRequest)]
+    [TestCase(/*lang=json,strict*/ @"{ ""SomeField"": ""111"" }", HttpStatusCode.BadRequest)]
     [TestCase(/*lang=json,strict*/ @"{ ""Password"": 111 }", HttpStatusCode.BadRequest)]
     [TestCase(/*lang=json,strict*/ @"{ ""Password"": { ""SomeField"": ""111"" } }", HttpStatusCode.BadRequest)]
     [TestCase(/*lang=json,strict*/ @"{ ""Password"": null }", HttpStatusCode.Unauthorized)]

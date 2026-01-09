@@ -27,7 +27,7 @@ internal sealed class TokenServiceTests : TestsBase
 
         Assert.That(decodedToken, Is.Not.Null);
         Assert.That(decodedToken.Claim, Is.Not.Null);
-        Assert.That(decodedToken.Claim.User, Is.EqualTo(token.Claim!.User));
+        Assert.That(decodedToken.Claim.User, Is.EqualTo(token.Claim.User));
         Assert.That(decodedToken.Claim.Type, Is.EqualTo(token.Claim.Type));
         Assert.That(decodedToken.Claim.Expires, Is.EqualTo(token.Claim.Expires));
         Assert.That(decodedToken.Signature, Is.EqualTo(token.Signature));
@@ -44,22 +44,16 @@ internal sealed class TokenServiceTests : TestsBase
         Assert.That(token.Claim, Is.Not.Null);
         Assert.That(token.Claim.User, Is.EqualTo("111"));
         Assert.That(token.Claim.Type, Is.EqualTo("111"));
-        Assert.That(token.Claim.Expires?.ToString("yyyy-MM-ddTHH:mm:ss.fffffffZ"), Is.EqualTo("2026-01-01T22:33:44.5556667Z"));
+        Assert.That(token.Claim.Expires.ToString("yyyy-MM-ddTHH:mm:ss.fffffffZ"), Is.EqualTo("2026-01-01T22:33:44.5556667Z"));
         Assert.That(token.Signature, Is.EqualTo("111"));
     }
 
+    [TestCase(/*lang=json,strict*/ "")]
     [TestCase(/*lang=json,strict*/ "{}")]
     [TestCase(/*lang=json,strict*/ @"{ ""somefield"": ""111"" }")]
     [TestCase(/*lang=json,strict*/ @"{ ""signature"": ""111"" }")]
     [TestCase(/*lang=json,strict*/ @"{ ""claim"": { }, ""signature"": ""111"" }")]
     [TestCase(/*lang=json,strict*/ @"{ ""claim"": { ""user"": ""111"" }, ""signature"": ""111"" }")]
-    public async Task Decode_ReturnsToken_ForMalformedJsonInput(string tokenJson)
-    {
-        Token? token = _tokenService.TryDecodeToken(EncodeTokenJson(tokenJson));
-        Assert.That(token, Is.Not.Null);
-    }
-
-    [TestCase(/*lang=json,strict*/ "")]
     public async Task Decode_ReturnsNull_ForMalformedInput(string tokenJson)
     {
         Token? token = _tokenService.TryDecodeToken(EncodeTokenJson(tokenJson));
