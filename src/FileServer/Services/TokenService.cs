@@ -51,7 +51,7 @@ public class TokenService(
     {
         string data = JsonSerializer.Serialize(claim, Jsc.Default.Claim);
         byte[] dataBytes = Encoding.UTF8.GetBytes(data);
-        byte[] keyBytes = Encoding.UTF8.GetBytes(_options.CurrentValue.SigningKey!);
+        byte[] keyBytes = Encoding.UTF8.GetBytes(_options.CurrentValue.SigningKey);
         using HMACSHA256 hmac = new(keyBytes);
         byte[] signatureBytes = hmac.ComputeHash(dataBytes);
         return Convert.ToBase64String(signatureBytes);

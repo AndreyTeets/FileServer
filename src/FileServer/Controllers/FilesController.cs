@@ -30,12 +30,12 @@ internal sealed class FilesController(
     [AllowAnonymous]
     public IResult GetFilesList()
     {
-        List<FileInfo> files = _fileService.GetDirectoryFilesListRecursive(_options.CurrentValue.DownloadAnonDir!);
+        List<FileInfo> files = _fileService.GetDirectoryFilesListRecursive(_options.CurrentValue.DownloadAnonDir);
         files.ForEach(x => x.Anon = "yes");
 
         if (IsAuthenticated())
         {
-            List<FileInfo> authFiles = _fileService.GetDirectoryFilesListRecursive(_options.CurrentValue.DownloadDir!);
+            List<FileInfo> authFiles = _fileService.GetDirectoryFilesListRecursive(_options.CurrentValue.DownloadDir);
             authFiles.ForEach(x => x.Anon = "no");
             files.AddRange(authFiles);
         }
@@ -51,23 +51,23 @@ internal sealed class FilesController(
     [ProducesResponseType(typeof(string), StatusCodes.Status404NotFound, "application/json")]
     [AllowAnonymous]
     public IResult DownloadFileAnon([FromRoute] string filePath) =>
-        CreateGetFileResult(_options.CurrentValue.DownloadAnonDir!, "application/octet-stream", filePath);
+        CreateGetFileResult(_options.CurrentValue.DownloadAnonDir, "application/octet-stream", filePath);
 
     [ProducesResponseType(typeof(void), StatusCodes.Status200OK, "text/plain")]
     [ProducesResponseType(typeof(string), StatusCodes.Status404NotFound, "application/json")]
     [AllowAnonymous]
     public IResult ViewFileAnon([FromRoute] string filePath) =>
-        CreateGetFileResult(_options.CurrentValue.DownloadAnonDir!, "text/plain", filePath);
+        CreateGetFileResult(_options.CurrentValue.DownloadAnonDir, "text/plain", filePath);
 
     [ProducesResponseType(typeof(void), StatusCodes.Status200OK, "application/octet-stream")]
     [ProducesResponseType(typeof(string), StatusCodes.Status404NotFound, "application/json")]
     public IResult DownloadFile([FromRoute] string filePath) =>
-        CreateGetFileResult(_options.CurrentValue.DownloadDir!, "application/octet-stream", filePath);
+        CreateGetFileResult(_options.CurrentValue.DownloadDir, "application/octet-stream", filePath);
 
     [ProducesResponseType(typeof(void), StatusCodes.Status200OK, "text/plain")]
     [ProducesResponseType(typeof(string), StatusCodes.Status404NotFound, "application/json")]
     public IResult ViewFile([FromRoute] string filePath) =>
-        CreateGetFileResult(_options.CurrentValue.DownloadDir!, "text/plain", filePath);
+        CreateGetFileResult(_options.CurrentValue.DownloadDir, "text/plain", filePath);
 
     [ProducesResponseType(typeof(void), StatusCodes.Status200OK, "application/json")]
     [ProducesResponseType(typeof(string), StatusCodes.Status409Conflict, "application/json")]

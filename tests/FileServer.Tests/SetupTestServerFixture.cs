@@ -40,8 +40,8 @@ internal sealed class SetUpTestServerFixture
                 .ConfigureServices(services =>
                 {
                     services.Configure<Settings>(configuration.GetSection(nameof(Settings)));
-                    services.AddSingleton<IDebouncer, NoopDebouncer>();
                     services.AddSingleton<IValidateOptions<Settings>, SettingsValidator>();
+                    services.AddSingleton<IDebouncer, NoopDebouncer>();
                     services.AddAndConfigureServices();
                     services.AddRouting();
                 })
