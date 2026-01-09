@@ -2,6 +2,9 @@
 
   <PropertyGroup>
     <CompressionEnabled>false</CompressionEnabled>
+    <JsonSerializerIsReflectionEnabledByDefault>false</JsonSerializerIsReflectionEnabledByDefault>
+    <EnableRequestDelegateGenerator>true</EnableRequestDelegateGenerator>
+    <EnableConfigurationBindingGenerator>true</EnableConfigurationBindingGenerator>
     <DockerDefaultTargetOS>Linux</DockerDefaultTargetOS>
     <DockerfileTag>fs:dev</DockerfileTag>
     <DockerfileRunArguments>-p 127.0.0.1:7443:8443 -v "$(MSBuildProjectDirectory)\bin\fs_data:/fs_data"</DockerfileRunArguments>

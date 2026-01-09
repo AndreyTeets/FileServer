@@ -29,7 +29,7 @@ internal sealed class AuthController(
 
         const string user = Constants.MainUserName;
         DateTime tokensExpire = GetUtcNowWithoutFractionalSeconds()
-            .AddSeconds(_options.CurrentValue.TokensTtlSeconds!.Value);
+            .AddSeconds(_options.CurrentValue.TokensTtlSeconds);
 
         Token authToken = _tokenService.CreateToken(
             new Claim()

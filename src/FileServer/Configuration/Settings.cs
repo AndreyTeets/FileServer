@@ -2,14 +2,14 @@
 
 public class Settings
 {
-    public string? ListenAddress { get; set; }
-    public int? ListenPort { get; set; }
-    public string? CertFilePath { get; set; }
-    public string? CertKeyPath { get; set; }
-    public string? DownloadAnonDir { get; set; }
-    public string? DownloadDir { get; set; }
-    public string? UploadDir { get; set; }
-    public string? SigningKey { get; set; }
-    public string? LoginKey { get; set; }
-    public int? TokensTtlSeconds { get; set; }
+    public string ListenAddress { get; set; } = string.Empty;
+    public int ListenPort { get; set; } = int.MinValue;
+    public string CertFilePath { get; set; } = string.Empty;
+    public string CertKeyPath { get; set; } = string.Empty;
+    public string DownloadAnonDir { get; set; } = string.Empty;
+    public string DownloadDir { get; set; } = string.Empty;
+    public string UploadDir { get; set; } = string.Empty;
+    public string SigningKey { get; set; } = string.Empty;
+    public string LoginKey { get; set; } = string.Empty;
+    public int TokensTtlSeconds { get; set; } = int.MinValue;
 }

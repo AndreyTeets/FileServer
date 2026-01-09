@@ -23,7 +23,7 @@ public class FileService(
         string originalFileName, Stream fileContent, CancellationToken ct)
     {
         string trustedFileName = SanitizeFileName(originalFileName);
-        string saveToPath = Path.Combine(_options.CurrentValue.UploadDir!, trustedFileName);
+        string saveToPath = Path.Combine(_options.CurrentValue.UploadDir, trustedFileName);
 
         if (!File.Exists(saveToPath))
         {

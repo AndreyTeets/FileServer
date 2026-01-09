@@ -25,8 +25,8 @@ internal static class Extensions
             .AddEnvironmentVariables("FileServer__");
 
         builder.Services.Configure<Settings>(builder.Configuration.GetSection(nameof(Settings)));
-        builder.Services.AddSingleton<IDebouncer, Debouncer>();
         builder.Services.AddSingleton<IValidateOptions<Settings>, SettingsValidator>();
+        builder.Services.AddSingleton<IDebouncer, Debouncer>();
     }
 
     public static void ConfigureLogging(this WebApplicationBuilder builder)
@@ -37,20 +37,20 @@ internal static class Extensions
 
     public static void ConfigureKestrel(this WebApplicationBuilder builder, ILogger logger)
     {
-        Settings settings = builder.Configuration.GetSection(nameof(Settings)).Get<Settings>()!;
-
-#pragma warning disable CA2000 // Dispose objects before losing scope
-        X509Certificate2 cert = Utility.LoadCertificate(settings);
-#pragma warning restore CA2000 // Responsibility of the server
-        logger.LogInformation(LogMessages.UsingCertificate, Utility.GetCertificateDisplayString(cert));
-
         builder.WebHost.ConfigureKestrel(options =>
-            options.Listen(IPAddress.Parse(settings.ListenAddress!), settings.ListenPort!.Value, listenOptions =>
+        {
+            Settings settings = builder.Configuration.GetSection(nameof(Settings)).Get<Settings>()!;
+
+            X509Certificate2 cert = Utility.LoadCertificate(settings);
+            logger.LogInformation(LogMessages.UsingCertificate, Utility.GetCertificateDisplayString(cert));
+
+            options.Listen(IPAddress.Parse(settings.ListenAddress), settings.ListenPort, listenOptions =>
                 listenOptions.UseHttps(httpsOptions =>
                 {
                     httpsOptions.ServerCertificate = cert;
                     httpsOptions.SslProtocols = SslProtocols.Tls12 | SslProtocols.Tls13;
-                })));
+                }));
+        });
     }
 
     public static void AddAndConfigureServices(this IServiceCollection services)
@@ -83,7 +83,7 @@ internal static class Extensions
         IDebouncer debouncer = app.Services.GetRequiredService<IDebouncer>();
         try
         {
-            Settings currentSettings = settingsMonitor.CurrentValue;
+            Settings currentSettings = settingsMonitor.CurrentValue; // Force settings validation here at startup
             logger.LogInformation(LogMessages.UsingSettings, Utility.GetSettingsDisplayString(currentSettings));
             settingsMonitor.OnChange(settings => debouncer.Debounce(nameof(LogMessages.SettingsChanged), () =>
                 logger.LogInformation(LogMessages.SettingsChanged, Utility.GetSettingsDisplayString(settings))));

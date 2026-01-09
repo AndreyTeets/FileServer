@@ -16,7 +16,7 @@ internal static class Utility
 
     public static X509Certificate2 LoadCertificate(Settings settings)
     {
-        X509Certificate2 cert = X509Certificate2.CreateFromPemFile(settings.CertFilePath!, settings.CertKeyPath);
+        X509Certificate2 cert = X509Certificate2.CreateFromPemFile(settings.CertFilePath, settings.CertKeyPath);
         if (OperatingSystem.IsWindows())
         {
             using X509Certificate2 originalCert = cert;

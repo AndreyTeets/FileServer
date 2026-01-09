@@ -24,20 +24,20 @@ internal sealed class SettingsValidatorTests : TestsBase
         Assert.That(res.Succeeded, Is.True);
     }
 
-    [TestCase(nameof(Settings.DownloadAnonDir), null, "is null")]
-    //[TestCase(nameof(Settings.DownloadAnonDir), "", "is null")]
-    [TestCase(nameof(Settings.DownloadDir), null, "is null")]
-    //[TestCase(nameof(Settings.DownloadDir), "", "is null")]
-    [TestCase(nameof(Settings.UploadDir), null, "is null")]
-    //[TestCase(nameof(Settings.UploadDir), "", "is null")]
-    //[TestCase(nameof(Settings.SigningKey), null, "is null")]
-    //[TestCase(nameof(Settings.SigningKey), "", "is null")]
+    [TestCase(nameof(Settings.DownloadAnonDir), null, "is not set")]
+    [TestCase(nameof(Settings.DownloadAnonDir), "", "is not set")]
+    [TestCase(nameof(Settings.DownloadDir), null, "is not set")]
+    [TestCase(nameof(Settings.DownloadDir), "", "is not set")]
+    [TestCase(nameof(Settings.UploadDir), null, "is not set")]
+    [TestCase(nameof(Settings.UploadDir), "", "is not set")]
+    //[TestCase(nameof(Settings.SigningKey), null, "is not set")]
+    //[TestCase(nameof(Settings.SigningKey), "", "is not set")]
     [TestCase(nameof(Settings.SigningKey), "1234567890123456789", "length < 20")]
     [TestCase(nameof(Settings.SigningKey), "12345678901234567890123456789012345678901234567890123456789012345", "length > 64")]
-    //[TestCase(nameof(Settings.LoginKey), null, "is null")]
-    //[TestCase(nameof(Settings.LoginKey), "", "is null")]
+    //[TestCase(nameof(Settings.LoginKey), null, "is not set")]
+    //[TestCase(nameof(Settings.LoginKey), "", "is not set")]
     [TestCase(nameof(Settings.LoginKey), "12345678901", "length < 12")]
-    [TestCase(nameof(Settings.TokensTtlSeconds), null, "is null")]
+    [TestCase(nameof(Settings.TokensTtlSeconds), int.MinValue, "is not set")]
     public async Task Validate_Fails_OnInvalidPropValue(
         string propName, object? propValue, string expectedProblem)
     {
@@ -58,7 +58,7 @@ internal sealed class SettingsValidatorTests : TestsBase
             SigningKey = "12345678901234567890",
             LoginKey = "123456789012",
         });
-        List<string> expectedProblems = [.. GetSettingsValidatedPropNames().Select(x => $"{x} is null")];
+        List<string> expectedProblems = [.. GetSettingsValidatedPropNames().Select(x => $"{x} is not set")];
 
         Assert.That(res.Failed, Is.True);
         Assert.That(res.Failures, Is.EquivalentTo(expectedProblems));
