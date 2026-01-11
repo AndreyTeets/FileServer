@@ -49,7 +49,7 @@ COPY --from=build-aot /app/publish .
 FROM sdk AS tests
 COPY --from=dev-and-tests-runtime /usr/share/dotnet/shared /usr/share/dotnet/shared
 
-COPY ["Directory.Build.props", "global.json", ".editorconfig", "./"]
+COPY ["Directory.Build.props", "global.json", ".editorconfig", ".globalconfig", "./"]
 COPY ["src/FileServer/FileServer.csproj", "src/FileServer/"]
 COPY ["tests/Directory.Build.props", "tests/"]
 COPY ["tests/FileServer.Tests/FileServer.Tests.csproj", "tests/FileServer.Tests/"]

@@ -3,6 +3,7 @@
 !src
 !tests
 !.editorconfig
+!.globalconfig
 !Directory.Build.props
 !global.json
 
