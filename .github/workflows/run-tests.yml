@@ -77,7 +77,8 @@ jobs:
         run: dotnet build -c ${{ matrix.netcfg }} --no-restore
 
       - name: Format verify solution
-        run: dotnet format --verify-no-changes --no-restore
+        shell: bash
+        run: FS_DISABLE_TRIM_ANALYZER="true" dotnet format --verify-no-changes --no-restore
 
       - name: Run tests
         run: dotnet test --project tests/FileServer.Tests -c ${{ matrix.netcfg }} --no-build
