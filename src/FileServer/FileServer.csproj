@@ -2,7 +2,7 @@
 
   <PropertyGroup>
     <CompressionEnabled>false</CompressionEnabled>
-    <EnableTrimAnalyzer>true</EnableTrimAnalyzer>
+    <EnableTrimAnalyzer Condition="'$(FS_DISABLE_TRIM_ANALYZER)' != 'true'">true</EnableTrimAnalyzer>
     <JsonSerializerIsReflectionEnabledByDefault>false</JsonSerializerIsReflectionEnabledByDefault>
     <EnableRequestDelegateGenerator>true</EnableRequestDelegateGenerator>
     <EnableConfigurationBindingGenerator>true</EnableConfigurationBindingGenerator>
