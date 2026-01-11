@@ -1,22 +1,30 @@
-﻿using System.Security.Claims;
+﻿using System.Net.Mime;
+using System.Security.Claims;
 using FileServer.Configuration;
 using FileServer.Models.Files;
+using FileServer.Routes.Files.GetFileRoutes;
+using FileServer.Routes.Files.List;
+using FileServer.Routes.Files.Upload;
 using FileServer.Services;
-using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http.Features;
-using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.WebUtilities;
 using Microsoft.Extensions.FileProviders;
 using Microsoft.Extensions.Options;
 using Microsoft.Net.Http.Headers;
 using FileInfo = FileServer.Models.Files.FileInfo;
 
-namespace FileServer.Controllers;
+namespace FileServer.Routes.Files;
 
-internal sealed class FilesController(
+internal sealed class FilesRoutesHandler(
     IHttpContextAccessor httpContextAccessor,
     IOptionsMonitor<Settings> options,
     FileService fileService)
+    : IRouteHandler<FilesListParams>
+    , IRouteHandler<FilesDownloadAnonParams>
+    , IRouteHandler<FilesViewAnonParams>
+    , IRouteHandler<FilesDownloadParams>
+    , IRouteHandler<FilesViewParams>
+    , IRouteHandler<FilesUploadParams>
 {
     private readonly IHttpContextAccessor _httpContextAccessor = httpContextAccessor;
     private readonly IOptionsMonitor<Settings> _options = options;
@@ -26,9 +34,7 @@ internal sealed class FilesController(
     private HttpRequest Request => _httpContextAccessor.HttpContext!.Request;
     private CancellationToken Ct => _httpContextAccessor.HttpContext!.RequestAborted;
 
-    [ProducesResponseType(typeof(GetFilesListResponse), StatusCodes.Status200OK, "application/json")]
-    [AllowAnonymous]
-    public IResult GetFilesList()
+    public async Task<IResult> Execute(FilesListParams routeParams)
     {
         List<FileInfo> files = _fileService.GetDirectoryFilesListRecursive(_options.CurrentValue.DownloadAnonDir);
         files.ForEach(x => x.Anon = "yes");
@@ -47,31 +53,19 @@ internal sealed class FilesController(
         });
     }
 
-    [ProducesResponseType(typeof(void), StatusCodes.Status200OK, "application/octet-stream")]
-    [ProducesResponseType(typeof(string), StatusCodes.Status404NotFound, "application/json")]
-    [AllowAnonymous]
-    public IResult DownloadFileAnon([FromRoute] string filePath) =>
-        CreateGetFileResult(_options.CurrentValue.DownloadAnonDir, "application/octet-stream", filePath);
+    public async Task<IResult> Execute(FilesDownloadAnonParams routeParams) =>
+        CreateGetFileResult(_options.CurrentValue.DownloadAnonDir, MediaTypeNames.Application.Octet, routeParams.FilePath);
 
-    [ProducesResponseType(typeof(void), StatusCodes.Status200OK, "text/plain")]
-    [ProducesResponseType(typeof(string), StatusCodes.Status404NotFound, "application/json")]
-    [AllowAnonymous]
-    public IResult ViewFileAnon([FromRoute] string filePath) =>
-        CreateGetFileResult(_options.CurrentValue.DownloadAnonDir, "text/plain", filePath);
+    public async Task<IResult> Execute(FilesViewAnonParams routeParams) =>
+        CreateGetFileResult(_options.CurrentValue.DownloadAnonDir, MediaTypeNames.Text.Plain, routeParams.FilePath);
 
-    [ProducesResponseType(typeof(void), StatusCodes.Status200OK, "application/octet-stream")]
-    [ProducesResponseType(typeof(string), StatusCodes.Status404NotFound, "application/json")]
-    public IResult DownloadFile([FromRoute] string filePath) =>
-        CreateGetFileResult(_options.CurrentValue.DownloadDir, "application/octet-stream", filePath);
+    public async Task<IResult> Execute(FilesDownloadParams routeParams) =>
+        CreateGetFileResult(_options.CurrentValue.DownloadDir, MediaTypeNames.Application.Octet, routeParams.FilePath);
 
-    [ProducesResponseType(typeof(void), StatusCodes.Status200OK, "text/plain")]
-    [ProducesResponseType(typeof(string), StatusCodes.Status404NotFound, "application/json")]
-    public IResult ViewFile([FromRoute] string filePath) =>
-        CreateGetFileResult(_options.CurrentValue.DownloadDir, "text/plain", filePath);
+    public async Task<IResult> Execute(FilesViewParams routeParams) =>
+        CreateGetFileResult(_options.CurrentValue.DownloadDir, MediaTypeNames.Text.Plain, routeParams.FilePath);
 
-    [ProducesResponseType(typeof(void), StatusCodes.Status200OK, "application/json")]
-    [ProducesResponseType(typeof(string), StatusCodes.Status409Conflict, "application/json")]
-    public async Task<IResult> UploadFile()
+    public async Task<IResult> Execute(FilesUploadParams routeParams)
     {
         IHttpMaxRequestBodySizeFeature bodySizeFeature = Context.Features.GetRequiredFeature<IHttpMaxRequestBodySizeFeature>();
         bodySizeFeature.MaxRequestBodySize = null;

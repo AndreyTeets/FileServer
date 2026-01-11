@@ -2,6 +2,7 @@
 
   <PropertyGroup>
     <CompressionEnabled>false</CompressionEnabled>
+    <EnableTrimAnalyzer>true</EnableTrimAnalyzer>
     <JsonSerializerIsReflectionEnabledByDefault>false</JsonSerializerIsReflectionEnabledByDefault>
     <EnableRequestDelegateGenerator>true</EnableRequestDelegateGenerator>
     <EnableConfigurationBindingGenerator>true</EnableConfigurationBindingGenerator>
@@ -15,6 +16,7 @@
   </ItemGroup>
 
   <ItemGroup>
+    <TrimmerRootDescriptor Include="TrimConfig.xml" />
     <InternalsVisibleTo Include="FileServer.Tests" />
     <Content Remove="appsettings.template.json" />
     <None Include="appsettings.template.json" CopyToOutputDirectory="Never" />

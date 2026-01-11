@@ -58,8 +58,7 @@ internal sealed class SetUpTestServerFixture
                     app.UseRouting();
                     app.UseAuthentication();
                     app.UseAuthorization();
-                    app.UseEndpoints(endpoints =>
-                        endpoints.MapRoutes(endpoints.ServiceProvider));
+                    app.UseEndpoints(endpoints => endpoints.MapRoutes());
                     app.UseNoCacheHeaders();
                 });
         });

@@ -1,8 +1,9 @@
-﻿using System.Net;
+﻿using System.Diagnostics.CodeAnalysis;
+using System.Net;
 using System.Security.Authentication;
 using System.Security.Cryptography.X509Certificates;
 using FileServer.Auth;
-using FileServer.Controllers;
+using FileServer.Routes;
 using FileServer.Services;
 using Microsoft.AspNetCore.DataProtection.KeyManagement;
 using Microsoft.Extensions.Options;
@@ -38,10 +39,8 @@ internal static class ServicesExtensions
     public static void AddAndConfigureServices(this IServiceCollection services)
     {
         services.AddHttpContextAccessor();
-        services.AddSingleton<FileService>();
-        services.AddSingleton<TokenService>();
-        services.AddTransient<AuthController>();
-        services.AddTransient<FilesController>();
+        services.AddTransient<FileService>();
+        services.AddTransient<TokenService>();
 
         services.AddAuthentication()
             .AddScheme<DoubleTokenAuthenticationSchemeOptions, DoubleTokenAuthenticationHandler>(
@@ -56,5 +55,15 @@ internal static class ServicesExtensions
                 options.XmlRepository = new InMemoryXmlRepository();
                 options.XmlEncryptor = new InMemoryXmlRepository.NoopXmlEncryptor();
             }));
+
+        AddAllRouteHandlers(services);
+
+        [UnconditionalSuppressMessage("Trimming", "IL2077",
+            Justification = "All types in FileServer.Routes namespace are excluded from trimming in TrimConfig")]
+        static void AddAllRouteHandlers(IServiceCollection services)
+        {
+            foreach ((Type interfaceType, Type implementingType) in RouteHandlersLocator.GetAll())
+                services.AddTransient(interfaceType, implementingType);
+        }
     }
 }

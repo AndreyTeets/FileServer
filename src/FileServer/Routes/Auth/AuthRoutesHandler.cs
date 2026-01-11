@@ -1,16 +1,18 @@
 ﻿using FileServer.Configuration;
 using FileServer.Models.Auth;
+using FileServer.Routes.Auth.Login;
+using FileServer.Routes.Auth.Logout;
 using FileServer.Services;
-using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Options;
 
-namespace FileServer.Controllers;
+namespace FileServer.Routes.Auth;
 
-internal sealed class AuthController(
+internal sealed class AuthRoutesHandler(
     IHttpContextAccessor httpContextAccessor,
     IOptionsMonitor<Settings> options,
     TokenService tokenService)
+    : IRouteHandler<AuthLoginParams>
+    , IRouteHandler<AuthLogoutParams>
 {
     private readonly IHttpContextAccessor _httpContextAccessor = httpContextAccessor;
     private readonly IOptionsMonitor<Settings> _options = options;
@@ -19,11 +21,9 @@ internal sealed class AuthController(
     private HttpRequest Request => _httpContextAccessor.HttpContext!.Request;
     private HttpResponse Response => _httpContextAccessor.HttpContext!.Response;
 
-    [ProducesResponseType(typeof(LoginResponse), StatusCodes.Status200OK, "application/json")]
-    [ProducesResponseType(typeof(string), StatusCodes.Status401Unauthorized, "application/json")]
-    [AllowAnonymous]
-    public IResult Login([FromBody] LoginRequest request)
+    public async Task<IResult> Execute(AuthLoginParams routeParams)
     {
+        LoginRequest request = routeParams.Request;
         if (request.Password != _options.CurrentValue.LoginKey)
             return Results.Unauthorized();
 
@@ -58,8 +58,7 @@ internal sealed class AuthController(
         });
     }
 
-    [ProducesResponseType(StatusCodes.Status200OK)]
-    public IResult Logout()
+    public async Task<IResult> Execute(AuthLogoutParams routeParams)
     {
         DeleteAuthTokenCookie();
         return Results.Ok();

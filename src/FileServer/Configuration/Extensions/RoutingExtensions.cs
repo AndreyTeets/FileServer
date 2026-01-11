@@ -1,7 +1,13 @@
 ﻿using System.Reflection;
-using FileServer.Controllers;
+using FileServer.Routes;
+using FileServer.Routes.Auth.Login;
+using FileServer.Routes.Auth.Logout;
+using FileServer.Routes.Files.GetFileRoutes;
+using FileServer.Routes.Files.List;
+using FileServer.Routes.Files.Upload;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.Extensions.FileProviders;
+using Route = FileServer.Routes.RouteExecutor;
 
 namespace FileServer.Configuration.Extensions;
 
@@ -33,7 +39,7 @@ internal static class RoutingExtensions
                 ?.Value == "true";
     }
 
-    public static void MapRoutes(this IEndpointRouteBuilder endpoints, IServiceProvider services)
+    public static void MapRoutes(this IEndpointRouteBuilder endpoints)
     {
         RouteGroupBuilder group = endpoints.MapGroup("/api")
             .RequireAuthorization(
@@ -42,17 +48,15 @@ internal static class RoutingExtensions
                     .RequireUserName(Constants.MainUserName)
                     .Build());
 
-        AuthController authController = services.GetRequiredService<AuthController>();
-        group.MapPost("/auth/login", authController.Login);
-        group.MapPost("/auth/logout", authController.Logout);
+        group.MapPost("/auth/login", Route.ExecAnon<AuthLoginParams>).AddMeta();
+        group.MapPost("/auth/logout", Route.Exec<AuthLogoutParams>).AddMeta();
 
-        FilesController filesController = services.GetRequiredService<FilesController>();
-        group.MapGet("/files/list", filesController.GetFilesList);
-        group.MapGet("/files/downloadanon/{*filePath}", filesController.DownloadFileAnon);
-        group.MapGet("/files/viewanon/{*filePath}", filesController.ViewFileAnon);
-        group.MapGet("/files/download/{*filePath}", filesController.DownloadFile);
-        group.MapGet("/files/view/{*filePath}", filesController.ViewFile);
-        group.MapPost("/files/upload", filesController.UploadFile);
+        group.MapGet("/files/list", Route.ExecAnon<FilesListParams>).AddMeta();
+        group.MapGet("/files/downloadanon/{*filePath}", Route.ExecAnon<FilesDownloadAnonParams>).AddMeta();
+        group.MapGet("/files/viewanon/{*filePath}", Route.ExecAnon<FilesViewAnonParams>).AddMeta();
+        group.MapGet("/files/download/{*filePath}", Route.Exec<FilesDownloadParams>).AddMeta();
+        group.MapGet("/files/view/{*filePath}", Route.Exec<FilesViewParams>).AddMeta();
+        group.MapPost("/files/upload", Route.Exec<FilesUploadParams>).AddMeta();
     }
 
     public static void UseNoCacheHeaders(this IApplicationBuilder app)
