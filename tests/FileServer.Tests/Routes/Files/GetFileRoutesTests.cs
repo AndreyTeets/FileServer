@@ -1,12 +1,10 @@
 ﻿using System.Net;
-using System.Net.Http.Json;
 using System.Text;
-using FileServer.Models.Files;
 using Microsoft.AspNetCore.Http;
 
-namespace FileServer.Tests.Routes;
+namespace FileServer.Tests.Routes.Files;
 
-internal sealed class FilesRoutesTests : TestsBase
+internal sealed class GetFileRoutesTests : TestsBase
 {
     [Test]
     public async Task GetFileRoutes_CorrectlyHandle_RelativeDirs_And_NotFoundFiles()
@@ -19,27 +17,6 @@ internal sealed class FilesRoutesTests : TestsBase
 
         Assert.That(context.Response.StatusCode, Is.EqualTo(StatusCodes.Status404NotFound));
         Assert.That(GetContent(context), Is.EqualTo(@"""File not found."""));
-    }
-
-    [Test]
-    public async Task List_NoAuth_ReturnsOnlyAnonFiles()
-    {
-        using HttpResponseMessage response = await _fsTestClient.Get("/api/files/list");
-        Assert.That(response.StatusCode, Is.EqualTo(HttpStatusCode.OK));
-        GetFilesListResponse? files = await response.Content.ReadFromJsonAsync<GetFilesListResponse>();
-        Assert.That(files, Is.Not.Null);
-        Assert.That(files.Files.Select(x => x.Name), Is.EquivalentTo(["anonfile1.txt"]));
-    }
-
-    [Test]
-    public async Task List_WithAuth_ReturnsAllFiles()
-    {
-        await _fsTestClient.Login();
-        using HttpResponseMessage response = await _fsTestClient.Get("/api/files/list");
-        Assert.That(response.StatusCode, Is.EqualTo(HttpStatusCode.OK));
-        GetFilesListResponse? files = await response.Content.ReadFromJsonAsync<GetFilesListResponse>();
-        Assert.That(files, Is.Not.Null);
-        Assert.That(files.Files.Select(x => x.Name), Is.EquivalentTo(["anonfile1.txt", "file1.txt"]));
     }
 
     [Test]
@@ -108,43 +85,9 @@ internal sealed class FilesRoutesTests : TestsBase
         Assert.That(await GetContent(response), Is.EqualTo("test_anonfile1_content"));
     }
 
-    [Test]
-    public async Task Upload_NoAuth_Fails()
-    {
-        using HttpResponseMessage response = await _fsTestClient.Post("/api/files/upload", CreateTestFileContent());
-        Assert.That(response.StatusCode, Is.EqualTo(HttpStatusCode.Unauthorized));
-    }
-
-    [Test]
-    public async Task Upload_WithAuth_Works()
-    {
-        await _fsTestClient.Login();
-        using HttpResponseMessage response = await _fsTestClient.Post("/api/files/upload", CreateTestFileContent());
-        Assert.That(response.StatusCode, Is.EqualTo(HttpStatusCode.OK));
-        Assert.That(File.Exists("fs_data/upload/upl.uplfile1.txt.oad"), Is.True);
-        Assert.That(await File.ReadAllTextAsync("fs_data/upload/upl.uplfile1.txt.oad"), Is.EqualTo("test_uplfile1_content"));
-    }
-
-    [Test]
-    public async Task Upload_AlreadyExistingFile_Fails()
-    {
-        await _fsTestClient.Login();
-        using HttpResponseMessage _ = await _fsTestClient.Post("/api/files/upload", CreateTestFileContent());
-        using HttpResponseMessage response = await _fsTestClient.Post("/api/files/upload", CreateTestFileContent());
-        Assert.That(response.StatusCode, Is.EqualTo(HttpStatusCode.Conflict));
-        Assert.That(await GetContent(response), Is.EqualTo(@"""File with name 'upl.uplfile1.txt.oad' already exists."""));
-    }
-
     private static string GetContent(HttpContext context)
     {
         using StreamReader reader = new(context.Response.Body, Encoding.UTF8);
         return reader.ReadToEnd();
     }
-
-#pragma warning disable CA2000 // Dispose objects before losing scope
-    private static MultipartFormDataContent CreateTestFileContent() => new()
-    {
-        { new ByteArrayContent(Encoding.UTF8.GetBytes("test_uplfile1_content")), "not_used", "uplfile1.txt" },
-    };
-#pragma warning restore CA2000 // Responsibility of the types containing it
 }
