@@ -1,18 +1,15 @@
 ﻿using FileServer.Configuration;
 using FileServer.Models.Auth;
-using FileServer.Routes.Auth.Login;
-using FileServer.Routes.Auth.Logout;
 using FileServer.Services;
 using Microsoft.Extensions.Options;
 
-namespace FileServer.Routes.Auth;
+namespace FileServer.Routes.Auth.Login;
 
-internal sealed class AuthRoutesHandler(
+internal sealed class AuthLoginHandler(
     IHttpContextAccessor httpContextAccessor,
     IOptionsMonitor<Settings> options,
     TokenService tokenService)
     : IRouteHandler<AuthLoginParams>
-    , IRouteHandler<AuthLogoutParams>
 {
     private readonly IHttpContextAccessor _httpContextAccessor = httpContextAccessor;
     private readonly IOptionsMonitor<Settings> _options = options;
@@ -58,23 +55,11 @@ internal sealed class AuthRoutesHandler(
         });
     }
 
-    public async Task<IResult> Execute(AuthLogoutParams routeParams)
-    {
-        DeleteAuthTokenCookie();
-        return Results.Ok();
-    }
-
     private void SetAuthTokenCookie(Token token)
     {
         CookieOptions cookieOptions = StaticSettings.GetAuthTokenCookieOptions(Request.Host.Host);
         cookieOptions.Expires = (DateTimeOffset)token.Claim.Expires;
         Response.Cookies.Append(Constants.AuthTokenCookieName, _tokenService.EncodeToken(token), cookieOptions);
-    }
-
-    private void DeleteAuthTokenCookie()
-    {
-        CookieOptions cookieOptions = StaticSettings.GetAuthTokenCookieOptions(Request.Host.Host);
-        Response.Cookies.Delete(Constants.AuthTokenCookieName, cookieOptions);
     }
 
     private static DateTime GetUtcNowWithoutFractionalSeconds()
