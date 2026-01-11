@@ -9,14 +9,10 @@ namespace FileServer.Routes.Files.Upload;
 internal sealed class FilesUploadHandler(
     IHttpContextAccessor httpContextAccessor,
     FileSaver fileSaver)
-    : IRouteHandler<FilesUploadParams>
+    : RouteHandlerBase(httpContextAccessor)
+    , IRouteHandler<FilesUploadParams>
 {
-    private readonly IHttpContextAccessor _httpContextAccessor = httpContextAccessor;
     private readonly FileSaver _fileSaver = fileSaver;
-
-    private HttpContext Context => _httpContextAccessor.HttpContext!;
-    private HttpRequest Request => _httpContextAccessor.HttpContext!.Request;
-    private CancellationToken Ct => _httpContextAccessor.HttpContext!.RequestAborted;
 
     public async Task<IResult> Execute(FilesUploadParams routeParams)
     {

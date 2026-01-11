@@ -11,13 +11,11 @@ internal sealed class FilesListHandler(
     IHttpContextAccessor httpContextAccessor,
     IOptionsMonitor<Settings> options,
     FilesLister filesLister)
-    : IRouteHandler<FilesListParams>
+    : RouteHandlerBase(httpContextAccessor)
+    , IRouteHandler<FilesListParams>
 {
-    private readonly IHttpContextAccessor _httpContextAccessor = httpContextAccessor;
     private readonly IOptionsMonitor<Settings> _options = options;
     private readonly FilesLister _filesLister = filesLister;
-
-    private HttpContext Context => _httpContextAccessor.HttpContext!;
 
     public async Task<IResult> Execute(FilesListParams routeParams)
     {

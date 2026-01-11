@@ -9,14 +9,11 @@ internal sealed class AuthLoginHandler(
     IHttpContextAccessor httpContextAccessor,
     IOptionsMonitor<Settings> options,
     TokenService tokenService)
-    : IRouteHandler<AuthLoginParams>
+    : RouteHandlerBase(httpContextAccessor)
+    , IRouteHandler<AuthLoginParams>
 {
-    private readonly IHttpContextAccessor _httpContextAccessor = httpContextAccessor;
     private readonly IOptionsMonitor<Settings> _options = options;
     private readonly TokenService _tokenService = tokenService;
-
-    private HttpRequest Request => _httpContextAccessor.HttpContext!.Request;
-    private HttpResponse Response => _httpContextAccessor.HttpContext!.Response;
 
     public async Task<IResult> Execute(AuthLoginParams routeParams)
     {
