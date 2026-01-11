@@ -8,11 +8,11 @@ namespace FileServer.Routes.Files.Upload;
 
 internal sealed class FilesUploadHandler(
     IHttpContextAccessor httpContextAccessor,
-    FileService fileService)
+    FileSaver fileSaver)
     : IRouteHandler<FilesUploadParams>
 {
     private readonly IHttpContextAccessor _httpContextAccessor = httpContextAccessor;
-    private readonly FileService _fileService = fileService;
+    private readonly FileSaver _fileSaver = fileSaver;
 
     private HttpContext Context => _httpContextAccessor.HttpContext!;
     private HttpRequest Request => _httpContextAccessor.HttpContext!.Request;
@@ -31,7 +31,7 @@ internal sealed class FilesUploadHandler(
         if (fileName is null)
             return Results.BadRequest("No files in request.");
 
-        (string targetFileName, bool saved) = await _fileService.SaveFileIfNotExists(fileName, fileContent, Ct);
+        (string targetFileName, bool saved) = await _fileSaver.SaveFileIfNotExists(fileName, fileContent, Ct);
         return saved
             ? Results.Ok(new UploadFileResponse() { CreatedFileName = targetFileName })
             : Results.Conflict($"File with name '{targetFileName}' already exists.");
