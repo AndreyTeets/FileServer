@@ -3,10 +3,10 @@ name: scan-trivy
 on:
   push:
     branches: ['master']
-    paths: ['FileServer**', 'Directory.Build.props', '.editorconfig', 'global.json', '.github/workflows/scan-trivy.yml', '.github/.trivyignore']
+    paths: ['FileServer**', 'Directory.Build.props', '.editorconfig', '.trivyignore', 'global.json', '.github/workflows/scan-trivy.yml']
   pull_request:
     branches: ['master']
-    paths: ['FileServer**', 'Directory.Build.props', '.editorconfig', 'global.json', '.github/workflows/scan-trivy.yml', '.github/.trivyignore']
+    paths: ['FileServer**', 'Directory.Build.props', '.editorconfig', '.trivyignore', 'global.json', '.github/workflows/scan-trivy.yml']
   schedule:
     - cron: '30 15 * * *'
 
@@ -105,7 +105,7 @@ jobs:
           skip-setup-trivy: true
           version: v0.61.0
           cache: ${{ (matrix.target == 'vuln-os' || matrix.target == 'vuln-library') && true || false }}
-          trivyignores: '.github/.trivyignore'
+          trivyignores: '.trivyignore'
 
       - name: Upload Trivy scan results to GitHub Security tab
         if: ${{ matrix.event == 'commit' }}
