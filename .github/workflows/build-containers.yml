@@ -2,10 +2,10 @@ name: build-containers
 
 on:
   push:
-    branches: ['master']
+    branches: ['v1.1.x']
     paths: ['FileServer**', 'Directory.Build.props', '.editorconfig', 'global.json', '.github/workflows/build-containers.yml']
   pull_request:
-    branches: ['master']
+    branches: ['v1.1.x']
     paths: ['FileServer**', 'Directory.Build.props', '.editorconfig', 'global.json', '.github/workflows/build-containers.yml']
   workflow_call:
     secrets:

@@ -2,10 +2,10 @@ name: build-binaries
 
 on:
   push:
-    branches: ['master']
+    branches: ['v1.1.x']
     paths: ['FileServer**', 'Directory.Build.props', '.editorconfig', 'global.json', '.github/workflows/build-binaries.yml']
   pull_request:
-    branches: ['master']
+    branches: ['v1.1.x']
     paths: ['FileServer**', 'Directory.Build.props', '.editorconfig', 'global.json', '.github/workflows/build-binaries.yml']
   workflow_call:
 

@@ -2,10 +2,10 @@ name: scan-codeql
 
 on:
   push:
-    branches: ['master']
+    branches: ['v1.1.x']
     paths: ['FileServer**', 'Directory.Build.props', '.editorconfig', 'global.json', '.github/workflows/scan-codeql.yml']
   pull_request:
-    branches: ['master']
+    branches: ['v1.1.x']
     paths: ['FileServer**', 'Directory.Build.props', '.editorconfig', 'global.json', '.github/workflows/scan-codeql.yml']
 
 concurrency: # head_ref is only defined on pull_request events, run_id is unique for each workflow run

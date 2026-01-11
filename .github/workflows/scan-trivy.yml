@@ -2,10 +2,10 @@ name: scan-trivy
 
 on:
   push:
-    branches: ['master']
+    branches: ['v1.1.x']
     paths: ['FileServer**', 'Directory.Build.props', '.editorconfig', '.trivyignore', 'global.json', '.github/workflows/scan-trivy.yml']
   pull_request:
-    branches: ['master']
+    branches: ['v1.1.x']
     paths: ['FileServer**', 'Directory.Build.props', '.editorconfig', '.trivyignore', 'global.json', '.github/workflows/scan-trivy.yml']
   schedule:
     - cron: '30 15 * * *'
