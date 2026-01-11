@@ -1,4 +1,5 @@
-﻿using System.Diagnostics;
+﻿using System.Collections.Specialized;
+using System.Diagnostics;
 using System.Net.Sockets;
 using System.Text;
 
@@ -12,7 +13,8 @@ internal sealed class StartServerFixture
 #else
     private const string Configuration = "Release";
 #endif
-    private const string ServerProjDir = "../../../../../src/FileServer";
+    private const string RepoRootDir = "../../../../..";
+    private const string ServerProjDir = $"{RepoRootDir}/src/FileServer";
     private const int PortCheckTimeoutMilliseconds = 500;
     private const int PortCheckWaitNextTryMilliseconds = 1000;
     private const int StartTimeoutSec = 15;
@@ -39,15 +41,25 @@ internal sealed class StartServerFixture
 
     private static Process StartServerProcess(out StringBuilder serverOutput)
     {
+        bool usePublishedApp = Environment.GetEnvironmentVariable("FS_E2ETESTS_USE_PUBLISHED_APP") == "1";
+        string workDir = usePublishedApp
+            ? RepoRootDir // Any directory should work, use repo root as something unrelated to the app
+            : ServerProjDir; // Need wwwroot in the working directory
+        string appDir = usePublishedApp
+            ? $"{RepoRootDir}/artifacts/publish-e2etests"
+            : $"{ServerProjDir}/bin/{Configuration}/net10.0";
+        string appFile = OperatingSystem.IsWindows()
+            ? "FileServer.exe"
+            : "FileServer";
+
 #pragma warning disable CA2000 // Dispose objects before losing scope
         Process process = new();
 #pragma warning restore CA2000 // Ignore missing dispose on exception in the setup method
-        process.StartInfo.FileName = "dotnet";
-        process.StartInfo.WorkingDirectory = Path.GetFullPath(ServerProjDir);
-        process.StartInfo.Arguments = $"bin/{Configuration}/net10.0/FileServer.dll";
+        process.StartInfo.WorkingDirectory = Path.GetFullPath(workDir);
+        process.StartInfo.FileName = Path.GetFullPath(Path.Combine(appDir, appFile));
         SetProcessInputOutputOptions(process);
 
-        SetProcessEnv(process);
+        AddServerSettingsToProcessEnv(process);
 
         StringBuilder output = new();
         Lock outputLock = new();
@@ -100,9 +112,9 @@ internal sealed class StartServerFixture
         }
     }
 
-    private static void SetProcessEnv(Process process)
+    private static void AddServerSettingsToProcessEnv(Process process)
     {
-        System.Collections.Specialized.StringDictionary env = process.StartInfo.EnvironmentVariables;
+        StringDictionary env = process.StartInfo.EnvironmentVariables;
         env["FileServer_SettingsFilePath"] = Path.GetFullPath($"{ServerProjDir}/bin/e2etests/settings/appsettings.json");
         env["FileServer__Settings__ListenAddress"] = "127.0.0.1";
         env["FileServer__Settings__ListenPort"] = Port.ToString();

@@ -10,12 +10,12 @@ set "FileServer__Settings__DownloadDir=%cd%\src\FileServer\bin\fs_data\downloads
 set "FileServer__Settings__UploadDir=%cd%\src\FileServer\bin\fs_data\uploads"
 
 echo -^> Publishing...
-if exist "artifacts\publish" (rmdir "artifacts\publish" /S /Q)>nul 2>&1
-dotnet publish src/FileServer -o artifacts/publish -p:UseAppHost=false -v q
+if exist "artifacts\publish-dev" (rmdir "artifacts\publish-dev" /S /Q)>nul 2>&1
+dotnet publish src/FileServer -o artifacts/publish-dev -p:UseAppHost=false -v q
 if %errorlevel% neq 0 goto :Error
 
 echo -^> Running...
-pushd "artifacts\publish"
+pushd "artifacts\publish-dev"
 call dotnet FileServer.dll
 if %errorlevel% neq 0 goto :Error
 

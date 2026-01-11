@@ -1,5 +1,5 @@
-docker build . -f tests/FileServer.E2ETests/Dockerfile -t fs_e2etests:latest
-docker build . --pull -f src/FileServer/Dockerfile -t fs_tests:latest --target tests
+docker build . -f tests/FileServer.E2ETests/Dockerfile
+docker build . --pull -f src/FileServer/Dockerfile --target tests
 docker build . --pull -f src/FileServer/Dockerfile -t fs:latest-jit --target app-jit --platform linux/amd64 --build-arg FS_APP_VERSION=0.0.1-rc.1
 docker build . --pull -f src/FileServer/Dockerfile -t fs:latest-aot --target app-aot --platform linux/arm/v7 --build-arg FS_APP_VERSION=0.9.99
 docker build . --pull -f src/FileServer/Dockerfile-simple-jit -t fs:latest-simple-jit

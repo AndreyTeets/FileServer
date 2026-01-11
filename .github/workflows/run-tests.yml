@@ -86,9 +86,19 @@ jobs:
       - name: Install Playwright
         run: pwsh tests/FileServer.E2ETests/bin/${{ matrix.netcfg }}/net10.0/playwright.ps1 install --with-deps --only-shell ${{ matrix.browser }}
 
+      - name: Publish and clean app project
+        shell: bash
+        run: |
+          dotnet publish src/FileServer -o artifacts/publish-e2etests -c ${{ matrix.netcfg }} \
+            -p:PublishTrimmed=true -p:FsPublishSingleFile=true -p:EnableCompressionInSingleFile=true
+          dotnet clean src/FileServer -c ${{ matrix.netcfg }}
+
       - name: Run E2E tests
         shell: bash
-        run: BROWSER="${{ matrix.browser }}" dotnet test --project tests/FileServer.E2ETests -c ${{ matrix.netcfg }} --no-build
+        run: |
+          export FS_E2ETESTS_USE_PUBLISHED_APP="1"
+          export BROWSER="${{ matrix.browser }}"
+          dotnet test --project tests/FileServer.E2ETests -c ${{ matrix.netcfg }} --no-build
 
   run-container-tests:
     name: run-container-tests (${{ matrix.runner }})
