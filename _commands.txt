@@ -14,7 +14,7 @@ dotnet publish src/FileServer -o artifacts/publish-aot-current-platform -p:FsPub
 
 $trivyExePath = [System.IO.Path]::GetFullPath("../../trivy/trivy.exe")
 dotnet clean . && dotnet restore . -p:RestorePackagesWithLockFile=True
-&"$trivyExePath" image --scanners vuln --vuln-type 'os' --ignorefile .github/.trivyignore --show-suppressed fs:latest-jit
+&"$trivyExePath" image --scanners vuln --vuln-type 'os' --ignorefile .trivyignore --show-suppressed fs:latest-jit
 &"$trivyExePath" image --scanners vuln --vuln-type 'library' fs:latest-jit
 &"$trivyExePath" fs --scanners vuln --file-patterns "dockerfile:Dockerfile.*" --skip-dirs "**/bin" --skip-dirs "**/obj" .
 &"$trivyExePath" fs --scanners misconfig --severity CRITICAL,HIGH,MEDIUM --file-patterns "dockerfile:Dockerfile.*" --skip-dirs "**/bin" .
