@@ -1,23 +1,13 @@
 ﻿using System.Text;
 using FileServer.Configuration;
-using Microsoft.Extensions.FileProviders;
 using Microsoft.Extensions.Options;
-using FileInfo = FileServer.Models.Files.FileInfo;
 
 namespace FileServer.Services;
 
-internal sealed class FileService(
+internal sealed class FileSaver(
     IOptionsMonitor<Settings> options)
 {
     private readonly IOptionsMonitor<Settings> _options = options;
-
-    public List<FileInfo> GetDirectoryFilesListRecursive(string rootDir)
-    {
-        using PhysicalFileProvider fileProvider = new(rootDir);
-        List<FileInfo> files = [];
-        FillFilesListRecursive(rootDir, files, fileProvider, "");
-        return files;
-    }
 
     public async Task<(string targetFileName, bool saved)> SaveFileIfNotExists(
         string originalFileName, Stream fileContent, CancellationToken ct)
@@ -32,27 +22,6 @@ internal sealed class FileService(
             return (trustedFileName, true);
         }
         return (trustedFileName, false);
-    }
-
-    private static void FillFilesListRecursive(
-        string rootDir, List<FileInfo> files, PhysicalFileProvider fileProvider, string subPath)
-    {
-        IEnumerable<IFileInfo> dirItems = fileProvider.GetDirectoryContents(subPath);
-        foreach (IFileInfo dir in dirItems.Where(f => f.IsDirectory))
-        {
-            string relativeDirPath = Path.GetRelativePath(rootDir, dir.PhysicalPath!);
-            FillFilesListRecursive(rootDir, files, fileProvider, relativeDirPath);
-        }
-        foreach (IFileInfo file in dirItems.Where(f => !f.IsDirectory))
-        {
-            string relativeFilePath = Path.GetRelativePath(rootDir, file.PhysicalPath!);
-            files.Add(new FileInfo()
-            {
-                Name = file.Name,
-                Path = relativeFilePath.Replace("\\", "/"),
-                Size = file.Length,
-            });
-        }
     }
 
     private static string SanitizeFileName(string fileName)

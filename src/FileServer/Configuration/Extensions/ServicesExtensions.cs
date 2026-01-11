@@ -39,7 +39,8 @@ internal static class ServicesExtensions
     public static void AddAndConfigureServices(this IServiceCollection services)
     {
         services.AddHttpContextAccessor();
-        services.AddTransient<FileService>();
+        services.AddTransient<FileSaver>();
+        services.AddTransient<FilesLister>();
         services.AddTransient<TokenService>();
 
         services.AddAuthentication()

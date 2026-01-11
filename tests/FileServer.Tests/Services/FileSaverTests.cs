@@ -1,31 +1,19 @@
 ﻿using System.Text;
 using FileServer.Services;
 using Microsoft.Extensions.DependencyInjection;
-using FileInfo = FileServer.Models.Files.FileInfo;
 
 namespace FileServer.Tests.Services;
 
-internal sealed class FileServiceTests : TestsBase
+internal sealed class FileSaverTests : TestsBase
 {
 #pragma warning disable CS8618 // Non-nullable variable must contain a non-null value when exiting constructor. Consider declaring it as nullable.
-    private FileService _fileService;
+    private FileSaver _fileSaver;
 #pragma warning restore CS8618 // Remove when `dotnet format` is fixed (see https://github.com/dotnet/sdk/issues/44867)
 
     [SetUp]
     public void SetUp()
     {
-        _fileService = TestServer.Services.GetRequiredService<FileService>();
-    }
-
-    [Test]
-    public async Task GetDirectoryFilesListRecursive_FindsAllFiles()
-    {
-        List<FileInfo> x = _fileService.GetDirectoryFilesListRecursive(Path.GetFullPath("fs_data"));
-        Assert.That(x.Select(x => x.Path), Is.EquivalentTo(
-        [   // All files in upload folder are deleted in the tests base setup
-            "download/file1.txt",
-            "download_anon/anonfile1.txt",
-        ]));
+        _fileSaver = TestServer.Services.GetRequiredService<FileSaver>();
     }
 
     [TestCase("", "upl..oad")]
@@ -38,7 +26,7 @@ internal sealed class FileServiceTests : TestsBase
         using CancellationTokenSource cts = new();
         await using Stream fileContent = CreateFileContent(fileContentText);
 
-        (string targetFileName, bool saved) = await _fileService.SaveFileIfNotExists(fileName, fileContent, cts.Token);
+        (string targetFileName, bool saved) = await _fileSaver.SaveFileIfNotExists(fileName, fileContent, cts.Token);
         Assert.That(saved, Is.True);
         Assert.That(targetFileName, Is.EqualTo(expectedFileName));
 
@@ -55,9 +43,9 @@ internal sealed class FileServiceTests : TestsBase
         using CancellationTokenSource cts = new();
         await using Stream fileContent = CreateFileContent(fileContentText);
 
-        (string _, bool saved1) = await _fileService.SaveFileIfNotExists(fileName, fileContent, cts.Token);
+        (string _, bool saved1) = await _fileSaver.SaveFileIfNotExists(fileName, fileContent, cts.Token);
         Assert.That(saved1, Is.True);
-        (string _, bool saved2) = await _fileService.SaveFileIfNotExists(fileName, fileContent, cts.Token);
+        (string _, bool saved2) = await _fileSaver.SaveFileIfNotExists(fileName, fileContent, cts.Token);
         Assert.That(saved2, Is.False);
     }
 
