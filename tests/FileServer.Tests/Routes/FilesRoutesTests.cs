@@ -17,7 +17,7 @@ internal sealed class FilesRoutesTests : TestsBase
             c.Request.Path = "/api/files/downloadanon/../download/file1.txt";
         });
 
-        Assert.That(context.Response.StatusCode, Is.EqualTo(404));
+        Assert.That(context.Response.StatusCode, Is.EqualTo(StatusCodes.Status404NotFound));
         Assert.That(GetContent(context), Is.EqualTo(@"""File not found."""));
     }
 
@@ -131,6 +131,7 @@ internal sealed class FilesRoutesTests : TestsBase
         await _fsTestClient.Login();
         using HttpResponseMessage _ = await _fsTestClient.Post("/api/files/upload", CreateTestFileContent());
         using HttpResponseMessage response = await _fsTestClient.Post("/api/files/upload", CreateTestFileContent());
+        Assert.That(response.StatusCode, Is.EqualTo(HttpStatusCode.Conflict));
         Assert.That(await GetContent(response), Is.EqualTo(@"""File with name 'upl.uplfile1.txt.oad' already exists."""));
     }
 

@@ -13,4 +13,7 @@ internal static class Constants
 
     public const string AuthClaimType = "Auth";
     public const string AntiforgeryClaimType = "Antiforgery";
+
+    public const string AuthRouteTag = "api/auth";
+    public const string FilesRouteTag = "api/files";
 }

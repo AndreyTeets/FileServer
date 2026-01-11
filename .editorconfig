@@ -801,6 +801,11 @@ dotnet_diagnostic.SYSLIB1045.severity = silent
 # Add regex evaluation timeout
 dotnet_diagnostic.MA0009.severity = silent
 
+## Routes params/meta types are used as generic-arguments/attributes-holders even if they are empty
+[src/FileServer/Routes/*/**{Params,Meta}.cs]
+# Classes should not be empty
+dotnet_diagnostic.S2094.severity = none
+
 ## Playwright snapshots line endings aren't a problem
 [tests/FileServer.E2ETests/Snapshots/**.cs]
 # Raw String contains an implicit end of line character

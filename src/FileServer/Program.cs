@@ -30,7 +30,7 @@ internal sealed class Program
         app.UseStaticFilesWithNoCacheHeaders();
         app.UseAuthentication();
         app.UseAuthorization();
-        app.MapRoutes(app.Services);
+        app.MapRoutes();
         app.UseNoCacheHeaders();
 
         await app.RunAsync();

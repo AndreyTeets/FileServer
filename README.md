@@ -3,7 +3,7 @@ Is a minimalistic https file server with a simple password-only authentication. 
 
 It's useful, for example, to transfer files over LAN directly between 2 devices if enabling/installing things like SSH, Samba, FTP, Windows folder sharing, e.t.c. on them is undesired. Also mobile devices often miss the client tools necessary to use those, but they do have a browser.
 
-It's implemented as a dotnet AspNetCore Kestrel server with a plain JavaScript single page mini-site (which basically consists of only several buttons). Server code base is also very small - about 10 files containing actual logic around 100 lines each, half of which are related to startup/settings/logging. There are no dependencies except for AspNetCore runtime, which is included when built (published) as self-contained.
+It's implemented as a dotnet AspNetCore Kestrel server with a plain JavaScript single page mini-site (which basically consists of only several buttons). The codebase is pretty small - excluding server-side files that don't contain actual logic (mostly DTO-models) - about 20 C# files for the server-side (around 50 lines each, half of which are related to startup/settings/logging) + about 10 JS files for the client-side (around 100 lines each). There are no dependencies except for AspNetCore runtime, which is included when built (published) as self-contained.
 
 ## What can it do?
 It starts an https server at the specified `listen address` and `listen port` using the provided `server certificate`. The server hosts a simple single page application (SPA) which provides a browser UI to:
