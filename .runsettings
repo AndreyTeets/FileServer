@@ -5,6 +5,7 @@
     <EnvironmentVariables>
       <BROWSER>chromium</BROWSER>
       <HEADED>0</HEADED>
+      <FS_E2ETESTS_USE_PUBLISHED_APP>0</FS_E2ETESTS_USE_PUBLISHED_APP>
     </EnvironmentVariables>
   </RunConfiguration>
 </RunSettings>
