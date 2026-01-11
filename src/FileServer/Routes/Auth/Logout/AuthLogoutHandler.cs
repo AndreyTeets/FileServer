@@ -4,13 +4,9 @@ namespace FileServer.Routes.Auth.Logout;
 
 internal sealed class AuthLogoutHandler(
     IHttpContextAccessor httpContextAccessor)
-    : IRouteHandler<AuthLogoutParams>
+    : RouteHandlerBase(httpContextAccessor)
+    , IRouteHandler<AuthLogoutParams>
 {
-    private readonly IHttpContextAccessor _httpContextAccessor = httpContextAccessor;
-
-    private HttpRequest Request => _httpContextAccessor.HttpContext!.Request;
-    private HttpResponse Response => _httpContextAccessor.HttpContext!.Response;
-
     public async Task<IResult> Execute(AuthLogoutParams routeParams)
     {
         DeleteAuthTokenCookie();

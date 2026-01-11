@@ -38,7 +38,6 @@ internal static class ServicesExtensions
 
     public static void AddAndConfigureServices(this IServiceCollection services)
     {
-        services.AddHttpContextAccessor();
         services.AddTransient<FileSaver>();
         services.AddTransient<FilesLister>();
         services.AddTransient<TokenService>();
@@ -57,6 +56,7 @@ internal static class ServicesExtensions
                 options.XmlEncryptor = new InMemoryXmlRepository.NoopXmlEncryptor();
             }));
 
+        services.AddHttpContextAccessor();
         AddAllRouteHandlers(services);
 
         [UnconditionalSuppressMessage("Trimming", "IL2077",
