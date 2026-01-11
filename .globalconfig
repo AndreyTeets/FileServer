@@ -1,0 +1,8 @@
+# Project-level configuration options that apply to all the source files in a project, regardless of their file names or file paths.
+# Useful when some project files reside outside the project folder.
+# .editorconfig does not apply to source generated files because source generated files are not considered part of the directory tree on disk.
+# .editorconfig has higher priority, so everything suppressed here and explicitly enabled in .editorconfig will only affect generated files.
+is_global = true
+
+# Possible null reference assignment
+dotnet_diagnostic.CS8601.severity = none

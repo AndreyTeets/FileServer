@@ -771,6 +771,11 @@ dotnet_diagnostic.S6610.severity = none
 # Controllers should not have mixed responsibilities
 dotnet_diagnostic.S6960.severity = none
 
+#### Overrides that explicitly enable diagnostics suppressed in the .globalconfig ####
+
+# Possible null reference assignment
+dotnet_diagnostic.CS8601.severity = error
+
 #### Overrides specific to this repo ####
 
 # Call independent Assert statements from inside an Assert.Multiple
@@ -781,7 +786,7 @@ dotnet_diagnostic.NUnit2045.severity = silent
 #### Special files overrides ####
 
 ## Generated or non-compiled files should be ignored
-[{**/obj/**.cs,**/Generated/**.cs,**/TestData/**.cs}]
+[{**/obj/**.cs,**/[Gg]enerated/**.cs,**/TestData/**.cs}]
 generated_code = true
 dotnet_analyzer_diagnostic.severity = none
 
