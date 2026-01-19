@@ -2,6 +2,7 @@
 using System.Net;
 using System.Security.Authentication;
 using System.Security.Cryptography.X509Certificates;
+using System.Threading.RateLimiting;
 using FileServer.Auth;
 using FileServer.Routes;
 using FileServer.Services;
@@ -56,6 +57,7 @@ internal static class ServicesExtensions
                 options.XmlEncryptor = new InMemoryXmlRepository.NoopXmlEncryptor();
             }));
 
+        services.AddPerRouteAndIpRateLimiter();
         services.AddHttpContextAccessor();
         AddAllRouteHandlers(services);
 
@@ -66,5 +68,21 @@ internal static class ServicesExtensions
             foreach ((Type interfaceType, Type implementingType) in RouteHandlersLocator.GetAll())
                 services.AddTransient(interfaceType, implementingType);
         }
+    }
+
+    private static void AddPerRouteAndIpRateLimiter(this IServiceCollection services)
+    {
+        services.AddRateLimiter(options =>
+        {
+            options.RejectionStatusCode = StatusCodes.Status429TooManyRequests;
+            options.AddPolicy(Constants.PerRouteAndIpRateLimitPolicyName, context =>
+            {
+                string route = context.GetEndpoint()!.Metadata.GetMetadata<RouteNameMetadata>()!.RouteName!;
+                string ip = context.Connection.RemoteIpAddress?.ToString() ?? "unknown";
+                return RateLimitPartition.GetTokenBucketLimiter($"{route}:{ip}",
+                    partitionKey => StaticSettings.GetRateLimiterOptions(GetRoute(partitionKey)));
+                static string GetRoute(string pk) => pk[0..pk.IndexOf(":")];
+            });
+        });
     }
 }

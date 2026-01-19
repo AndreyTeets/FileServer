@@ -48,7 +48,7 @@ internal static class RoutingExtensions
                     .RequireUserName(Constants.MainUserName)
                     .Build());
 
-        group.MapPost("/auth/login", Route.ExecAnon<AuthLoginParams>).AddMeta();
+        group.MapPost("/auth/login", Route.ExecAnon<AuthLoginParams>).RateLimit().AddMeta();
         group.MapPost("/auth/logout", Route.Exec<AuthLogoutParams>).AddMeta();
 
         group.MapGet("/files/list", Route.ExecAnon<FilesListParams>).AddMeta();
@@ -68,4 +68,7 @@ internal static class RoutingExtensions
             await next();
         });
     }
+
+    private static RouteHandlerBuilder RateLimit(this RouteHandlerBuilder routeHandlerBuilder) =>
+        routeHandlerBuilder.RequireRateLimiting(Constants.PerRouteAndIpRateLimitPolicyName);
 }
