@@ -28,6 +28,7 @@ internal sealed class Program
 
         app.UseToIndexPageRedirect();
         app.UseStaticFilesWithNoCacheHeaders();
+        app.UseRateLimiter();
         app.UseAuthentication();
         app.UseAuthorization();
         app.MapRoutes();

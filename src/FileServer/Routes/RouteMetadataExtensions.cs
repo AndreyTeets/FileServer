@@ -18,6 +18,7 @@ internal static class RouteMetadataExtensions
         {
             Type paramsType = ((MethodInfo)endpointBuilder.Metadata[0]).GetGenericArguments().Single();
             Type metaType = s_paramsTypeToMetaTypeMap.Value[paramsType];
+            endpointBuilder.Metadata.Add(new RouteNameMetadata(metaType.Name[0..^4]));
             foreach (Attribute attribute in metaType.GetCustomAttributes())
                 endpointBuilder.Metadata.Add(attribute);
         });

@@ -56,6 +56,7 @@ internal sealed class SetUpTestServerFixture
                     app.UseToIndexPageRedirect();
                     app.UseStaticFilesWithNoCacheHeaders();
                     app.UseRouting();
+                    app.UseRateLimiter();
                     app.UseAuthentication();
                     app.UseAuthorization();
                     app.UseEndpoints(endpoints => endpoints.MapRoutes());
