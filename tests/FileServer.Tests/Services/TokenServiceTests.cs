@@ -63,7 +63,7 @@ internal sealed class TokenServiceTests : TestsBase
     [Test]
     public async Task IsValid_ReturnsFalse_WhenBadSignature()
     {
-        Token token = new() { Claim = CreateTestClaim(), Signature = "some_bad_signature" };
+        Token token = new() { Claim = CreateTestClaim(), Signature = Convert.ToBase64String(new byte[] { 1, 1, 1 }) };
         bool isValid = _tokenService.TokenIsValid(token);
         Assert.That(isValid, Is.False);
     }

@@ -16,13 +16,14 @@ internal sealed class TokenService(
     public Token CreateToken(Claim claim) => new()
     {
         Claim = claim,
-        Signature = ComputeClaimSignature(claim),
+        Signature = Convert.ToBase64String(ComputeClaimSignature(claim)),
     };
 
     public bool TokenIsValid(Token token)
     {
-        string claimSignature = ComputeClaimSignature(token.Claim);
-        return token.Signature == claimSignature
+        byte[] expectedSignature = ComputeClaimSignature(token.Claim);
+        byte[] signature = Convert.FromBase64String(token.Signature);
+        return CryptographicOperations.FixedTimeEquals(signature, expectedSignature)
             && token.Claim.Expires > DateTime.UtcNow;
     }
 
@@ -47,13 +48,12 @@ internal sealed class TokenService(
         }
     }
 
-    private string ComputeClaimSignature(Claim claim)
+    private byte[] ComputeClaimSignature(Claim claim)
     {
         string data = JsonSerializer.Serialize(claim, Jsc.Default.Claim);
         byte[] dataBytes = Encoding.UTF8.GetBytes(data);
         byte[] keyBytes = Encoding.UTF8.GetBytes(_options.CurrentValue.SigningKey);
         using HMACSHA256 hmac = new(keyBytes);
-        byte[] signatureBytes = hmac.ComputeHash(dataBytes);
-        return Convert.ToBase64String(signatureBytes);
+        return hmac.ComputeHash(dataBytes);
     }
 }
