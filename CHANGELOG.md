@@ -1,5 +1,17 @@
 # Changelog
 
+## [2.0.2] - 2026-01-19
+
+**Notable Changes**:
++ Add rate limiting for login route (#60).
++ Use constant-time comparison for token/key related checks (#61).
++ Fix server throwing null reference exception on malformed auth tokens (#51).
++ Fix settings validation not failing on empty strings (#52).
++ Fix settings validation throwing null reference exception on null keys (#53).
++ Update pinned dotnet runtime to 10.0.2 (#58). This is only relevant for pre-built artifacts, excluding framework-dependent binaries.
+
+[All Changes](https://github.com/AndreyTeets/FileServer/compare/v2.0.1...v2.0.2)
+
 ## [2.0.1] - 2025-12-20
 
 **Notable Changes**:
@@ -90,6 +102,7 @@ It starts an https server at the specified `listen address` and `listen port` us
 
 [All Commits](https://github.com/AndreyTeets/FileServer/commits/v1.0.1)
 
+[2.0.2]: https://github.com/AndreyTeets/FileServer/releases/tag/v2.0.2
 [2.0.1]: https://github.com/AndreyTeets/FileServer/releases/tag/v2.0.1
 [2.0.0]: https://github.com/AndreyTeets/FileServer/releases/tag/v2.0.0
 [1.1.2]: https://github.com/AndreyTeets/FileServer/releases/tag/v1.1.2
