@@ -27,7 +27,7 @@
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(FS_PIN_RUNTIME_VERSION)' == 'true'">
-    <RuntimeFrameworkVersion>10.0.1</RuntimeFrameworkVersion>
+    <RuntimeFrameworkVersion>10.0.2</RuntimeFrameworkVersion>
   </PropertyGroup>
 
   <ItemGroup>
