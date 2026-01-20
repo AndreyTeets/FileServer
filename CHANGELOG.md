@@ -10,7 +10,9 @@
 + Fix settings validation throwing null reference exception on null keys (#53).
 + Update pinned dotnet runtime to 10.0.2 (#58). This is only relevant for pre-built artifacts, excluding framework-dependent binaries.
 
-[All Changes](https://github.com/AndreyTeets/FileServer/compare/v2.0.1...v2.0.2)
+[Unnotable Changes](https://github.com/AndreyTeets/FileServer/pulls?q=milestone%3A2.0.2%20-label%3Anoteworthy)
+
+[All Commits](https://github.com/AndreyTeets/FileServer/compare/v2.0.1...v2.0.2)
 
 ## [2.0.1] - 2025-12-20
 
@@ -20,7 +22,9 @@
 + Always upgrade all os-packages to latest in dockerfiles (#47).
 + Rebuild container images with the latest os-packages.
 
-[All Changes](https://github.com/AndreyTeets/FileServer/compare/v2.0.0...v2.0.1)
+[Unnotable Changes](https://github.com/AndreyTeets/FileServer/pulls?q=milestone%3A2.0.1%20-label%3Anoteworthy)
+
+[All Commits](https://github.com/AndreyTeets/FileServer/compare/v2.0.0...v2.0.1)
 
 ## [2.0.0] - 2025-11-23
 
@@ -41,7 +45,9 @@
 + Get rid of warnings about DataProtection-Keys (which aren't used) (#26).
 + Fix commit info from SourceLink not being included in container images (#25).
 
-[All Changes](https://github.com/AndreyTeets/FileServer/compare/v1.1.2...v2.0.0)
+[Unnotable Changes](https://github.com/AndreyTeets/FileServer/pulls?q=milestone%3A2.0.0%20-label%3Anoteworthy)
+
+[All Commits](https://github.com/AndreyTeets/FileServer/compare/v1.1.2...v2.0.0)
 
 ## [1.1.2] - 2025-11-12
 
@@ -51,14 +57,18 @@
 + Add generation of sha256sums.txt for pre-built binaries (#21).
 + Add CHANGELOG.md and use it as a source of truth for releases (#22).
 
-[All Changes](https://github.com/AndreyTeets/FileServer/compare/v1.1.1...v1.1.2)
+[Unnotable Changes](https://github.com/AndreyTeets/FileServer/pulls?q=milestone%3A1.1.2%20-label%3Anoteworthy)
+
+[All Commits](https://github.com/AndreyTeets/FileServer/compare/v1.1.1...v1.1.2)
 
 ## [1.1.1] - 2025-11-11
 
 **Notable Changes**:
 + Add automatic release creation with pre-built binaries (#16).
 
-[All Changes](https://github.com/AndreyTeets/FileServer/compare/v1.1.0...v1.1.1)
+[Unnotable Changes](https://github.com/AndreyTeets/FileServer/pulls?q=milestone%3A1.1.1%20-label%3Anoteworthy)
+
+[All Commits](https://github.com/AndreyTeets/FileServer/compare/v1.1.0...v1.1.1)
 
 ## [1.1.0] - 2025-11-09
 
@@ -68,7 +78,9 @@
 + Change server error responses to more appropriate HTTP status codes instead of BadRequest everywhere (1062d4c36eda).
 + Rewrite client to React-like architecture with VDOM that renders only a minimal changed element in DOM (#11).
 
-[All Changes](https://github.com/AndreyTeets/FileServer/compare/v1.0.3...v1.1.0)
+[Unnotable Changes](https://github.com/AndreyTeets/FileServer/pulls?q=milestone%3A1.1.0%20-label%3Anoteworthy)
+
+[All Commits](https://github.com/AndreyTeets/FileServer/compare/v1.0.3...v1.1.0)
 
 ## [1.0.3] - 2025-10-18
 
@@ -76,16 +88,19 @@
 + Update vulnerable container base images (#9).
 + Fix several missing disposes for PhysicalFileProvider and FileStream objects.
 + Very minor improvements and fixes in error handling.
-+ Refactoring (mostly style-only) to improve code readability and maintainability.
 
-[All Changes](https://github.com/AndreyTeets/FileServer/compare/v1.0.2...v1.0.3)
+[Unnotable Changes](https://github.com/AndreyTeets/FileServer/pulls?q=milestone%3A1.0.3%20-label%3Anoteworthy)
+
+[All Commits](https://github.com/AndreyTeets/FileServer/compare/v1.0.2...v1.0.3)
 
 ## [1.0.2] - 2025-04-12
 
 **Notable Changes**:
 + Improve compatibility of Dockerfile with other build tools (#2). This only applies to building the container image from the source code.
 
-[All Changes](https://github.com/AndreyTeets/FileServer/compare/v1.0.1...v1.0.2)
+[Unnotable Changes](https://github.com/AndreyTeets/FileServer/pulls?q=milestone%3A1.0.2%20-label%3Anoteworthy)
+
+[All Commits](https://github.com/AndreyTeets/FileServer/compare/v1.0.1...v1.0.2)
 
 ## [1.0.1] - 2025-04-11
 
