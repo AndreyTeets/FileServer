@@ -37,7 +37,7 @@ internal sealed class DoubleTokenAuthenticationHandler(
     {
         AuthenticateResult authResult = await HandleAuthenticateOnceSafeAsync();
         Response.StatusCode = StatusCodes.Status401Unauthorized;
-        Response.Cookies.Delete(Constants.AuthTokenCookieName, StaticSettings.GetAuthTokenCookieOptions(Request.Host.Host));
+        Response.Cookies.Delete(Constants.AuthTokenCookieName, StaticSettings.AuthTokenCookieOptions);
         await Response.WriteAsJsonAsync("Failed to authenticate: " + authResult.Failure!.Message, Jsc.Default.String);
     }
 

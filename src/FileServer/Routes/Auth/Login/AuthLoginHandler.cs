@@ -48,7 +48,7 @@ internal sealed class AuthLoginHandler(
 
     private void SetAuthTokenCookie(string token, DateTime expires)
     {
-        CookieOptions cookieOptions = StaticSettings.GetAuthTokenCookieOptions(Request.Host.Host);
+        CookieOptions cookieOptions = StaticSettings.AuthTokenCookieOptions;
         cookieOptions.Expires = (DateTimeOffset)expires;
         Response.Cookies.Append(Constants.AuthTokenCookieName, token, cookieOptions);
     }

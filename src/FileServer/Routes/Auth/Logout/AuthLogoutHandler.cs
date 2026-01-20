@@ -15,7 +15,7 @@ internal sealed class AuthLogoutHandler(
 
     private void DeleteAuthTokenCookie()
     {
-        CookieOptions cookieOptions = StaticSettings.GetAuthTokenCookieOptions(Request.Host.Host);
+        CookieOptions cookieOptions = StaticSettings.AuthTokenCookieOptions;
         Response.Cookies.Delete(Constants.AuthTokenCookieName, cookieOptions);
     }
 }

@@ -5,12 +5,11 @@ namespace FileServer.Configuration;
 
 internal static class StaticSettings
 {
-    public static CookieOptions GetAuthTokenCookieOptions(string domain) => new()
+    public static readonly CookieOptions AuthTokenCookieOptions = new()
     {
         Secure = true,
         HttpOnly = true,
         IsEssential = true,
-        Domain = domain,
         SameSite = SameSiteMode.Strict,
     };
 
