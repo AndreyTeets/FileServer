@@ -3,8 +3,8 @@
 ## [2.0.2] - 2026-01-19
 
 **Notable Changes**:
-+ Add rate limiting for login route (#60).
-+ Use constant-time comparison for token/key related checks (#61).
++ **SECURITY**: Add rate limiting for login route (#60).
++ **SECURITY**: Use constant-time comparison for token/key related checks (#61).
 + Fix server throwing null reference exception on malformed auth tokens (#51).
 + Fix settings validation not failing on empty strings (#52).
 + Fix settings validation throwing null reference exception on null keys (#53).
@@ -17,9 +17,9 @@
 ## [2.0.1] - 2025-12-20
 
 **Notable Changes**:
-+ Don't pin patch-versions in dockerfiles by default (#46). This is relevant for building from the source code.
-+ Update pinned dotnet runtime to 10.0.1 (#48). This is relevant for pre-built artifacts, excluding framework-dependent binaries.
-+ Always upgrade all os-packages to latest in dockerfiles (#47).
++ **SECURITY**: Don't pin patch-versions in dockerfiles by default (#46). This is mostly relevant for building from the source code.
++ **SECURITY**: Always upgrade all os-packages to latest in dockerfiles (#47).
++ Update pinned dotnet runtime to 10.0.1 (#48). This is only relevant for pre-built artifacts, excluding framework-dependent binaries.
 + Rebuild container images with the latest os-packages.
 
 [Unnotable Changes](https://github.com/AndreyTeets/FileServer/pulls?q=milestone%3A2.0.1%20-label%3Anoteworthy)
@@ -85,7 +85,7 @@
 ## [1.0.3] - 2025-10-18
 
 **Notable Changes**:
-+ Update vulnerable container base images (#9).
++ **SECURITY**: Update vulnerable container base images (#9). This fixes: CVE-2025-55315 (affected, CRITICAL), CVE-2025-9230 (not-affected), CVE-2025-9231 (not-affected), CVE-2025-9232 (not-affected).
 + Fix several missing disposes for PhysicalFileProvider and FileStream objects.
 + Very minor improvements and fixes in error handling.
 
