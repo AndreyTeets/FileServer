@@ -12,16 +12,18 @@ internal sealed class FileSaver(
     public async Task<(string targetFileName, bool saved)> SaveFileIfNotExists(
         string originalFileName, Stream fileContent, CancellationToken ct)
     {
-        string trustedFileName = SanitizeFileName(originalFileName);
-        string saveToPath = Path.Combine(_options.CurrentValue.UploadDir, trustedFileName);
-
-        if (!File.Exists(saveToPath))
+        string sanitizedFileName = SanitizeFileName(originalFileName);
+        string saveToPath = Path.Combine(_options.CurrentValue.UploadDir, sanitizedFileName);
+        try
         {
-            await using FileStream targetStream = File.Create(saveToPath);
+            await using FileStream targetStream = new(saveToPath, FileMode.CreateNew, FileAccess.Write, FileShare.None);
             await fileContent.CopyToAsync(targetStream, ct);
-            return (trustedFileName, true);
+            return (sanitizedFileName, true);
         }
-        return (trustedFileName, false);
+        catch (IOException) when (File.Exists(saveToPath))
+        {
+            return (sanitizedFileName, false);
+        }
     }
 
     private static string SanitizeFileName(string fileName)
