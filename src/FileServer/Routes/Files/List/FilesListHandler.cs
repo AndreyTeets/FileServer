@@ -1,5 +1,4 @@
-﻿using System.Security.Claims;
-using FileServer.Configuration;
+﻿using FileServer.Configuration;
 using FileServer.Models.Files;
 using FileServer.Services;
 using Microsoft.Extensions.Options;
@@ -34,14 +33,5 @@ internal sealed class FilesListHandler(
             Files = files,
             Count = files.Count,
         });
-    }
-
-    private bool IsAuthenticated()
-    {
-        ClaimsPrincipal user = Context.User;
-        return user.Identities.Any(x =>
-            x.IsAuthenticated
-            && x.AuthenticationType == Constants.DoubleTokenAuthenticationSchemeAuthenticationType
-            && x.Name == Constants.MainUserName);
     }
 }
