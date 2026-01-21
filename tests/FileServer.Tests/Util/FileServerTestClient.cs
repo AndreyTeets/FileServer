@@ -11,7 +11,8 @@ internal sealed class FileServerTestClient : IDisposable
     private readonly CookieProcessingHttpMessageHandler _cpHandler;
 #pragma warning restore CA2213 // Responsibility of the HttpClient
     private readonly HttpClient _httpClient;
-    private LoginResponse? _loginResponse;
+
+    public string? AntiforgeryToken { get; set; }
 
     public CookieContainer CookieContainer
     {
@@ -36,8 +37,8 @@ internal sealed class FileServerTestClient : IDisposable
         bool skipAntiforgeryTokenHeader = false)
     {
         using HttpRequestMessage request = new(HttpMethod.Get, requestUri);
-        if (_loginResponse is not null && !skipAntiforgeryTokenHeader)
-            request.Headers.Add(Constants.AntiforgeryTokenHeaderName, _loginResponse.AntiforgeryToken);
+        if (AntiforgeryToken is not null && !skipAntiforgeryTokenHeader)
+            request.Headers.Add(Constants.AntiforgeryTokenHeaderName, AntiforgeryToken);
         return await _httpClient.SendAsync(request);
     }
 
@@ -47,8 +48,8 @@ internal sealed class FileServerTestClient : IDisposable
         bool skipAntiforgeryTokenHeader = false)
     {
         using HttpRequestMessage request = new(HttpMethod.Post, requestUri);
-        if (_loginResponse is not null && !skipAntiforgeryTokenHeader)
-            request.Headers.Add(Constants.AntiforgeryTokenHeaderName, _loginResponse.AntiforgeryToken);
+        if (AntiforgeryToken is not null && !skipAntiforgeryTokenHeader)
+            request.Headers.Add(Constants.AntiforgeryTokenHeaderName, AntiforgeryToken);
         request.Content = content;
         return await _httpClient.SendAsync(request);
     }
@@ -59,17 +60,19 @@ internal sealed class FileServerTestClient : IDisposable
         request.Content = JsonContent.Create(new { Password = "123456789012" });
         using HttpResponseMessage response = await _httpClient.SendAsync(request);
         response.EnsureSuccessStatusCode();
-        _loginResponse = await response.Content.ReadFromJsonAsync<LoginResponse>();
-        return _loginResponse!;
+        LoginResponse loginResponse = await response.Content.ReadFromJsonAsync<LoginResponse>()
+            ?? throw new InvalidOperationException("Invalid login response content.");
+        AntiforgeryToken = loginResponse.AntiforgeryToken;
+        return loginResponse;
     }
 
     public async Task Logout()
     {
         using HttpRequestMessage request = new(HttpMethod.Post, "/api/auth/logout");
-        if (_loginResponse is not null)
-            request.Headers.Add(Constants.AntiforgeryTokenHeaderName, _loginResponse.AntiforgeryToken);
+        if (AntiforgeryToken is not null)
+            request.Headers.Add(Constants.AntiforgeryTokenHeaderName, AntiforgeryToken);
         using HttpResponseMessage response = await _httpClient.SendAsync(request);
         response.EnsureSuccessStatusCode();
-        _loginResponse = null;
+        AntiforgeryToken = null;
     }
 }

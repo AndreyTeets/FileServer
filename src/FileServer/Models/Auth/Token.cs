@@ -2,6 +2,6 @@
 
 internal sealed class Token
 {
-    public required Claim Claim { get; set; }
-    public required string Signature { get; set; }
+    public required Claim Claim { get; init; }
+    public required string Signature { get; init; }
 }

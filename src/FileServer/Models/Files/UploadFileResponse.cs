@@ -2,5 +2,5 @@
 
 internal sealed class UploadFileResponse
 {
-    public required string CreatedFileName { get; set; }
+    public required string CreatedFileName { get; init; }
 }
