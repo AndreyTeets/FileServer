@@ -3,7 +3,7 @@ using System.Text;
 
 namespace FileServer.Configuration;
 
-internal static class Utility
+internal static class LogUtil
 {
     public static ILogger CreateConsoleLogger<T>() where T : class
     {
@@ -11,17 +11,6 @@ internal static class Utility
             .SetMinimumLevel(LogLevel.Trace)
             .AddConsole());
         return loggerFactory.CreateLogger<T>();
-    }
-
-    public static X509Certificate2 LoadCertificate(Settings settings)
-    {
-        X509Certificate2 cert = X509Certificate2.CreateFromPemFile(settings.CertFilePath, settings.CertKeyPath);
-        if (OperatingSystem.IsWindows())
-        {   // Windows SCHANNEL doesn't work with EphemeralKeySet (see https://github.com/dotnet/runtime/issues/23749)
-            using X509Certificate2 originalCert = cert;
-            cert = X509CertificateLoader.LoadPkcs12(originalCert.Export(X509ContentType.Pkcs12), password: null);
-        }
-        return cert;
     }
 
     public static string GetCertificateDisplayString(X509Certificate2 cert)

@@ -20,8 +20,8 @@ internal sealed class SettingsValidator(
         {
             _debouncer.Debounce(nameof(LogMessages.InvalidSettings), () =>
                 _logger.LogError(LogMessages.InvalidSettings,
-                    Utility.GetSettingsDisplayString(settings),
-                    Utility.GetSettingsProblemsDisplayString(problems)));
+                    LogUtil.GetSettingsDisplayString(settings),
+                    LogUtil.GetSettingsProblemsDisplayString(problems)));
             return ValidateOptionsResult.Fail(problems);
         }
         return ValidateOptionsResult.Success;
