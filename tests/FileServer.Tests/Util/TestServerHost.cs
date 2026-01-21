@@ -6,9 +6,9 @@ using Microsoft.AspNetCore.Http.Features;
 using Microsoft.AspNetCore.TestHost;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.DependencyInjection.Extensions;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
-using Microsoft.Extensions.Options;
 
 namespace FileServer.Tests.Util;
 
@@ -20,12 +20,12 @@ internal static class TestServerHost
         builder.Configuration.UseTestSource();
         builder.Logging.UseTestProvider(builder.Configuration, logsSb);
         builder.Services.SetUpForSettingsWithNoopDebouncer(builder.Configuration);
-        builder.Services.AddAndConfigureServices();
+        builder.Services.SetUpForRouting();
         builder.Services.AddRouting(); // Need to add manually because CreateEmptyBuilder is used
         builder.WebHost.UseTestServer();
 
         WebApplication app = builder.Build();
-        app.SetUpSettingsMonitor();
+        app.Services.SetUpSettingsMonitor();
         app.UseTestFeatures(); // TestServer doesn't have all features that Kestrel does
 
         app.UseToIndexPageRedirect();
@@ -54,8 +54,8 @@ internal static class TestServerHost
 
     public static void SetUpForSettingsWithNoopDebouncer(this IServiceCollection services, IConfiguration configuration)
     {
-        services.Configure<Settings>(configuration.GetSection(nameof(Settings)));
-        services.AddSingleton<IValidateOptions<Settings>, SettingsValidator>();
+        services.SetUpForSettings(configuration);
+        services.RemoveAll<IDebouncer>();
         services.AddSingleton<IDebouncer, NoopDebouncer>();
     }
 

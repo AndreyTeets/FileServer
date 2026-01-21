@@ -17,14 +17,14 @@ internal sealed class Program
         logger.LogInformation(LogMessages.StartingServer, AppInfo.GetVersion(out string commit), commit);
 
         WebApplicationBuilder builder = WebApplication.CreateBuilder(args);
-        builder.ConfigureSettings();
-        builder.ConfigureLogging();
-        builder.ConfigureKestrel(logger);
-
-        builder.Services.AddAndConfigureServices();
+        builder.Configuration.SetUpSources();
+        builder.Logging.SetUpProviders();
+        builder.Services.SetUpForSettings(builder.Configuration);
+        builder.Services.SetUpForRouting();
+        builder.WebHost.SetUpKestrel(builder.Configuration, logger);
 
         WebApplication app = builder.Build();
-        app.SetUpSettingsMonitor();
+        app.Services.SetUpSettingsMonitor();
 
         app.UseToIndexPageRedirect();
         app.UseStaticFilesWithNoCacheHeaders();
