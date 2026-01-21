@@ -4,7 +4,7 @@ using Microsoft.Extensions.DependencyInjection;
 
 namespace FileServer.Tests.Services;
 
-internal sealed class FileSaverTests : TestsBase
+internal sealed class FileSaverTests : ServerTestsBase
 {
 #pragma warning disable CS8618 // Non-nullable variable must contain a non-null value when exiting constructor. Consider declaring it as nullable.
     private FileSaver _fileSaver;

@@ -2,7 +2,7 @@
 
 namespace FileServer.Tests.Routes.Auth;
 
-internal sealed class AuthLogoutTests : TestsBase
+internal sealed class AuthLogoutTests : ServerTestsBase
 {
     [Test]
     public async Task Logout_DeletesAuthCookie_WhenAuthorized()

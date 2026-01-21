@@ -7,7 +7,7 @@ using Microsoft.Extensions.DependencyInjection;
 
 namespace FileServer.Tests.Routes.Auth;
 
-internal sealed class AuthLoginTests : TestsBase
+internal sealed class AuthLoginTests : ServerTestsBase
 {
     [Test]
     public async Task Login_ProducesCorrectResponse_WhenSuccessful()

@@ -6,7 +6,7 @@ using Microsoft.Extensions.DependencyInjection;
 
 namespace FileServer.Tests.Services;
 
-internal sealed class TokenServiceTests : TestsBase
+internal sealed class TokenServiceTests : ServerTestsBase
 {
 #pragma warning disable CS8618 // Non-nullable variable must contain a non-null value when exiting constructor. Consider declaring it as nullable.
     private TokenService _tokenService;

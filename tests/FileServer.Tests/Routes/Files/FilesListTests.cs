@@ -5,7 +5,7 @@ using Microsoft.AspNetCore.Http;
 
 namespace FileServer.Tests.Routes.Files;
 
-internal sealed class FilesListTests : TestsBase
+internal sealed class FilesListTests : ServerTestsBase
 {
     [Test]
     public async Task List_NoAuth_ReturnsOnlyAnonFiles()

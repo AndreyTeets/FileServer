@@ -3,7 +3,7 @@ using FileServer.Configuration;
 
 namespace FileServer.Tests.Configuration;
 
-internal sealed class DebouncerTests : TestsBase
+internal sealed class DebouncerTests : ServerTestsBase
 {
     [Test]
     public async Task Debounce_OnlyPerformsLastAction_And_DisposesCorrectly()
