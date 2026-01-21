@@ -13,7 +13,19 @@ namespace FileServer.Configuration.Extensions;
 
 internal static class RoutingSetupExt
 {
-    public static void UseToIndexPageRedirect(this IApplicationBuilder app)
+    public static void SetUpRouting<TApp>(this TApp app)
+        where TApp : IApplicationBuilder, IEndpointRouteBuilder
+    {
+        app.UseToIndexPageRedirect();
+        app.UseStaticFilesWithNoCacheHeaders();
+        app.UseRateLimiter();
+        app.UseAuthentication();
+        app.UseAuthorization();
+        app.MapRoutes();
+        app.UseNoCacheHeaders();
+    }
+
+    private static void UseToIndexPageRedirect(this IApplicationBuilder app)
     {
         app.Use(async (context, next) =>
         {
@@ -23,7 +35,7 @@ internal static class RoutingSetupExt
         });
     }
 
-    public static void UseStaticFilesWithNoCacheHeaders(this IApplicationBuilder app)
+    private static void UseStaticFilesWithNoCacheHeaders(this IApplicationBuilder app)
     {
         StaticFileOptions sfo = new();
         Assembly assembly = typeof(Program).Assembly;
@@ -39,7 +51,7 @@ internal static class RoutingSetupExt
                 ?.Value == "true";
     }
 
-    public static void MapRoutes(this IEndpointRouteBuilder endpoints)
+    private static void MapRoutes(this IEndpointRouteBuilder endpoints)
     {
         RouteGroupBuilder group = endpoints.MapGroup("/api")
             .RequireAuthorization(
@@ -59,7 +71,7 @@ internal static class RoutingSetupExt
         group.MapPost("/files/upload", Route.Exec<FilesUploadParams>).AddMeta();
     }
 
-    public static void UseNoCacheHeaders(this IApplicationBuilder app)
+    private static void UseNoCacheHeaders(this IApplicationBuilder app)
     {
         app.Use(async (context, next) =>
         {

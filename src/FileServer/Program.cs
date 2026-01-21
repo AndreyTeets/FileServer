@@ -25,14 +25,7 @@ internal sealed class Program
 
         WebApplication app = builder.Build();
         app.Services.SetUpSettingsMonitor();
-
-        app.UseToIndexPageRedirect();
-        app.UseStaticFilesWithNoCacheHeaders();
-        app.UseRateLimiter();
-        app.UseAuthentication();
-        app.UseAuthorization();
-        app.MapRoutes();
-        app.UseNoCacheHeaders();
+        app.SetUpRouting();
 
         await app.RunAsync();
     }

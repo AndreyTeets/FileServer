@@ -27,14 +27,7 @@ internal static class TestServerHost
         WebApplication app = builder.Build();
         app.Services.SetUpSettingsMonitor();
         app.UseTestFeatures(); // TestServer doesn't have all features that Kestrel does
-
-        app.UseToIndexPageRedirect();
-        app.UseStaticFilesWithNoCacheHeaders();
-        app.UseRateLimiter();
-        app.UseAuthentication();
-        app.UseAuthorization();
-        app.MapRoutes();
-        app.UseNoCacheHeaders();
+        app.SetUpRouting();
 
         return app;
     }
