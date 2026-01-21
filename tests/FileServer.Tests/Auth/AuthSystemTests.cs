@@ -11,9 +11,9 @@ internal sealed class AuthSystemTests : TestsBase
     [Test]
     public async Task Auth_UsingInQuery_AntiforgeryToken_Works()
     {
-        LoginResponse loginResponse = await _fsTestClient.Login();
+        LoginResponse loginResponse = await FsTestClient.Login();
         string queryString = $"?{Constants.AntiforgeryTokenQueryParamName}={loginResponse.AntiforgeryToken}";
-        using HttpResponseMessage response = await _fsTestClient.Get(
+        using HttpResponseMessage response = await FsTestClient.Get(
             $"/api/files/download/file1.txt{queryString}", skipAntiforgeryTokenHeader: true);
         Assert.That(response.StatusCode, Is.EqualTo(HttpStatusCode.OK));
     }
@@ -21,9 +21,9 @@ internal sealed class AuthSystemTests : TestsBase
     [Test]
     public async Task Auth_ReportsAllProblems_WhenBothTokensAreBad()
     {
-        await _fsTestClient.Login();
-        _fsTestClient.CookieContainer = new();
-        using HttpResponseMessage response = await _fsTestClient.Get(
+        await FsTestClient.Login();
+        FsTestClient.CookieContainer = new();
+        using HttpResponseMessage response = await FsTestClient.Get(
             "/api/files/download/file1.txt", skipAntiforgeryTokenHeader: true);
         Assert.That(response.StatusCode, Is.EqualTo(HttpStatusCode.Unauthorized));
         Assert.That(await GetContent(response), Is.EqualTo(
@@ -33,8 +33,8 @@ internal sealed class AuthSystemTests : TestsBase
     [Test]
     public async Task Auth_WithAbsent_AntiforgeryToken_Fails()
     {
-        await _fsTestClient.Login();
-        using HttpResponseMessage response = await _fsTestClient.Get(
+        await FsTestClient.Login();
+        using HttpResponseMessage response = await FsTestClient.Get(
             "/api/files/download/file1.txt", skipAntiforgeryTokenHeader: true);
         Assert.That(response.StatusCode, Is.EqualTo(HttpStatusCode.Unauthorized));
         Assert.That(await GetContent(response), Is.EqualTo(
@@ -44,9 +44,9 @@ internal sealed class AuthSystemTests : TestsBase
     [Test]
     public async Task Auth_WithAbsent_CookieToken_Fails()
     {
-        await _fsTestClient.Login();
-        _fsTestClient.CookieContainer = new();
-        using HttpResponseMessage response = await _fsTestClient.Get("/api/files/download/file1.txt");
+        await FsTestClient.Login();
+        FsTestClient.CookieContainer = new();
+        using HttpResponseMessage response = await FsTestClient.Get("/api/files/download/file1.txt");
         Assert.That(response.StatusCode, Is.EqualTo(HttpStatusCode.Unauthorized));
         Assert.That(await GetContent(response), Is.EqualTo(
             @"""Failed to authenticate: Auth token absent."""));
@@ -55,9 +55,9 @@ internal sealed class AuthSystemTests : TestsBase
     [Test]
     public async Task Auth_WithMalformed_AntiforgeryToken_Fails()
     {
-        LoginResponse loginResponse = await _fsTestClient.Login();
+        LoginResponse loginResponse = await FsTestClient.Login();
         loginResponse.AntiforgeryToken = CreateMalformedToken();
-        using HttpResponseMessage response = await _fsTestClient.Get("/api/files/download/file1.txt");
+        using HttpResponseMessage response = await FsTestClient.Get("/api/files/download/file1.txt");
         Assert.That(response.StatusCode, Is.EqualTo(HttpStatusCode.Unauthorized));
         Assert.That(await GetContent(response), Is.EqualTo(
             @"""Failed to authenticate: Antiforgery token malformed."""));
@@ -66,12 +66,12 @@ internal sealed class AuthSystemTests : TestsBase
     [Test]
     public async Task Auth_WithMalformed_CookieToken_Fails()
     {
-        await _fsTestClient.Login();
-        _fsTestClient.CookieContainer.SetCookies(
-            _testClient.BaseAddress!,
+        await FsTestClient.Login();
+        FsTestClient.CookieContainer.SetCookies(
+            TestClient.BaseAddress!,
             $"{Constants.AuthTokenCookieName}={CreateMalformedToken()}");
 
-        using HttpResponseMessage response = await _fsTestClient.Get("/api/files/download/file1.txt");
+        using HttpResponseMessage response = await FsTestClient.Get("/api/files/download/file1.txt");
         Assert.That(response.StatusCode, Is.EqualTo(HttpStatusCode.Unauthorized));
         Assert.That(await GetContent(response), Is.EqualTo(
             @"""Failed to authenticate: Auth token malformed."""));
@@ -80,9 +80,9 @@ internal sealed class AuthSystemTests : TestsBase
     [Test]
     public async Task Auth_WithNotValid_AntiforgeryToken_Fails()
     {
-        LoginResponse loginResponse = await _fsTestClient.Login();
+        LoginResponse loginResponse = await FsTestClient.Login();
         loginResponse.AntiforgeryToken = CreateExpiredToken(Constants.AntiforgeryClaimType);
-        using HttpResponseMessage response = await _fsTestClient.Get("/api/files/download/file1.txt");
+        using HttpResponseMessage response = await FsTestClient.Get("/api/files/download/file1.txt");
         Assert.That(response.StatusCode, Is.EqualTo(HttpStatusCode.Unauthorized));
         Assert.That(await GetContent(response), Is.EqualTo(
             @"""Failed to authenticate: Antiforgery token not valid."""));
@@ -91,12 +91,12 @@ internal sealed class AuthSystemTests : TestsBase
     [Test]
     public async Task Auth_WithNotValid_CookieToken_Fails()
     {
-        await _fsTestClient.Login();
-        _fsTestClient.CookieContainer.SetCookies(
-            _testClient.BaseAddress!,
+        await FsTestClient.Login();
+        FsTestClient.CookieContainer.SetCookies(
+            TestClient.BaseAddress!,
             $"{Constants.AuthTokenCookieName}={CreateExpiredToken(Constants.AuthClaimType)}");
 
-        using HttpResponseMessage response = await _fsTestClient.Get("/api/files/download/file1.txt");
+        using HttpResponseMessage response = await FsTestClient.Get("/api/files/download/file1.txt");
         Assert.That(response.StatusCode, Is.EqualTo(HttpStatusCode.Unauthorized));
         Assert.That(await GetContent(response), Is.EqualTo(
             @"""Failed to authenticate: Auth token not valid."""));
@@ -109,7 +109,7 @@ internal sealed class AuthSystemTests : TestsBase
         return WebUtility.UrlEncode(tokenBase64String);
     }
 
-    private static string CreateExpiredToken(string type)
+    private string CreateExpiredToken(string type)
     {
         TokenService tokenService = TestServer.Services.GetRequiredService<TokenService>();
         Token token = tokenService.CreateToken(

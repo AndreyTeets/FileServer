@@ -8,15 +8,15 @@ internal sealed class FilesUploadTests : TestsBase
     [Test]
     public async Task Upload_NoAuth_Fails()
     {
-        using HttpResponseMessage response = await _fsTestClient.Post("/api/files/upload", CreateTestFileContent());
+        using HttpResponseMessage response = await FsTestClient.Post("/api/files/upload", CreateTestFileContent());
         Assert.That(response.StatusCode, Is.EqualTo(HttpStatusCode.Unauthorized));
     }
 
     [Test]
     public async Task Upload_WithAuth_Works()
     {
-        await _fsTestClient.Login();
-        using HttpResponseMessage response = await _fsTestClient.Post("/api/files/upload", CreateTestFileContent());
+        await FsTestClient.Login();
+        using HttpResponseMessage response = await FsTestClient.Post("/api/files/upload", CreateTestFileContent());
         Assert.That(response.StatusCode, Is.EqualTo(HttpStatusCode.OK));
         Assert.That(File.Exists("fs_data/upload/upl.uplfile1.txt.oad"), Is.True);
         Assert.That(await File.ReadAllTextAsync("fs_data/upload/upl.uplfile1.txt.oad"), Is.EqualTo("test_uplfile1_content"));
@@ -25,9 +25,9 @@ internal sealed class FilesUploadTests : TestsBase
     [Test]
     public async Task Upload_AlreadyExistingFile_Fails()
     {
-        await _fsTestClient.Login();
-        using HttpResponseMessage _ = await _fsTestClient.Post("/api/files/upload", CreateTestFileContent());
-        using HttpResponseMessage response = await _fsTestClient.Post("/api/files/upload", CreateTestFileContent());
+        await FsTestClient.Login();
+        using HttpResponseMessage _ = await FsTestClient.Post("/api/files/upload", CreateTestFileContent());
+        using HttpResponseMessage response = await FsTestClient.Post("/api/files/upload", CreateTestFileContent());
         Assert.That(response.StatusCode, Is.EqualTo(HttpStatusCode.Conflict));
         Assert.That(await GetContent(response), Is.EqualTo(@"""File with name 'upl.uplfile1.txt.oad' already exists."""));
     }
