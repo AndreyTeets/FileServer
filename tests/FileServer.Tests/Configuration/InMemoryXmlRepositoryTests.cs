@@ -5,7 +5,7 @@ using Microsoft.AspNetCore.DataProtection.XmlEncryption;
 
 namespace FileServer.Tests.Configuration;
 
-internal sealed class InMemoryXmlRepositoryTests : ServerTestsBase
+internal sealed class InMemoryXmlRepositoryTests
 {
 #pragma warning disable CS8618 // Non-nullable variable must contain a non-null value when exiting constructor. Consider declaring it as nullable.
     private InMemoryXmlRepository _repo;
