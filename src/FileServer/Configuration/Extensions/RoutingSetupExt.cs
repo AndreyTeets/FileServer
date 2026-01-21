@@ -11,7 +11,7 @@ using Route = FileServer.Routes.RouteExecutor;
 
 namespace FileServer.Configuration.Extensions;
 
-internal static class RoutingExtensions
+internal static class RoutingSetupExt
 {
     public static void UseToIndexPageRedirect(this IApplicationBuilder app)
     {

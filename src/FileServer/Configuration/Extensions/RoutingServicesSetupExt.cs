@@ -1,7 +1,4 @@
 ﻿using System.Diagnostics.CodeAnalysis;
-using System.Net;
-using System.Security.Authentication;
-using System.Security.Cryptography.X509Certificates;
 using System.Threading.RateLimiting;
 using FileServer.Auth;
 using FileServer.Routes;
@@ -11,33 +8,9 @@ using Microsoft.Extensions.Options;
 
 namespace FileServer.Configuration.Extensions;
 
-internal static class ServicesExtensions
+internal static class RoutingServicesSetupExt
 {
-    public static void ConfigureLogging(this WebApplicationBuilder builder)
-    {
-        builder.Logging.ClearProviders();
-        builder.Logging.AddConsole();
-    }
-
-    public static void ConfigureKestrel(this WebApplicationBuilder builder, ILogger logger)
-    {
-        builder.WebHost.ConfigureKestrel(options =>
-        {
-            Settings settings = builder.Configuration.GetSection(nameof(Settings)).Get<Settings>()!;
-
-            X509Certificate2 cert = Utility.LoadCertificate(settings);
-            logger.LogInformation(LogMessages.UsingCertificate, Utility.GetCertificateDisplayString(cert));
-
-            options.Listen(IPAddress.Parse(settings.ListenAddress), settings.ListenPort, listenOptions =>
-                listenOptions.UseHttps(httpsOptions =>
-                {
-                    httpsOptions.ServerCertificate = cert;
-                    httpsOptions.SslProtocols = SslProtocols.Tls12 | SslProtocols.Tls13;
-                }));
-        });
-    }
-
-    public static void AddAndConfigureServices(this IServiceCollection services)
+    public static void SetUpForRouting(this IServiceCollection services)
     {
         services.AddTransient<FileSaver>();
         services.AddTransient<FilesLister>();
@@ -50,6 +23,7 @@ internal static class ServicesExtensions
 
         services.ConfigureHttpJsonOptions(options =>
             options.SerializerOptions.TypeInfoResolverChain.Insert(0, Jsc.Default));
+
         services.AddSingleton<IConfigureOptions<KeyManagementOptions>>(services =>
             new ConfigureOptions<KeyManagementOptions>(options =>
             {   // DataProtection isn't used but can't be disabled, this is just to get rid of the warnings
@@ -59,15 +33,15 @@ internal static class ServicesExtensions
 
         services.AddPerRouteAndIpRateLimiter();
         services.AddHttpContextAccessor();
-        AddAllRouteHandlers(services);
+        services.AddAllRouteHandlers();
+    }
 
-        [UnconditionalSuppressMessage("Trimming", "IL2077",
-            Justification = "All types in FileServer.Routes namespace are excluded from trimming in TrimConfig")]
-        static void AddAllRouteHandlers(IServiceCollection services)
-        {
-            foreach ((Type interfaceType, Type implementingType) in RouteHandlersLocator.GetAll())
-                services.AddTransient(interfaceType, implementingType);
-        }
+    [UnconditionalSuppressMessage("Trimming", "IL2077",
+        Justification = "All types in FileServer.Routes namespace are excluded from trimming in TrimConfig")]
+    private static void AddAllRouteHandlers(this IServiceCollection services)
+    {
+        foreach ((Type interfaceType, Type implementingType) in RouteHandlersLocator.GetAll())
+            services.AddTransient(interfaceType, implementingType);
     }
 
     private static void AddPerRouteAndIpRateLimiter(this IServiceCollection services)
