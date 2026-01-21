@@ -15,16 +15,15 @@ internal sealed class ClientSideTests : PageTest
     [SetUp]
     public void SetUpTimeouts()
     {
-        SetDefaultExpectTimeout(1_000);
-        Page.SetDefaultNavigationTimeout(10_000);
-        Page.SetDefaultTimeout(3_000);
+        SetDefaultExpectTimeout(1_000); // Timeouts for Expect.ToXXX
+        Page.SetDefaultTimeout(3_000); // Timeouts for Page.[ClickAsync|FillAsync|SetFilesAsync|e.t.c]
+        Page.SetDefaultNavigationTimeout(10_000); // Timeouts for Page.[GotoAsync|ReloadAsync|e.t.c]
     }
 
     [TearDown]
     public void WriteServerOutput()
     {
-        if (StartServerFixture.GetServerOutputFunc is not null)
-            TestContext.Out.WriteLine(StartServerFixture.GetServerOutputFunc());
+        TestContext.Out.WriteLine(StartServerFixture.GetServerOutputFunc());
     }
 
     [Test]

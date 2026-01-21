@@ -20,8 +20,10 @@ internal sealed class StartServerFixture
     private const int StartTimeoutSec = 15;
     private const int Port = 9443;
 
-    private Process? _process;
-    public static Func<string>? GetServerOutputFunc { get; private set; }
+#pragma warning disable CS8618 // Non-nullable variable must contain a non-null value when exiting constructor. Consider declaring it as nullable.
+    private Process _process;
+    public static Func<string> GetServerOutputFunc { get; private set; }
+#pragma warning restore CS8618 // Remove when `dotnet format` is fixed (see https://github.com/dotnet/sdk/issues/44867)
 
     [OneTimeSetUp]
     public void SetUpTestServer()
@@ -35,8 +37,8 @@ internal sealed class StartServerFixture
     [OneTimeTearDown]
     public void TearDownTestServer()
     {
-        _process?.Kill();
-        _process?.Dispose();
+        _process.Kill();
+        _process.Dispose();
     }
 
     private static Process StartServerProcess(out StringBuilder serverOutput)
