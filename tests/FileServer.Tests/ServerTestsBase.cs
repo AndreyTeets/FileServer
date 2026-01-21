@@ -6,7 +6,7 @@ using Microsoft.Extensions.Hosting;
 namespace FileServer.Tests;
 
 #pragma warning disable CA1001 // Types that own disposable fields should be disposable
-internal abstract class TestsBase : ILoggedTest
+internal abstract class ServerTestsBase : ILoggedTest
 #pragma warning restore CA1001 // Remove when `dotnet format` is fixed (see https://github.com/dotnet/sdk/issues/44867)
 {
 #pragma warning disable CS8618 // Non-nullable variable must contain a non-null value when exiting constructor. Consider declaring it as nullable.

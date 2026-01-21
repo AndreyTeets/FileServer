@@ -4,7 +4,7 @@ using FileInfo = FileServer.Models.Files.FileInfo;
 
 namespace FileServer.Tests.Services;
 
-internal sealed class FilesListerTests : TestsBase
+internal sealed class FilesListerTests : ServerTestsBase
 {
 #pragma warning disable CS8618 // Non-nullable variable must contain a non-null value when exiting constructor. Consider declaring it as nullable.
     private FilesLister _filesLister;

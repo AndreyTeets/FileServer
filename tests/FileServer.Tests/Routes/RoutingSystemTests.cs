@@ -3,7 +3,7 @@ using System.Text.RegularExpressions;
 
 namespace FileServer.Tests.Routes;
 
-internal sealed class RoutingSystemTests : TestsBase
+internal sealed class RoutingSystemTests : ServerTestsBase
 {
     [Test]
     public async Task IndexPageRedirect_Works()

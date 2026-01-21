@@ -5,7 +5,7 @@ using Microsoft.Extensions.Options;
 
 namespace FileServer.Tests.Configuration;
 
-internal sealed class SettingsValidatorTests : TestsBase
+internal sealed class SettingsValidatorTests : ServerTestsBase
 {
 #pragma warning disable CS8618 // Non-nullable variable must contain a non-null value when exiting constructor. Consider declaring it as nullable.
     private IValidateOptions<Settings> _validator;

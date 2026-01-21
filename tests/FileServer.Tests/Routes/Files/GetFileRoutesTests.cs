@@ -4,7 +4,7 @@ using Microsoft.AspNetCore.Http;
 
 namespace FileServer.Tests.Routes.Files;
 
-internal sealed class GetFileRoutesTests : TestsBase
+internal sealed class GetFileRoutesTests : ServerTestsBase
 {
     [Test]
     public async Task GetFileRoutes_CorrectlyHandle_RelativeDirs_And_NotFoundFiles()

@@ -3,7 +3,7 @@ using System.Text;
 
 namespace FileServer.Tests.Routes.Files;
 
-internal sealed class FilesUploadTests : TestsBase
+internal sealed class FilesUploadTests : ServerTestsBase
 {
     [Test]
     public async Task Upload_NoAuth_Fails()
