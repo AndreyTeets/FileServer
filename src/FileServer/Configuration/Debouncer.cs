@@ -14,7 +14,7 @@ internal sealed class Debouncer(
     private readonly ConcurrentDictionary<string, int> _tasksCount = new();
     private readonly Lock _actionLock = new();
     private readonly Lock _disposeLock = new();
-    private bool _disposed;
+    private bool _disposed = false;
 
     public void Dispose()
     {
