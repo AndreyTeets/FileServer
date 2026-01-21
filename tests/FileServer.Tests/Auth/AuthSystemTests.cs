@@ -55,8 +55,8 @@ internal sealed class AuthSystemTests : ServerTestsBase
     [Test]
     public async Task Auth_WithMalformed_AntiforgeryToken_Fails()
     {
-        LoginResponse loginResponse = await FsTestClient.Login();
-        loginResponse.AntiforgeryToken = CreateMalformedToken();
+        await FsTestClient.Login();
+        FsTestClient.AntiforgeryToken = CreateMalformedToken();
         using HttpResponseMessage response = await FsTestClient.Get("/api/files/download/file1.txt");
         Assert.That(response.StatusCode, Is.EqualTo(HttpStatusCode.Unauthorized));
         Assert.That(await GetContent(response), Is.EqualTo(
@@ -80,8 +80,8 @@ internal sealed class AuthSystemTests : ServerTestsBase
     [Test]
     public async Task Auth_WithNotValid_AntiforgeryToken_Fails()
     {
-        LoginResponse loginResponse = await FsTestClient.Login();
-        loginResponse.AntiforgeryToken = CreateExpiredToken(Constants.AntiforgeryClaimType);
+        await FsTestClient.Login();
+        FsTestClient.AntiforgeryToken = CreateExpiredToken(Constants.AntiforgeryClaimType);
         using HttpResponseMessage response = await FsTestClient.Get("/api/files/download/file1.txt");
         Assert.That(response.StatusCode, Is.EqualTo(HttpStatusCode.Unauthorized));
         Assert.That(await GetContent(response), Is.EqualTo(
