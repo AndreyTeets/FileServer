@@ -20,10 +20,10 @@ pwsh tests/FileServer.E2ETests/bin/Release/net10.0/playwright.ps1 install --only
 if %errorlevel% neq 0 goto :Error
 
 echo -^> Publishing and cleaning app project...
-dotnet publish src/FileServer -o artifacts/publish-e2etests -v q ^
+dotnet publish src/FileServer -o artifacts/publish-e2etests -c Release -v q ^
     -p:PublishTrimmed=true -p:FsPublishSingleFile=true -p:EnableCompressionInSingleFile=true
 if %errorlevel% neq 0 goto :Error
-dotnet clean src/FileServer -c Release
+dotnet clean src/FileServer -c Release -v q
 if %errorlevel% neq 0 goto :Error
 
 echo -^> Running E2E tests...

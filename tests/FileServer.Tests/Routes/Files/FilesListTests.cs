@@ -10,7 +10,7 @@ internal sealed class FilesListTests : TestsBase
     [Test]
     public async Task List_NoAuth_ReturnsOnlyAnonFiles()
     {
-        using HttpResponseMessage response = await _fsTestClient.Get("/api/files/list");
+        using HttpResponseMessage response = await FsTestClient.Get("/api/files/list");
         Assert.That(response.StatusCode, Is.EqualTo(HttpStatusCode.OK));
         GetFilesListResponse? files = await response.Content.ReadFromJsonAsync<GetFilesListResponse>();
         Assert.That(files, Is.Not.Null);
@@ -20,8 +20,8 @@ internal sealed class FilesListTests : TestsBase
     [Test]
     public async Task List_WithAuth_ReturnsAllFiles()
     {
-        await _fsTestClient.Login();
-        using HttpResponseMessage response = await _fsTestClient.Get("/api/files/list");
+        await FsTestClient.Login();
+        using HttpResponseMessage response = await FsTestClient.Get("/api/files/list");
         Assert.That(response.StatusCode, Is.EqualTo(HttpStatusCode.OK));
         GetFilesListResponse? files = await response.Content.ReadFromJsonAsync<GetFilesListResponse>();
         Assert.That(files, Is.Not.Null);

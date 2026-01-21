@@ -12,7 +12,7 @@ internal sealed class AuthLoginTests : TestsBase
     [Test]
     public async Task Login_ProducesCorrectResponse_WhenSuccessful()
     {
-        LoginResponse loginResponse = await _fsTestClient.Login();
+        LoginResponse loginResponse = await FsTestClient.Login();
 
         Assert.That(loginResponse, Is.Not.Null);
         Assert.That(loginResponse.LoginInfo, Is.Not.Null);
@@ -21,7 +21,7 @@ internal sealed class AuthLoginTests : TestsBase
         Assert.That(loginResponse.AntiforgeryToken, Is.Not.Null.And.Not.Empty);
         AssertThatTokenIsCorrectAndValid(loginResponse.AntiforgeryToken, Constants.AntiforgeryClaimType);
 
-        Cookie? authCookie = _fsTestClient.CookieContainer.GetAllCookies()
+        Cookie? authCookie = FsTestClient.CookieContainer.GetAllCookies()
             .SingleOrDefault(x => x.Name == Constants.AuthTokenCookieName);
         Assert.That(authCookie, Is.Not.Null);
         Assert.That(authCookie.Expired, Is.False);
@@ -51,7 +51,7 @@ internal sealed class AuthLoginTests : TestsBase
     public async Task Login_Fails_OnWrongRequest(
         string? requestBodyJsonStr, HttpStatusCode expectedResponseStatusCode)
     {
-        using HttpResponseMessage response = await _fsTestClient.Post("/api/auth/login",
+        using HttpResponseMessage response = await FsTestClient.Post("/api/auth/login",
             content: CreateJsonContent(requestBodyJsonStr));
         Assert.That(response.StatusCode, Is.EqualTo(expectedResponseStatusCode));
 

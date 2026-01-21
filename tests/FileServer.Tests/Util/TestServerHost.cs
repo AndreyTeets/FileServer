@@ -1,7 +1,6 @@
 ﻿using System.Text;
 using FileServer.Configuration;
 using FileServer.Configuration.Extensions;
-using FileServer.Tests.Util;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Http.Features;
@@ -12,16 +11,11 @@ using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 
-namespace FileServer.Tests;
+namespace FileServer.Tests.Util;
 
-[SetUpFixture]
-internal sealed class SetUpTestServerFixture
+internal static class TestServerHost
 {
-    public static IHost? Host { get; private set; }
-    public static StringBuilder LogsSb { get; } = new();
-
-    [OneTimeSetUp]
-    public async Task SetUpTestServer()
+    public static IHost Create(StringBuilder logsSb)
     {
         IHostBuilder hostBuilder = new HostBuilder();
         hostBuilder.ConfigureWebHost(webHostBuilder =>
@@ -36,7 +30,7 @@ internal sealed class SetUpTestServerFixture
                 .ConfigureLogging(loggerBuilder =>
                 {
                     loggerBuilder.AddConfiguration(configuration.GetSection("Logging"));
-                    loggerBuilder.AddProvider(new StringBuilderLoggerProvider(LogsSb));
+                    loggerBuilder.AddProvider(new StringBuilderLoggerProvider(logsSb));
                 })
                 .ConfigureServices(services =>
                 {
@@ -63,21 +57,17 @@ internal sealed class SetUpTestServerFixture
                     app.UseNoCacheHeaders();
                 });
         });
-        Host = await hostBuilder.StartAsync();
-    }
-
-    [OneTimeTearDown]
-    public void TearDownTestServer()
-    {
-        Host?.Dispose();
+        return hostBuilder.Build();
     }
 
     private static Dictionary<string, string?> CreateAppSettings() => new()
     {
         { "Logging:LogLevel:Default", "Trace" },
-        { "Logging:LogLevel:Microsoft.AspNetCore", "Error" },
-        { "Logging:LogLevel:FileServer.Auth.DoubleTokenAuthenticationHandler", "Error" },
+        { "Logging:LogLevel:Microsoft.AspNetCore", "Warning" },
         { "Logging:LogLevel:Microsoft.AspNetCore.Hosting.Diagnostics", "Information" },
+        { "Logging:LogLevel:Microsoft.Extensions.Hosting.Internal.Host", "Information" },
+        { "Logging:LogLevel:FileServer.Program", "Warning" },
+        { "Logging:LogLevel:FileServer.Auth.DoubleTokenAuthenticationHandler", "Warning" },
         { $"{nameof(Settings)}:{nameof(Settings.DownloadAnonDir)}", Path.GetFullPath("fs_data/download_anon") },
         { $"{nameof(Settings)}:{nameof(Settings.DownloadDir)}", Path.GetFullPath("fs_data/download") },
         { $"{nameof(Settings)}:{nameof(Settings.UploadDir)}", Path.GetFullPath("fs_data/upload") },

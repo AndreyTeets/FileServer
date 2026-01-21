@@ -1,6 +1,7 @@
 ﻿using System.Text;
 using FileServer.Tests.Util;
 using Microsoft.AspNetCore.TestHost;
+using Microsoft.Extensions.Hosting;
 
 namespace FileServer.Tests;
 
@@ -9,26 +10,29 @@ internal abstract class TestsBase : ILoggedTest
 #pragma warning restore CA1001 // Remove when `dotnet format` is fixed (see https://github.com/dotnet/sdk/issues/44867)
 {
 #pragma warning disable CS8618 // Non-nullable variable must contain a non-null value when exiting constructor. Consider declaring it as nullable.
-    private protected HttpClient _testClient;
-    private protected FileServerTestClient _fsTestClient;
+    private IHost _host;
+    protected TestServer TestServer => _host.GetTestServer();
+    protected HttpClient TestClient => TestServer.CreateClient();
+    protected FileServerTestClient FsTestClient { get; private set; }
 #pragma warning restore CS8618 // Remove when `dotnet format` is fixed (see https://github.com/dotnet/sdk/issues/44867)
-    protected static TestServer TestServer => SetUpTestServerFixture.Host!.GetTestServer();
 
-    public StringBuilder LogsSb => SetUpTestServerFixture.LogsSb;
+    public StringBuilder LogsSb { get; } = new();
 
     [SetUp]
-    public void SetUpTestClients()
+    public async Task SetUpTestServer()
     {
         ClearUploadDir();
-        _testClient = SetUpTestServerFixture.Host!.GetTestClient();
-        _fsTestClient = new FileServerTestClient(TestServer.CreateHandler(), _testClient.BaseAddress);
+        _host = TestServerHost.Create(LogsSb);
+        await _host.StartAsync();
+        FsTestClient = new FileServerTestClient(TestServer.CreateHandler(), TestClient.BaseAddress);
     }
 
     [TearDown]
-    public void TearDownTestClients()
+    public async Task TearDownTestServer()
     {
-        _fsTestClient?.Dispose();
-        _testClient?.Dispose();
+        FsTestClient.Dispose();
+        await _host.StopAsync();
+        _host.Dispose();
     }
 
     protected static async Task<string> GetContent(HttpResponseMessage response) =>
