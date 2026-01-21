@@ -536,6 +536,9 @@ dotnet_diagnostic.CA1724.severity = suggestion
 # Parameter names should match base declaration
 dotnet_diagnostic.CA1725.severity = suggestion
 
+# Do not initialize unnecessarily
+dotnet_diagnostic.CA1805.severity = silent
+
 # Avoid uninstantiated internal classes
 dotnet_diagnostic.CA1812.severity = none
 
