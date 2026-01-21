@@ -2,7 +2,6 @@
 using FileServer.Configuration;
 using FileServer.Configuration.Extensions;
 using Microsoft.AspNetCore.Builder;
-using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Http.Features;
 using Microsoft.AspNetCore.TestHost;
 using Microsoft.Extensions.Configuration;
@@ -17,50 +16,59 @@ internal static class TestServerHost
 {
     public static IHost Create(StringBuilder logsSb)
     {
-        IHostBuilder hostBuilder = new HostBuilder();
-        hostBuilder.ConfigureWebHost(webHostBuilder =>
-        {
-            ConfigurationBuilder configurationBuilder = new();
-            configurationBuilder.AddInMemoryCollection(CreateAppSettings());
-            IConfiguration configuration = configurationBuilder.Build();
+        WebApplicationBuilder builder = WebApplication.CreateEmptyBuilder(new WebApplicationOptions());
+        builder.Configuration.UseTestSource();
+        builder.Logging.UseTestProvider(builder.Configuration, logsSb);
+        builder.Services.SetUpForSettingsWithNoopDebouncer(builder.Configuration);
+        builder.Services.AddAndConfigureServices();
+        builder.Services.AddRouting(); // Need to add manually because CreateEmptyBuilder is used
+        builder.WebHost.UseTestServer();
 
-            webHostBuilder
-                .UseTestServer()
-                .UseConfiguration(configuration)
-                .ConfigureLogging(loggerBuilder =>
-                {
-                    loggerBuilder.AddConfiguration(configuration.GetSection("Logging"));
-                    loggerBuilder.AddProvider(new StringBuilderLoggerProvider(logsSb));
-                })
-                .ConfigureServices(services =>
-                {
-                    services.Configure<Settings>(configuration.GetSection(nameof(Settings)));
-                    services.AddSingleton<IValidateOptions<Settings>, SettingsValidator>();
-                    services.AddSingleton<IDebouncer, NoopDebouncer>();
-                    services.AddAndConfigureServices();
-                    services.AddRouting();
-                })
-                .Configure(app =>
-                {
-                    app.Use(async (context, next) =>
-                    {
-                        context.Features.Set<IHttpMaxRequestBodySizeFeature>(new FakeHttpMaxRequestBodySizeFeature());
-                        await next();
-                    });
-                    app.UseToIndexPageRedirect();
-                    app.UseStaticFilesWithNoCacheHeaders();
-                    app.UseRouting();
-                    app.UseRateLimiter();
-                    app.UseAuthentication();
-                    app.UseAuthorization();
-                    app.UseEndpoints(endpoints => endpoints.MapRoutes());
-                    app.UseNoCacheHeaders();
-                });
-        });
-        return hostBuilder.Build();
+        WebApplication app = builder.Build();
+        app.SetUpSettingsMonitor();
+        app.UseTestFeatures(); // TestServer doesn't have all features that Kestrel does
+
+        app.UseToIndexPageRedirect();
+        app.UseStaticFilesWithNoCacheHeaders();
+        app.UseRateLimiter();
+        app.UseAuthentication();
+        app.UseAuthorization();
+        app.MapRoutes();
+        app.UseNoCacheHeaders();
+
+        return app;
     }
 
-    private static Dictionary<string, string?> CreateAppSettings() => new()
+    private static void UseTestSource(this IConfigurationManager configuration) =>
+        configuration.AddInMemoryCollection(CreateTestAppSettings());
+
+    private static void UseTestProvider(
+        this ILoggingBuilder builder,
+        IConfiguration configuration,
+        StringBuilder logsSb)
+    {
+        builder.AddConfiguration(configuration.GetRequiredSection("Logging"));
+        builder.Services.AddSingleton<ILoggerProvider, StringBuilderLoggerProvider>(
+            sp => new StringBuilderLoggerProvider(logsSb));
+    }
+
+    public static void SetUpForSettingsWithNoopDebouncer(this IServiceCollection services, IConfiguration configuration)
+    {
+        services.Configure<Settings>(configuration.GetSection(nameof(Settings)));
+        services.AddSingleton<IValidateOptions<Settings>, SettingsValidator>();
+        services.AddSingleton<IDebouncer, NoopDebouncer>();
+    }
+
+    private static void UseTestFeatures(this IApplicationBuilder app)
+    {
+        app.Use(async (context, next) =>
+        {
+            context.Features.Set<IHttpMaxRequestBodySizeFeature>(new FakeHttpMaxRequestBodySizeFeature());
+            await next();
+        });
+    }
+
+    private static Dictionary<string, string?> CreateTestAppSettings() => new()
     {
         { "Logging:LogLevel:Default", "Trace" },
         { "Logging:LogLevel:Microsoft.AspNetCore", "Warning" },
