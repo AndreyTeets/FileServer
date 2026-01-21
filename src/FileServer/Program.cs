@@ -13,7 +13,7 @@ internal sealed class Program
             return;
         }
 
-        ILogger logger = Utility.CreateConsoleLogger<Program>();
+        ILogger logger = LogUtil.CreateConsoleLogger<Program>();
         logger.LogInformation(LogMessages.StartingServer, AppInfo.GetVersion(out string commit), commit);
 
         WebApplicationBuilder builder = WebApplication.CreateBuilder(args);

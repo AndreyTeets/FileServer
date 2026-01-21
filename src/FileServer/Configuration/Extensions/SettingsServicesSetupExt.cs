@@ -19,9 +19,9 @@ internal static class SettingsServicesSetupExt
         try
         {
             Settings currentSettings = settingsMonitor.CurrentValue; // Force settings validation here at startup
-            logger.LogInformation(LogMessages.UsingSettings, Utility.GetSettingsDisplayString(currentSettings));
+            logger.LogInformation(LogMessages.UsingSettings, LogUtil.GetSettingsDisplayString(currentSettings));
             settingsMonitor.OnChange(settings => debouncer.Debounce(nameof(LogMessages.SettingsChanged), () =>
-                logger.LogInformation(LogMessages.SettingsChanged, Utility.GetSettingsDisplayString(settings))));
+                logger.LogInformation(LogMessages.SettingsChanged, LogUtil.GetSettingsDisplayString(settings))));
         }
         catch (OptionsValidationException ove)
         {
