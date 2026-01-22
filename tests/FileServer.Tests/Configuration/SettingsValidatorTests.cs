@@ -37,10 +37,13 @@ internal sealed class SettingsValidatorTests : ServerTestsBase
     [TestCase(nameof(Settings.CertKeyPath), "x", "value is not a full path")]
     [TestCase(nameof(Settings.DownloadAnonDir), null, "is not set")]
     [TestCase(nameof(Settings.DownloadAnonDir), "", "is not set")]
+    [TestCase(nameof(Settings.DownloadAnonDir), "x", "value is not a full path")]
     [TestCase(nameof(Settings.DownloadDir), null, "is not set")]
     [TestCase(nameof(Settings.DownloadDir), "", "is not set")]
+    [TestCase(nameof(Settings.DownloadDir), "x", "value is not a full path")]
     [TestCase(nameof(Settings.UploadDir), null, "is not set")]
     [TestCase(nameof(Settings.UploadDir), "", "is not set")]
+    [TestCase(nameof(Settings.UploadDir), "x", "value is not a full path")]
     [TestCase(nameof(Settings.SigningKey), null, "is not set")]
     [TestCase(nameof(Settings.SigningKey), "", "is not set")]
     [TestCase(nameof(Settings.SigningKey), "1234567890123456789", "length < 20")]
@@ -49,6 +52,7 @@ internal sealed class SettingsValidatorTests : ServerTestsBase
     [TestCase(nameof(Settings.LoginKey), "", "is not set")]
     [TestCase(nameof(Settings.LoginKey), "12345678901", "length < 12")]
     [TestCase(nameof(Settings.TokensTtlSeconds), int.MinValue, "is not set")]
+    [TestCase(nameof(Settings.TokensTtlSeconds), 0, "value is not positive")]
     public async Task Validate_Fails_OnInvalidPropValue(
         string propName, object? propValue, string expectedProblem)
     {
@@ -77,9 +81,9 @@ internal sealed class SettingsValidatorTests : ServerTestsBase
         ListenPort = 0,
         CertFilePath = Path.GetFullPath("some_path"),
         CertKeyPath = Path.GetFullPath("some_path"),
-        DownloadAnonDir = "something_not_empty",
-        DownloadDir = "something_not_empty",
-        UploadDir = "something_not_empty",
+        DownloadAnonDir = Path.GetFullPath("some_path"),
+        DownloadDir = Path.GetFullPath("some_path"),
+        UploadDir = Path.GetFullPath("some_path"),
         SigningKey = "12345678901234567890",
         LoginKey = "123456789012",
         TokensTtlSeconds = 1,
