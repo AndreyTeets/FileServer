@@ -74,6 +74,10 @@ internal static class TestServerHost
         { "Logging:LogLevel:Microsoft.Extensions.Hosting.Internal.Host", "Information" },
         { "Logging:LogLevel:FileServer.Program", "Warning" },
         { "Logging:LogLevel:FileServer.Auth.DoubleTokenAuthenticationHandler", "Warning" },
+        { $"{nameof(Settings)}:{nameof(Settings.ListenAddress)}", "0.0.0.0" }, // settings validation
+        { $"{nameof(Settings)}:{nameof(Settings.ListenPort)}", "0" }, // Satisfy validation
+        { $"{nameof(Settings)}:{nameof(Settings.CertFilePath)}", Path.GetFullPath("not_used") }, // Satisfy validation
+        { $"{nameof(Settings)}:{nameof(Settings.CertKeyPath)}", Path.GetFullPath("not_used") }, // Satisfy validation
         { $"{nameof(Settings)}:{nameof(Settings.DownloadAnonDir)}", Path.GetFullPath("fs_data/download_anon") },
         { $"{nameof(Settings)}:{nameof(Settings.DownloadDir)}", Path.GetFullPath("fs_data/download") },
         { $"{nameof(Settings)}:{nameof(Settings.UploadDir)}", Path.GetFullPath("fs_data/upload") },
