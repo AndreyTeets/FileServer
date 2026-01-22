@@ -14,13 +14,15 @@ internal sealed class FileSaver(
     {
         string sanitizedFileName = SanitizeFileName(originalFileName);
         string saveToPath = Path.Combine(_options.CurrentValue.UploadDir, sanitizedFileName);
+        bool createdTargetFile = false;
         try
         {
             await using FileStream targetStream = new(saveToPath, FileMode.CreateNew, FileAccess.Write, FileShare.None);
+            createdTargetFile = true;
             await fileContent.CopyToAsync(targetStream, ct);
             return (sanitizedFileName, true);
         }
-        catch (IOException) when (File.Exists(saveToPath))
+        catch (IOException) when (!createdTargetFile && File.Exists(saveToPath))
         {
             return (sanitizedFileName, false);
         }
