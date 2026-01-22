@@ -36,6 +36,6 @@ internal static class SettingsServicesSetupExt
         SettingsValidator validator = new(logger, debouncer);
         ValidateOptionsResult validationResult = validator.Validate(name: null, settings);
         if (validationResult.Failed)
-            throw new StartupException(validationResult.FailureMessage);
+            throw new OptionsValidationException("", typeof(Settings), validationResult.Failures);
     }
 }
