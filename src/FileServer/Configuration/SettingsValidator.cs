@@ -3,7 +3,7 @@
 namespace FileServer.Configuration;
 
 internal sealed class SettingsValidator(
-    IServiceProvider serviceProvider,
+    ILogger<Program> logger,
     IDebouncer debouncer)
     : IValidateOptions<Settings>
 {
@@ -11,7 +11,7 @@ internal sealed class SettingsValidator(
     private const int MaxSigningKeyLength = 64;
     private const int MinLoginKeyLength = 12;
 
-    private readonly ILogger<Program> _logger = serviceProvider.GetRequiredService<ILogger<Program>>();
+    private readonly ILogger<Program> _logger = logger;
     private readonly IDebouncer _debouncer = debouncer;
 
     public ValidateOptionsResult Validate(string? name, Settings settings)

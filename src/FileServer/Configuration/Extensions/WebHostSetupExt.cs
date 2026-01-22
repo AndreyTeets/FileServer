@@ -6,12 +6,10 @@ namespace FileServer.Configuration.Extensions;
 
 internal static class WebHostSetupExt
 {
-    public static void SetUpKestrel(this IWebHostBuilder builder, IConfiguration configuration, ILogger logger)
+    public static void SetUpKestrel(this IWebHostBuilder builder, Settings settings, ILogger<Program> logger)
     {
         builder.ConfigureKestrel(options =>
         {
-            Settings settings = configuration.GetSection(nameof(Settings)).Get<Settings>()!;
-
             X509Certificate2 cert = LoadCertificate(settings);
             logger.LogInformation(LogMessages.UsingCertificate, LogUtil.GetCertificateDisplayString(cert));
 
