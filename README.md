@@ -149,7 +149,7 @@ Replace these steps from the container images usage example:
     Examples of commonly used option combinations can be found in the [_commands.txt](_commands.txt) file.
 
 + ###### 5. Create/prepare the settings file.
-    For example, assuming steps 3 and 4 have been strictly followed, copy the template settings file to `appsettings.json` in the current directory and change:
+    For example, assuming steps 3 and 4 have been strictly followed, copy the template settings file to `appsettings.json` in the publish directory and change:
     ```
     "CertFilePath": "/full/path/to/server_cert/cert.crt",
     "CertKeyPath": "/full/path/to/server_cert/cert.key",
@@ -161,11 +161,13 @@ Replace these steps from the container images usage example:
     ```
 
 + ###### 6. Start the server.
-    For example, assuming the settings file is in the current directory, to run the server built in step 2:
-    + `dotnet artifacts/publish/FileServer.dll` for cross-platform (framework-dependent).
-    + `"./artifacts/publish/FileServer.exe"` for self-contained when using Windows cmd.
-    + `./artifacts/publish/FileServer.exe` for self-contained when using Windows pwsh.
-    + `./artifacts/publish/FileServer` for self-contained when using Linux/macOS.
+    For example, assuming the working directory is set to the publish directory, and the settings file is in there, to run the server built in step 2:
+    + `dotnet FileServer.dll` for cross-platform (framework-dependent).
+    + `"./FileServer.exe"` for self-contained when using Windows cmd.
+    + `./FileServer.exe` for self-contained when using Windows pwsh.
+    + `./FileServer` for self-contained when using Linux/macOS.
+
+    If wwwroot static files are embedded (e.g. it's a single-file or an AOT executable), there's no need to change the working directory to where the executable is and e.g. the `./artifacts/publish/FileServer` command can be used instead (assuming the settings file is in the current directory or its path is specified in the environmental variable).
 
 A practical end-to-end working example of setting up, publishing and running a cross-platform server for local development can be found in the [_setup-server.bat](_setup-server.bat) and [_run-server.bat](_run-server.bat) scripts.
 
