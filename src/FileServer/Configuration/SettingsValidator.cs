@@ -1,84 +1,77 @@
 ﻿using System.Net;
-using Microsoft.Extensions.Options;
 
 namespace FileServer.Configuration;
 
 internal sealed class SettingsValidator(
     ILogger<Program> logger,
     IDebouncer debouncer)
-    : IValidateOptions<Settings>
+    : SettingsValidatorBase(logger, debouncer)
 {
-    private readonly ILogger<Program> _logger = logger;
-    private readonly IDebouncer _debouncer = debouncer;
-
-    public ValidateOptionsResult Validate(string? name, Settings settings)
+    protected override void Validate(Settings settings, List<string> problems)
     {
-        if (!SettingsAreValid(settings, out List<string> problems))
-        {
-            _debouncer.Debounce(nameof(LogMessages.InvalidSettings), () =>
-                _logger.LogError(LogMessages.InvalidSettings,
-                    LogUtil.GetSettingsDisplayString(settings),
-                    LogUtil.GetSettingsProblemsDisplayString(problems)));
-            return ValidateOptionsResult.Fail(problems);
-        }
-        return ValidateOptionsResult.Success;
+        Validate(nameof(Settings.ListenAddress), settings.ListenAddress, problems);
+        Validate(nameof(Settings.ListenPort), settings.ListenPort, problems);
+        Validate(nameof(Settings.CertFilePath), settings.CertFilePath, problems);
+        Validate(nameof(Settings.CertKeyPath), settings.CertKeyPath, problems);
+        Validate(nameof(Settings.DownloadAnonDir), settings.DownloadAnonDir, problems);
+        Validate(nameof(Settings.DownloadDir), settings.DownloadDir, problems);
+        Validate(nameof(Settings.UploadDir), settings.UploadDir, problems);
+        Validate(nameof(Settings.SigningKey), settings.SigningKey, problems);
+        Validate(nameof(Settings.LoginKey), settings.LoginKey, problems);
+        Validate(nameof(Settings.TokensTtlSeconds), settings.TokensTtlSeconds, problems);
     }
 
-#pragma warning disable MA0051 // Method is too long
-    private static bool SettingsAreValid(Settings settings, out List<string> problems)
-#pragma warning restore MA0051 // Needs a lot of refactoring, will do later
+    private static void Validate(string sn, string? sv, List<string> p) => ValidateCore(sn, sv, p);
+    private static void Validate(string sn, int sv, List<string> p) => ValidateCore(sn, sv, p);
+    private static void ValidateCore<T>(string settingName, T? settingValue, List<string> problems) where T : notnull
     {
-        problems = [];
+        if (settingValue is null || IsDefault(settingValue))
+        {
+            problems.Add($"{settingName} is not set");
+            return;
+        }
 
-        if (!IsSet(settings.ListenAddress))
-            problems.Add($"{nameof(Settings.ListenAddress)} is not set");
-        if (!IsSet(settings.ListenPort))
-            problems.Add($"{nameof(Settings.ListenPort)} is not set");
-        if (!IsSet(settings.CertFilePath))
-            problems.Add($"{nameof(Settings.CertFilePath)} is not set");
-        if (!IsSet(settings.CertKeyPath))
-            problems.Add($"{nameof(Settings.CertKeyPath)} is not set");
-        if (!IsSet(settings.DownloadAnonDir))
-            problems.Add($"{nameof(Settings.DownloadAnonDir)} is not set");
-        if (!IsSet(settings.DownloadDir))
-            problems.Add($"{nameof(Settings.DownloadDir)} is not set");
-        if (!IsSet(settings.UploadDir))
-            problems.Add($"{nameof(Settings.UploadDir)} is not set");
-        if (!IsSet(settings.SigningKey))
-            problems.Add($"{nameof(Settings.SigningKey)} is not set");
-        if (!IsSet(settings.LoginKey))
-            problems.Add($"{nameof(Settings.LoginKey)} is not set");
-        if (!IsSet(settings.TokensTtlSeconds))
-            problems.Add($"{nameof(Settings.TokensTtlSeconds)} is not set");
+        switch (settingName)
+        {
+            case nameof(Settings.ListenAddress):
+                ValidateIsIpAddress(settingName, Cast<string>(settingValue), problems);
+                break;
+            case nameof(Settings.ListenPort):
+                ValidateIsPort(settingName, Cast<int>(settingValue), problems);
+                break;
+            case nameof(Settings.CertFilePath):
+            case nameof(Settings.CertKeyPath):
+            case nameof(Settings.DownloadAnonDir):
+            case nameof(Settings.DownloadDir):
+            case nameof(Settings.UploadDir):
+                ValidateIsFullPath(settingName, Cast<string>(settingValue), problems);
+                break;
+            case nameof(Settings.SigningKey):
+                ValidateMinLength(settingName, Cast<string>(settingValue), 20, problems);
+                ValidateMaxLength(settingName, Cast<string>(settingValue), 64, problems);
+                break;
+            case nameof(Settings.LoginKey):
+                ValidateMinLength(settingName, Cast<string>(settingValue), 12, problems);
+                break;
+            case nameof(Settings.TokensTtlSeconds):
+                ValidateIsPositive(settingName, Cast<int>(settingValue), problems);
+                break;
+            default:
+                throw new ArgumentOutOfRangeException(nameof(settingName), $"Invalid setting name '{settingName}'.");
+        }
 
-        if (IsSet(settings.ListenAddress))
-            ValidateIsIpAddress(nameof(Settings.ListenAddress), settings.ListenAddress, problems);
-        if (IsSet(settings.ListenPort))
-            ValidateIsPort(nameof(Settings.ListenPort), settings.ListenPort, problems);
-        if (IsSet(settings.CertFilePath))
-            ValidateIsFullPath(nameof(Settings.CertFilePath), settings.CertFilePath, problems);
-        if (IsSet(settings.CertKeyPath))
-            ValidateIsFullPath(nameof(Settings.CertKeyPath), settings.CertKeyPath, problems);
+        static bool IsDefault(T settingValue) => settingValue switch
+        {
+            string sv => sv == string.Empty,
+            int sv => sv == int.MinValue,
+            _ => throw new ArgumentException($"Invalid setting type '{settingValue.GetType()}'.", nameof(settingValue)),
+        };
 
-        if (IsSet(settings.DownloadAnonDir))
-            ValidateIsFullPath(nameof(Settings.DownloadAnonDir), settings.DownloadAnonDir, problems);
-        if (IsSet(settings.DownloadDir))
-            ValidateIsFullPath(nameof(Settings.DownloadDir), settings.DownloadDir, problems);
-        if (IsSet(settings.UploadDir))
-            ValidateIsFullPath(nameof(Settings.UploadDir), settings.UploadDir, problems);
-
-        if (IsSet(settings.SigningKey))
-            ValidateMinLength(nameof(Settings.SigningKey), settings.SigningKey, 20, problems);
-        if (IsSet(settings.SigningKey))
-            ValidateMaxLength(nameof(Settings.SigningKey), settings.SigningKey, 64, problems);
-
-        if (IsSet(settings.LoginKey))
-            ValidateMinLength(nameof(Settings.LoginKey), settings.LoginKey, 12, problems);
-
-        if (IsSet(settings.TokensTtlSeconds))
-            ValidateIsPositive(nameof(Settings.TokensTtlSeconds), settings.TokensTtlSeconds, problems);
-
-        return problems.Count == 0;
+        static TRes Cast<TRes>(T settingValue) => settingValue switch
+        {
+            TRes res => res,
+            _ => throw new ArgumentException($"Invalid setting type '{settingValue.GetType()}'.", nameof(settingValue)),
+        };
     }
 
     private static void ValidateIsIpAddress(string settingName, string settingValue, List<string> problems)
@@ -116,7 +109,4 @@ internal sealed class SettingsValidator(
         if (settingValue is <= 0)
             problems.Add($"{settingName} value is not positive");
     }
-
-    private static bool IsSet(string? setting) => !string.IsNullOrEmpty(setting);
-    private static bool IsSet(int setting) => setting != int.MinValue;
 }
