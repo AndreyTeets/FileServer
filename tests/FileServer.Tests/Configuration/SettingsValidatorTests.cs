@@ -17,41 +17,16 @@ internal sealed class SettingsValidatorTests : ServerTestsBase
         _validator = TestServer.Services.GetRequiredService<IValidateOptions<Settings>>();
     }
 
-    [Test]
-    public async Task Validate_Succeeds_WhenCorrectSettings()
-    {
-        ValidateOptionsResult res = _validator.Validate(name: null, CreateValidSettings());
-        Assert.That(res.Succeeded, Is.True);
-    }
-
-    [TestCase(nameof(Settings.ListenAddress), null, "is not set")]
-    [TestCase(nameof(Settings.ListenAddress), "", "is not set")]
     [TestCase(nameof(Settings.ListenAddress), "x", "value is not a valid ip address")]
-    [TestCase(nameof(Settings.ListenPort), int.MinValue, "is not set")]
     [TestCase(nameof(Settings.ListenPort), -1, "value is not a valid port")]
-    [TestCase(nameof(Settings.CertFilePath), null, "is not set")]
-    [TestCase(nameof(Settings.CertFilePath), "", "is not set")]
     [TestCase(nameof(Settings.CertFilePath), "x", "value is not a full path")]
-    [TestCase(nameof(Settings.CertKeyPath), null, "is not set")]
-    [TestCase(nameof(Settings.CertKeyPath), "", "is not set")]
     [TestCase(nameof(Settings.CertKeyPath), "x", "value is not a full path")]
-    [TestCase(nameof(Settings.DownloadAnonDir), null, "is not set")]
-    [TestCase(nameof(Settings.DownloadAnonDir), "", "is not set")]
     [TestCase(nameof(Settings.DownloadAnonDir), "x", "value is not a full path")]
-    [TestCase(nameof(Settings.DownloadDir), null, "is not set")]
-    [TestCase(nameof(Settings.DownloadDir), "", "is not set")]
     [TestCase(nameof(Settings.DownloadDir), "x", "value is not a full path")]
-    [TestCase(nameof(Settings.UploadDir), null, "is not set")]
-    [TestCase(nameof(Settings.UploadDir), "", "is not set")]
     [TestCase(nameof(Settings.UploadDir), "x", "value is not a full path")]
-    [TestCase(nameof(Settings.SigningKey), null, "is not set")]
-    [TestCase(nameof(Settings.SigningKey), "", "is not set")]
     [TestCase(nameof(Settings.SigningKey), "1234567890123456789", "length < 20")]
     [TestCase(nameof(Settings.SigningKey), "12345678901234567890123456789012345678901234567890123456789012345", "length > 64")]
-    [TestCase(nameof(Settings.LoginKey), null, "is not set")]
-    [TestCase(nameof(Settings.LoginKey), "", "is not set")]
     [TestCase(nameof(Settings.LoginKey), "12345678901", "length < 12")]
-    [TestCase(nameof(Settings.TokensTtlSeconds), int.MinValue, "is not set")]
     [TestCase(nameof(Settings.TokensTtlSeconds), 0, "value is not positive")]
     public async Task Validate_Fails_OnInvalidPropValue(
         string propName, object? propValue, string expectedProblem)
@@ -59,20 +34,68 @@ internal sealed class SettingsValidatorTests : ServerTestsBase
         Settings settings = CreateValidSettings();
         PropertyInfo prop = typeof(Settings).GetProperties().Single(p => p.Name == propName);
         prop.SetValue(settings, propValue);
-        ValidateOptionsResult res = _validator.Validate(name: null, settings);
+        ValidateOptionsResult validationResult = _validator.Validate(name: null, settings);
 
-        Assert.That(res.Failed, Is.True);
-        Assert.That(res.FailureMessage, Is.EqualTo($"{propName} {expectedProblem}"));
+        Assert.That(validationResult.Failed, Is.True);
+        Assert.That(validationResult.FailureMessage, Is.EqualTo($"{propName} {expectedProblem}"));
+    }
+
+    [TestCase(nameof(Settings.ListenAddress))]
+    [TestCase(nameof(Settings.CertFilePath))]
+    [TestCase(nameof(Settings.CertKeyPath))]
+    [TestCase(nameof(Settings.DownloadAnonDir))]
+    [TestCase(nameof(Settings.DownloadDir))]
+    [TestCase(nameof(Settings.UploadDir))]
+    [TestCase(nameof(Settings.SigningKey))]
+    [TestCase(nameof(Settings.LoginKey))]
+    public async Task Validate_Fails_OnNullPropValue(string propName)
+    {
+        Settings settings = CreateValidSettings();
+        PropertyInfo prop = typeof(Settings).GetProperties().Single(p => p.Name == propName);
+        prop.SetValue(settings, value: null);
+        ValidateOptionsResult validationResult = _validator.Validate(name: null, settings);
+
+        Assert.That(validationResult.Failed, Is.True);
+        Assert.That(validationResult.FailureMessage, Is.EqualTo($"{propName} is not set"));
+    }
+
+    [TestCase(nameof(Settings.ListenAddress))]
+    [TestCase(nameof(Settings.ListenPort))]
+    [TestCase(nameof(Settings.CertFilePath))]
+    [TestCase(nameof(Settings.CertKeyPath))]
+    [TestCase(nameof(Settings.DownloadAnonDir))]
+    [TestCase(nameof(Settings.DownloadDir))]
+    [TestCase(nameof(Settings.UploadDir))]
+    [TestCase(nameof(Settings.SigningKey))]
+    [TestCase(nameof(Settings.LoginKey))]
+    [TestCase(nameof(Settings.TokensTtlSeconds))]
+    public async Task Validate_Fails_OnUnsetPropValue(string propName)
+    {
+        Settings settingsDefaults = new();
+        Settings settings = CreateValidSettings();
+        PropertyInfo prop = typeof(Settings).GetProperties().Single(p => p.Name == propName);
+        prop.SetValue(settings, prop.GetValue(settingsDefaults));
+        ValidateOptionsResult validationResult = _validator.Validate(name: null, settings);
+
+        Assert.That(validationResult.Failed, Is.True);
+        Assert.That(validationResult.FailureMessage, Is.EqualTo($"{propName} is not set"));
     }
 
     [Test]
     public async Task Validate_FailsAndReportsAllProblems_OnUnsetProps()
     {
-        ValidateOptionsResult res = _validator.Validate(name: null, new Settings());
+        ValidateOptionsResult validationResult = _validator.Validate(name: null, new Settings());
         List<string> expectedProblems = [.. typeof(Settings).GetProperties().Select(p => $"{p.Name} is not set")];
 
-        Assert.That(res.Failed, Is.True);
-        Assert.That(res.Failures, Is.EquivalentTo(expectedProblems));
+        Assert.That(validationResult.Failed, Is.True);
+        Assert.That(validationResult.Failures, Is.EquivalentTo(expectedProblems));
+    }
+
+    [Test]
+    public async Task Validate_Succeeds_WhenCorrectSettings()
+    {
+        ValidateOptionsResult validationResult = _validator.Validate(name: null, CreateValidSettings());
+        Assert.That(validationResult.Succeeded, Is.True);
     }
 
     private static Settings CreateValidSettings() => new()
