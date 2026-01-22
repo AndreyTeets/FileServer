@@ -5,7 +5,7 @@ namespace FileServer.Configuration;
 
 internal static class LogUtil
 {
-    public static ILogger CreateConsoleLogger<T>() where T : class
+    public static ILogger<T> CreateConsoleLogger<T>() where T : class
     {
         using ILoggerFactory loggerFactory = LoggerFactory.Create(loggerBuilder => loggerBuilder
             .SetMinimumLevel(LogLevel.Trace)

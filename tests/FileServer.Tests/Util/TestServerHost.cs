@@ -16,10 +16,12 @@ internal static class TestServerHost
 {
     public static IHost Create(StringBuilder logsSb)
     {
+        ILogger<Program> logger = LogUtil.CreateConsoleLogger<Program>();
+
         WebApplicationBuilder builder = WebApplication.CreateEmptyBuilder(new WebApplicationOptions());
         builder.Configuration.UseTestSource();
         builder.Logging.UseTestProvider(builder.Configuration, logsSb);
-        builder.Services.SetUpForSettingsWithNoopDebouncer(builder.Configuration);
+        builder.Services.SetUpForSettingsWithNoopDebouncer(builder.Configuration, logger);
         builder.Services.SetUpForRouting();
         builder.Services.AddRouting(); // Need to add manually because CreateEmptyBuilder is used
         builder.WebHost.UseTestServer();
@@ -45,9 +47,12 @@ internal static class TestServerHost
             sp => new StringBuilderLoggerProvider(logsSb));
     }
 
-    public static void SetUpForSettingsWithNoopDebouncer(this IServiceCollection services, IConfiguration configuration)
+    public static void SetUpForSettingsWithNoopDebouncer(
+        this IServiceCollection services,
+        IConfiguration configuration,
+        ILogger<Program> logger)
     {
-        services.SetUpForSettings(configuration);
+        services.SetUpForSettings(configuration, logger, out Settings _);
         services.RemoveAll<IDebouncer>();
         services.AddSingleton<IDebouncer, NoopDebouncer>();
     }

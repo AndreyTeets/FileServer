@@ -13,15 +13,15 @@ internal sealed class Program
             return;
         }
 
-        ILogger logger = LogUtil.CreateConsoleLogger<Program>();
+        ILogger<Program> logger = LogUtil.CreateConsoleLogger<Program>();
         logger.LogInformation(LogMessages.StartingServer, AppInfo.GetVersion(out string commit), commit);
 
         WebApplicationBuilder builder = WebApplication.CreateBuilder(args);
         builder.Configuration.SetUpSources();
         builder.Logging.SetUpProviders();
-        builder.Services.SetUpForSettings(builder.Configuration);
+        builder.Services.SetUpForSettings(builder.Configuration, logger, out Settings settings);
         builder.Services.SetUpForRouting();
-        builder.WebHost.SetUpKestrel(builder.Configuration, logger);
+        builder.WebHost.SetUpKestrel(settings, logger);
 
         WebApplication app = builder.Build();
         app.Services.SetUpSettingsMonitor();
