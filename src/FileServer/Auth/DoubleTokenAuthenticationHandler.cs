@@ -79,7 +79,7 @@ internal sealed class DoubleTokenAuthenticationHandler(
             return TryGetEncodedAuthTokenString();
         if (tokenType == Constants.AntiforgeryClaimType)
             return TryGetEncodedAntiforgeryTokenString();
-        throw new AuthException($"Invalid token type '{tokenType}'.");
+        throw new ArgumentOutOfRangeException(nameof(tokenType), $"Invalid token type '{tokenType}'.");
     }
 
     private string? TryGetEncodedAuthTokenString()

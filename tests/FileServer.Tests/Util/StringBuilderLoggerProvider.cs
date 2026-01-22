@@ -64,8 +64,7 @@ internal sealed class StringBuilderLoggerProvider(
                     LogLevel.Warning => "warn",
                     LogLevel.Error => "fail",
                     LogLevel.Critical => "crit",
-                    LogLevel.None => throw new NotSupportedException(),
-                    _ => "",
+                    LogLevel.None or _ => throw new ArgumentOutOfRangeException(nameof(logLevel)),
                 };
             }
 
