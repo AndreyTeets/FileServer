@@ -28,7 +28,9 @@ internal sealed class SettingsValidator(
         return ValidateOptionsResult.Success;
     }
 
+#pragma warning disable MA0051 // Method is too long
     private static bool SettingsAreValid(Settings settings, out List<string> problems)
+#pragma warning restore MA0051 // Needs a lot of refactoring, will do later
     {
         problems = [];
 
@@ -62,6 +64,13 @@ internal sealed class SettingsValidator(
         if (IsSet(settings.CertKeyPath))
             ValidateIsFullPath(nameof(Settings.CertKeyPath), settings.CertKeyPath, problems);
 
+        if (IsSet(settings.DownloadAnonDir))
+            ValidateIsFullPath(nameof(Settings.DownloadAnonDir), settings.DownloadAnonDir, problems);
+        if (IsSet(settings.DownloadDir))
+            ValidateIsFullPath(nameof(Settings.DownloadDir), settings.DownloadDir, problems);
+        if (IsSet(settings.UploadDir))
+            ValidateIsFullPath(nameof(Settings.UploadDir), settings.UploadDir, problems);
+
         if (IsSet(settings.SigningKey) && settings.SigningKey.Length < MinSigningKeyLength)
             problems.Add($"{nameof(Settings.SigningKey)} length < {MinSigningKeyLength}");
         if (IsSet(settings.SigningKey) && settings.SigningKey.Length > MaxSigningKeyLength)
@@ -69,6 +78,9 @@ internal sealed class SettingsValidator(
 
         if (IsSet(settings.LoginKey) && settings.LoginKey.Length < MinLoginKeyLength)
             problems.Add($"{nameof(Settings.LoginKey)} length < {MinLoginKeyLength}");
+
+        if (IsSet(settings.TokensTtlSeconds))
+            ValidateIsPositive(nameof(Settings.TokensTtlSeconds), settings.TokensTtlSeconds, problems);
 
         return problems.Count == 0;
     }
@@ -89,6 +101,12 @@ internal sealed class SettingsValidator(
     {
         if (!Path.IsPathFullyQualified(settingValue))
             problems.Add($"{settingName} value is not a full path");
+    }
+
+    private static void ValidateIsPositive(string settingName, int settingValue, List<string> problems)
+    {
+        if (settingValue is <= 0)
+            problems.Add($"{settingName} value is not positive");
     }
 
     private static bool IsSet(string? setting) => !string.IsNullOrEmpty(setting);
