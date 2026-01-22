@@ -8,10 +8,6 @@ internal sealed class SettingsValidator(
     IDebouncer debouncer)
     : IValidateOptions<Settings>
 {
-    private const int MinSigningKeyLength = 20;
-    private const int MaxSigningKeyLength = 64;
-    private const int MinLoginKeyLength = 12;
-
     private readonly ILogger<Program> _logger = logger;
     private readonly IDebouncer _debouncer = debouncer;
 
@@ -71,13 +67,13 @@ internal sealed class SettingsValidator(
         if (IsSet(settings.UploadDir))
             ValidateIsFullPath(nameof(Settings.UploadDir), settings.UploadDir, problems);
 
-        if (IsSet(settings.SigningKey) && settings.SigningKey.Length < MinSigningKeyLength)
-            problems.Add($"{nameof(Settings.SigningKey)} length < {MinSigningKeyLength}");
-        if (IsSet(settings.SigningKey) && settings.SigningKey.Length > MaxSigningKeyLength)
-            problems.Add($"{nameof(Settings.SigningKey)} length > {MaxSigningKeyLength}");
+        if (IsSet(settings.SigningKey))
+            ValidateMinLength(nameof(Settings.SigningKey), settings.SigningKey, 20, problems);
+        if (IsSet(settings.SigningKey))
+            ValidateMaxLength(nameof(Settings.SigningKey), settings.SigningKey, 64, problems);
 
-        if (IsSet(settings.LoginKey) && settings.LoginKey.Length < MinLoginKeyLength)
-            problems.Add($"{nameof(Settings.LoginKey)} length < {MinLoginKeyLength}");
+        if (IsSet(settings.LoginKey))
+            ValidateMinLength(nameof(Settings.LoginKey), settings.LoginKey, 12, problems);
 
         if (IsSet(settings.TokensTtlSeconds))
             ValidateIsPositive(nameof(Settings.TokensTtlSeconds), settings.TokensTtlSeconds, problems);
@@ -101,6 +97,18 @@ internal sealed class SettingsValidator(
     {
         if (!Path.IsPathFullyQualified(settingValue))
             problems.Add($"{settingName} value is not a full path");
+    }
+
+    private static void ValidateMinLength(string settingName, string settingValue, int minLength, List<string> problems)
+    {
+        if (settingValue.Length < minLength)
+            problems.Add($"{settingName} length < {minLength}");
+    }
+
+    private static void ValidateMaxLength(string settingName, string settingValue, int maxLength, List<string> problems)
+    {
+        if (settingValue.Length > maxLength)
+            problems.Add($"{settingName} length > {maxLength}");
     }
 
     private static void ValidateIsPositive(string settingName, int settingValue, List<string> problems)
