@@ -24,6 +24,17 @@ internal sealed class SettingsValidatorTests : ServerTestsBase
         Assert.That(res.Succeeded, Is.True);
     }
 
+    [TestCase(nameof(Settings.ListenAddress), null, "is not set")]
+    [TestCase(nameof(Settings.ListenAddress), "", "is not set")]
+    [TestCase(nameof(Settings.ListenAddress), "x", "value is not a valid ip address")]
+    [TestCase(nameof(Settings.ListenPort), int.MinValue, "is not set")]
+    [TestCase(nameof(Settings.ListenPort), -1, "value is not a valid port")]
+    [TestCase(nameof(Settings.CertFilePath), null, "is not set")]
+    [TestCase(nameof(Settings.CertFilePath), "", "is not set")]
+    [TestCase(nameof(Settings.CertFilePath), "x", "value is not a full path")]
+    [TestCase(nameof(Settings.CertKeyPath), null, "is not set")]
+    [TestCase(nameof(Settings.CertKeyPath), "", "is not set")]
+    [TestCase(nameof(Settings.CertKeyPath), "x", "value is not a full path")]
     [TestCase(nameof(Settings.DownloadAnonDir), null, "is not set")]
     [TestCase(nameof(Settings.DownloadAnonDir), "", "is not set")]
     [TestCase(nameof(Settings.DownloadDir), null, "is not set")]
@@ -42,8 +53,8 @@ internal sealed class SettingsValidatorTests : ServerTestsBase
         string propName, object? propValue, string expectedProblem)
     {
         Settings settings = CreateValidSettings();
-        PropertyInfo field = typeof(Settings).GetProperties().Single(x => x.Name == propName);
-        field.SetValue(settings, propValue);
+        PropertyInfo prop = typeof(Settings).GetProperties().Single(p => p.Name == propName);
+        prop.SetValue(settings, propValue);
         ValidateOptionsResult res = _validator.Validate(name: null, settings);
 
         Assert.That(res.Failed, Is.True);
@@ -54,24 +65,18 @@ internal sealed class SettingsValidatorTests : ServerTestsBase
     public async Task Validate_FailsAndReportsAllProblems_OnUnsetProps()
     {
         ValidateOptionsResult res = _validator.Validate(name: null, new Settings());
-        List<string> expectedProblems = [.. GetSettingsValidatedPropNames().Select(x => $"{x} is not set")];
+        List<string> expectedProblems = [.. typeof(Settings).GetProperties().Select(p => $"{p.Name} is not set")];
 
         Assert.That(res.Failed, Is.True);
         Assert.That(res.Failures, Is.EquivalentTo(expectedProblems));
-
-        static List<string> GetSettingsValidatedPropNames() =>
-        [
-            nameof(Settings.DownloadAnonDir),
-            nameof(Settings.DownloadDir),
-            nameof(Settings.UploadDir),
-            nameof(Settings.SigningKey),
-            nameof(Settings.LoginKey),
-            nameof(Settings.TokensTtlSeconds),
-        ];
     }
 
     private static Settings CreateValidSettings() => new()
     {
+        ListenAddress = "0.0.0.0",
+        ListenPort = 0,
+        CertFilePath = Path.GetFullPath("some_path"),
+        CertKeyPath = Path.GetFullPath("some_path"),
         DownloadAnonDir = "something_not_empty",
         DownloadDir = "something_not_empty",
         UploadDir = "something_not_empty",
