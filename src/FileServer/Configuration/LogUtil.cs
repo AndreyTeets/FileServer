@@ -17,8 +17,8 @@ internal static class LogUtil
     {
         StringBuilder sb = new();
         return sb
-            .AppendLine($"-Subject: {cert.Subject}")
-            .AppendLine($"-Issuer: {cert.Issuer}")
+            .AppendLine($"-Subject: \"{cert.Subject}\"")
+            .AppendLine($"-Issuer: \"{cert.Issuer}\"")
             .AppendLine($"-ValidFrom: {FormatDate(cert.NotBefore)}")
             .AppendLine($"-ValidTo: {FormatDate(cert.NotAfter)}")
             .AppendLine($"-SHA256: {GetSha256(cert)}")
@@ -62,7 +62,7 @@ internal static class LogUtil
         static string DisplayKey(string? key) =>
             string.IsNullOrEmpty(key) ? DisplayUnset() : "*****";
         static string DisplayStr(string? str) =>
-            string.IsNullOrEmpty(str) ? DisplayUnset() : str;
+            string.IsNullOrEmpty(str) ? DisplayUnset() : @$"""{str}""";
         static string DisplayInt(int value) =>
             value == int.MinValue ? DisplayUnset() : value.ToString();
         static string DisplayUnset() => "UNSET";
