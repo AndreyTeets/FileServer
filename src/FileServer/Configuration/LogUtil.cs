@@ -47,20 +47,25 @@ internal static class LogUtil
     {
         StringBuilder sb = new();
         return sb
-            .AppendLine($"-{nameof(Settings.ListenAddress)}: {settings.ListenAddress}")
-            .AppendLine($"-{nameof(Settings.ListenPort)}: {settings.ListenPort}")
-            .AppendLine($"-{nameof(Settings.CertFilePath)}: {settings.CertFilePath}")
-            .AppendLine($"-{nameof(Settings.CertKeyPath)}: {settings.CertKeyPath}")
-            .AppendLine($"-{nameof(Settings.DownloadAnonDir)}: {settings.DownloadAnonDir}")
-            .AppendLine($"-{nameof(Settings.DownloadDir)}: {settings.DownloadDir}")
-            .AppendLine($"-{nameof(Settings.UploadDir)}: {settings.UploadDir}")
+            .AppendLine($"-{nameof(Settings.ListenAddress)}: {DisplayStr(settings.ListenAddress)}")
+            .AppendLine($"-{nameof(Settings.ListenPort)}: {DisplayInt(settings.ListenPort)}")
+            .AppendLine($"-{nameof(Settings.CertFilePath)}: {DisplayStr(settings.CertFilePath)}")
+            .AppendLine($"-{nameof(Settings.CertKeyPath)}: {DisplayStr(settings.CertKeyPath)}")
+            .AppendLine($"-{nameof(Settings.DownloadAnonDir)}: {DisplayStr(settings.DownloadAnonDir)}")
+            .AppendLine($"-{nameof(Settings.DownloadDir)}: {DisplayStr(settings.DownloadDir)}")
+            .AppendLine($"-{nameof(Settings.UploadDir)}: {DisplayStr(settings.UploadDir)}")
             .AppendLine($"-{nameof(Settings.SigningKey)}: {DisplayKey(settings.SigningKey)}")
             .AppendLine($"-{nameof(Settings.LoginKey)}: {DisplayKey(settings.LoginKey)}")
-            .AppendLine($"-{nameof(Settings.TokensTtlSeconds)}: {settings.TokensTtlSeconds}")
+            .AppendLine($"-{nameof(Settings.TokensTtlSeconds)}: {DisplayInt(settings.TokensTtlSeconds)}")
             .ToString().Trim();
 
         static string DisplayKey(string? key) =>
-            string.IsNullOrEmpty(key) ? "UNSET" : "*****";
+            string.IsNullOrEmpty(key) ? DisplayUnset() : "*****";
+        static string DisplayStr(string? str) =>
+            string.IsNullOrEmpty(str) ? DisplayUnset() : str;
+        static string DisplayInt(int value) =>
+            value == int.MinValue ? DisplayUnset() : value.ToString();
+        static string DisplayUnset() => "UNSET";
     }
 
     public static string GetSettingsProblemsDisplayString(IEnumerable<string> problems) =>
