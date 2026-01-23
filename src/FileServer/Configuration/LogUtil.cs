@@ -60,7 +60,7 @@ internal static class LogUtil
             .ToString().Trim();
 
         static string DisplayKey(string? key) =>
-            string.IsNullOrWhiteSpace(key) ? "EMPTY" : "*****";
+            string.IsNullOrEmpty(key) ? "UNSET" : "*****";
     }
 
     public static string GetSettingsProblemsDisplayString(IEnumerable<string> problems) =>
