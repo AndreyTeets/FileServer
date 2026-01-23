@@ -33,7 +33,7 @@ internal sealed class LogUtilTests
 
         static string GetExpectedDisplayStr(PropertyInfo prop, ValuesType valuesType) => valuesType switch
         {
-            ValuesType.IfNullableNullElseDefault or ValuesType.Default when PropIsKey(prop) => "EMPTY",
+            ValuesType.IfNullableNullElseDefault or ValuesType.Default when PropIsKey(prop) => "UNSET",
             ValuesType.IfNullableNullElseDefault when prop.PropertyType == typeof(string) => string.Empty,
             ValuesType.IfNullableNullElseDefault when prop.PropertyType == typeof(int) => int.MinValue.ToString(),
             ValuesType.Default when prop.PropertyType == typeof(string) => string.Empty,
