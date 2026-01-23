@@ -35,7 +35,8 @@ internal sealed class LogUtilTests
         {
             ValuesType.IfNullableNullElseDefault or ValuesType.Default => "UNSET",
             ValuesType.Filled when PropIsKey(prop) => "*****",
-            ValuesType.Filled => $"{GetFilledTestValue(prop)}",
+            ValuesType.Filled when prop.PropertyType == typeof(string) => @$"""{GetFilledTestValue(prop)}""",
+            ValuesType.Filled when prop.PropertyType == typeof(int) => $"{GetFilledTestValue(prop)}",
             _ => throw new ArgumentOutOfRangeException(nameof(valuesType), $"Invalid values type '{valuesType}'."),
         };
 
