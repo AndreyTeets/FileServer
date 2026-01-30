@@ -111,7 +111,7 @@ class AuthPageComponent extends ComponentBase {
     #logout = async () => {
         this.setState({ status: { text: "Logging out..." } });
         const [_, errorText] = await Api.logout();
-        if (errorText) {
+        if (errorText) { // Stay logged-in on errors except 401 (Api call already clears Auth on 401)
             this.setState({ loggedIn: !!Auth.get(), status: { error: errorText } });
         } else {
             Auth.clear();
