@@ -80,35 +80,35 @@ class VDom {
         } else if (VDomElemComparer.vDomElementsAreIdentical(newElem, oldElem)) {
             VDom.#replaceInVDom(newElem, oldElem);
             VDom.#setDomElem_InNewFromOld_IncludingChildren_ExceptWhenEqualOrChanged(newElem, oldElem, null);
-        } else {
+        } else { // Elements are different
             const [newMinimalElem, oldMinimalElem, oldMinimalElemParent] = VDom.#findMinimalChangedElement(newElem, oldElem);
             VDom.#replaceInVDom(newElem, oldElem);
             VDom.#setDomElem_InNewFromOld_IncludingChildren_ExceptWhenEqualOrChanged(newElem, oldElem, newMinimalElem);
-            if (newMinimalElem !== null)
+            if (newMinimalElem !== null) // Added or replaced (not removed)
                 newMinimalElem.setDomElem(newMinimalElem.createDomElem());
             VDom.#replaceInDom(newMinimalElem, oldMinimalElem, oldMinimalElemParent);
         }
     }
 
     static #replaceInVDom(newElem, oldElem) {
-        const parent = oldElem.vParent;
+        const parent = oldElem.vParent; // This function is supposed to only be called on non-root connected old elements
         parent.vChildren[parent.vChildren.indexOf(oldElem)] = newElem;
         newElem.vParent = parent;
         oldElem.vParent = null;
     }
 
     static #replaceInDom(newElem, oldElem, oldElemParent) {
-        if (oldElem === null)
+        if (oldElem === null) // Element added
             oldElemParent.getDomElem().append(newElem.getDomElem());
-        else if (newElem === null)
+        else if (newElem === null) // Element removed
             oldElemParent.getDomElem().removeChild(oldElem.getDomElem());
-        else
+        else // Element replaced
             oldElemParent.getDomElem().replaceChild(newElem.getDomElem(), oldElem.getDomElem());
     }
 
     static #setDomElem_InNewFromOld_IncludingChildren_ExceptWhenEqualOrChanged(newElem, oldElem, changedElemNew) {
         if (newElem === oldElem || newElem === changedElemNew)
-            return;
+            return; // If equal - it's a saved child element (and DOM element is already set), if changed - recursion is at the diff part
         newElem.setDomElem(oldElem.getDomElem());
         for (let i = 0; i < Math.min(newElem.vChildren.length, oldElem.vChildren.length); i++)
             VDom.#setDomElem_InNewFromOld_IncludingChildren_ExceptWhenEqualOrChanged(newElem.vChildren[i], oldElem.vChildren[i], changedElemNew);
