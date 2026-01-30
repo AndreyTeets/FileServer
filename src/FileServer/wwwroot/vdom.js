@@ -71,7 +71,7 @@ class VDom {
     static isConnected(elem) {
         if (elem === VDom.rootElem)
             return true;
-        return elem.vParent && VDom.isConnected(elem.vParent);
+        return !!elem.vParent && VDom.isConnected(elem.vParent);
     }
 
     static replace(newElem, oldElem) {
