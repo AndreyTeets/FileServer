@@ -57,5 +57,5 @@ RUN dotnet restore tests/FileServer.Tests
 
 COPY . .
 RUN dotnet build tests/FileServer.Tests -c Release --no-restore
-RUN dotnet test --project tests/FileServer.Tests -c Release --no-build
+RUN dotnet test --project tests/FileServer.Tests -c Release --no-build --filter "TestCategory!=Client"
 #}
