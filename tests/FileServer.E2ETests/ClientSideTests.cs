@@ -30,7 +30,7 @@ internal sealed class ClientSideTests : PageTest
     public async Task AllPages_FunctionCorrectly()
     {
         await OpenInitialPage();
-        await Expect(Page).ToHaveTitleAsync("Files");
+        await Expect(Page).ToHaveTitleAsync("FileServer");
         await Expect(Page.Locator("body")).ToMatchAriaSnapshotAsync(new AfterOpenInitialPageSnapshot());
 
         Assert.That(await GetContentForLastFileOnDownloadPage(), Is.EqualTo("test_anonfile1_content"));
