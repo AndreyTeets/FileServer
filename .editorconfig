@@ -814,6 +814,11 @@ dotnet_diagnostic.MA0009.severity = silent
 # Classes should not be empty
 dotnet_diagnostic.S2094.severity = none
 
+## JavaScript code line endings aren't a problem
+[tests/FileServer.Tests/Client/**.cs]
+# Raw String contains an implicit end of line character
+dotnet_diagnostic.MA0136.severity = none
+
 ## Playwright snapshots line endings aren't a problem
 [tests/FileServer.E2ETests/Snapshots/**.cs]
 # Raw String contains an implicit end of line character
