@@ -4,6 +4,7 @@ using Microsoft.ClearScript.V8;
 namespace FileServer.Tests;
 
 #pragma warning disable CA1001 // Types that own disposable fields should be disposable
+[Category("Client")]
 internal abstract class ClientTestsBase
 #pragma warning restore CA1001 // Remove when `dotnet format` is fixed (see https://github.com/dotnet/sdk/issues/44867)
 {
