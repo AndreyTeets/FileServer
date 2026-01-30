@@ -46,6 +46,6 @@ class ComponentBase {
     }
 
     #lastRenderedElemIsAttached() {
-        return this.#lastRenderedElem && VDom.isConnected(this.#lastRenderedElem);
+        return !!this.#lastRenderedElem && VDom.isConnected(this.#lastRenderedElem);
     }
 }
