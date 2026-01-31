@@ -3,7 +3,27 @@
 AVD-DS-0002
 
 ## Vulnerabilities
-# Not affected. Unignore once runtime-deps:10.0.0-alpine3.22 is updated.
+# Not affected (the server doesn't use BusyBox/netstat).
 CVE-2024-58251
-# Not affected. Unignore once runtime-deps:10.0.0-alpine3.22 is updated.
+# Not affected (the server doesn't use BusyBox/tar).
 CVE-2025-46394
+# Not affected (the server doesn't parse CMS AuthEnvelopedData).
+CVE-2025-15467
+# Not affected (the server doesn't work with untrusted PKCS#12 files).
+CVE-2025-69419
+# Not affected (the server doesn't use QUIC protocol).
+CVE-2025-15468
+# Not affected (the server doesn't request client certificates).
+CVE-2025-66199
+# Not affected (the server doesn't use line-buffering BIO filter).
+CVE-2025-68160
+# Not affected (the server doesn't use low-levelCRYPTO_ocb128_encrypt() or CRYPTO_ocb128_decrypt() functions).
+CVE-2025-69418
+# Not affected (the server doesn't use RFC 3161 TimeStamp Response verification).
+CVE-2025-69420
+# Not affected (the server doesn't work with untrusted PKCS#12 files).
+CVE-2025-69421
+# Not affected (the server doesn't work with untrusted PKCS#12 files).
+CVE-2026-22795
+# Not affected (the server doesn't use signature verification of PKCS#7 data or PKCS7_digest_from_attributes() function).
+CVE-2026-22796
