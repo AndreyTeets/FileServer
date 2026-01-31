@@ -1,5 +1,19 @@
 # Changelog
 
+## [2.0.3] - 2026-01-31
+
+**Notable Changes**:
++ Remove unnecessary `domain` attribute from auth cookie (#64).
++ Fix file existence race condition when saving uploaded files (#65).
++ Improve certificate and settings information display in logs (#71).
++ Add settings validation for address/port/cert, add more checks for other (#69).
++ Add favicon, change page title to FileServer (#72).
++ Rebuild container images with updated os-packages containing a bunch of fixes for OpenSSL-related CVEs (none of which affect the server, since they are either CMS/PKCS12 related and the server doesn't use those, or they aren't applicable because the server doesn't use QUIC and doesn't request client certificates).
+
+[Unnotable Changes](https://github.com/AndreyTeets/FileServer/pulls?q=milestone%3A2.0.3%20-label%3Anoteworthy)
+
+[All Commits](https://github.com/AndreyTeets/FileServer/compare/v2.0.2...v2.0.3)
+
 ## [2.0.2] - 2026-01-19
 
 **Notable Changes**:
@@ -117,6 +131,7 @@ It starts an https server at the specified `listen address` and `listen port` us
 
 [All Commits](https://github.com/AndreyTeets/FileServer/commits/v1.0.1)
 
+[2.0.3]: https://github.com/AndreyTeets/FileServer/releases/tag/v2.0.3
 [2.0.2]: https://github.com/AndreyTeets/FileServer/releases/tag/v2.0.2
 [2.0.1]: https://github.com/AndreyTeets/FileServer/releases/tag/v2.0.1
 [2.0.0]: https://github.com/AndreyTeets/FileServer/releases/tag/v2.0.0
