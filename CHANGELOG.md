@@ -1,5 +1,16 @@
 # Changelog
 
+## [2.0.4] - 2026-03-14
+
+**Notable Changes**:
++ **SECURITY**: Update pinned dotnet runtime to 10.0.4 (#77). This fixes: CVE-2026-26127 (probably affected), CVE-2026-26131 (not affected directly as it requires to already have local access), CVE-2026-26130 (not affected as SignalR is not used). This is only relevant for pre-built artifacts, excluding framework-dependent binaries (building from the source code uses the latest runtime, unless `FS_PIN_RUNTIME_VERSION` is explicitly set).
++ Rebuild container images with the latest os-packages containing fixes for CVE-2026-22184 (not affected), CVE-2026-27171 (not affected).
++ Fix build failing with CA1873 error on dotnet sdk 10.0.103+ (#75).
+
+[Unnotable Changes](https://github.com/AndreyTeets/FileServer/pulls?q=milestone%3A2.0.4%20-label%3Anoteworthy)
+
+[All Commits](https://github.com/AndreyTeets/FileServer/compare/v2.0.3...v2.0.4)
+
 ## [2.0.3] - 2026-01-31
 
 **Notable Changes**:
@@ -131,6 +142,7 @@ It starts an https server at the specified `listen address` and `listen port` us
 
 [All Commits](https://github.com/AndreyTeets/FileServer/commits/v1.0.1)
 
+[2.0.4]: https://github.com/AndreyTeets/FileServer/releases/tag/v2.0.4
 [2.0.3]: https://github.com/AndreyTeets/FileServer/releases/tag/v2.0.3
 [2.0.2]: https://github.com/AndreyTeets/FileServer/releases/tag/v2.0.2
 [2.0.1]: https://github.com/AndreyTeets/FileServer/releases/tag/v2.0.1
