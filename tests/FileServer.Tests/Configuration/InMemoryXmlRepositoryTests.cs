@@ -7,9 +7,7 @@ namespace FileServer.Tests.Configuration;
 
 internal sealed class InMemoryXmlRepositoryTests
 {
-#pragma warning disable CS8618 // Non-nullable variable must contain a non-null value when exiting constructor. Consider declaring it as nullable.
     private InMemoryXmlRepository _repo;
-#pragma warning restore CS8618 // Remove when `dotnet format` is fixed (see https://github.com/dotnet/sdk/issues/44867)
 
     [SetUp]
     public void SetUp()
