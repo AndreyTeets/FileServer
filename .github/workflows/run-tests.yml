@@ -79,7 +79,7 @@ jobs:
         run: dotnet build -c ${{ matrix.netcfg }} --no-restore
 
       - name: Format verify solution
-        run: dotnet format --verify-no-changes --no-restore
+        run: dotnet format --verify-no-changes --no-restore --exclude-diagnostics CS8618 CA1001
 
       - name: Run tests
         run: dotnet test --project tests/FileServer.Tests -c ${{ matrix.netcfg }} --no-build

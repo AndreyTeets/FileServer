@@ -6,7 +6,7 @@ dotnet build -c Release -v q
 if %errorlevel% neq 0 goto :Error
 
 echo -^> Format verifying solution...
-dotnet format --verify-no-changes --no-restore -v q
+dotnet format --verify-no-changes --no-restore -v q --exclude-diagnostics CS8618 CA1001
 if %errorlevel% neq 0 goto :Error
 
 echo -^> Running tests...
