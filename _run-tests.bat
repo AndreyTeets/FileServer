@@ -6,9 +6,7 @@ dotnet build -c Release -v q
 if %errorlevel% neq 0 goto :Error
 
 echo -^> Format verifying solution...
-set "FS_DISABLE_TRIM_ANALYZER=true"
 dotnet format --verify-no-changes --no-restore -v q
-set "FS_DISABLE_TRIM_ANALYZER="
 if %errorlevel% neq 0 goto :Error
 
 echo -^> Running tests...
