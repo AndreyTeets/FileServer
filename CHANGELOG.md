@@ -1,5 +1,15 @@
 # Changelog
 
+## [2.0.5] - 2026-04-17
+
+**Notable Changes**:
++ **SECURITY**: Rebuild container images with the latest os-packages containing fixes for CVE-2026-28390, CVE-2026-28388, CVE-2026-28389, CVE-2026-31789, CVE-2026-31790, CVE-2026-2673, CVE-2026-28387, CVE-2026-40200, CVE-2026-6042 (at least some of the OpenSSL-related CVEs may affect the server).
++ Update pinned dotnet runtime to 10.0.6 (#80). This fixes: CVE-2026-32178, CVE-2026-26171, CVE-2026-32203, CVE-2026-33116 (none of which affect the server, since System.Net.Mail isn't used at all and System.Security.Cryptography.Xml isn't used on untrusted data). This is only relevant for pre-built artifacts, excluding framework-dependent binaries (building from the source code uses the latest runtime, unless `FS_PIN_RUNTIME_VERSION` is explicitly set).
+
+[Unnotable Changes](https://github.com/AndreyTeets/FileServer/pulls?q=milestone%3A2.0.5%20-label%3Anoteworthy)
+
+[All Commits](https://github.com/AndreyTeets/FileServer/compare/v2.0.4...v2.0.5)
+
 ## [2.0.4] - 2026-03-14
 
 **Notable Changes**:
@@ -142,6 +152,7 @@ It starts an https server at the specified `listen address` and `listen port` us
 
 [All Commits](https://github.com/AndreyTeets/FileServer/commits/v1.0.1)
 
+[2.0.5]: https://github.com/AndreyTeets/FileServer/releases/tag/v2.0.5
 [2.0.4]: https://github.com/AndreyTeets/FileServer/releases/tag/v2.0.4
 [2.0.3]: https://github.com/AndreyTeets/FileServer/releases/tag/v2.0.3
 [2.0.2]: https://github.com/AndreyTeets/FileServer/releases/tag/v2.0.2
