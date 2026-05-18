@@ -2,6 +2,7 @@
 pushd "%~dp0"
 
 set "FS_ENFORCE_CODE_QUALITY=true"
+set "FS_ENABLE_ALL_ANALYZERS=true"
 
 echo -^> Building solution...
 dotnet build -c Release -v q

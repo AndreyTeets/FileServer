@@ -10,6 +10,7 @@ set "FileServer__Settings__DownloadDir=%cd%\src\FileServer\bin\fs_data\downloads
 set "FileServer__Settings__UploadDir=%cd%\src\FileServer\bin\fs_data\uploads"
 
 set "FS_ENFORCE_CODE_QUALITY=false"
+set "FS_ENABLE_ALL_ANALYZERS=false"
 
 echo -^> Publishing...
 if exist "artifacts\publish-dev" (rmdir "artifacts\publish-dev" /S /Q)>nul 2>&1
