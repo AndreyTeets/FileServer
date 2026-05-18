@@ -455,6 +455,10 @@ dotnet_diagnostic.IDE0220.severity = suggestion
 # Use pattern matching over as expression with null-conditional member access
 dotnet_diagnostic.IDE0260.severity = suggestion
 
+# Make method synchronous
+dotnet_diagnostic.IDE0390.severity = suggestion
+dotnet_diagnostic.IDE0391.severity = suggestion
+
 #### Code Quality diagnostics ####
 
 # Do not declare static members on generic types
