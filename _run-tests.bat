@@ -1,6 +1,8 @@
 @echo off
 pushd "%~dp0"
 
+set "FS_ENFORCE_CODE_QUALITY=true"
+
 echo -^> Building solution...
 dotnet build -c Release -v q
 if %errorlevel% neq 0 goto :Error
