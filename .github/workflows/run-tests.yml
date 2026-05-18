@@ -59,6 +59,7 @@ jobs:
             netcfg: 'Debug'
     env:
       FS_ENFORCE_CODE_QUALITY: 'true'
+      FS_ENABLE_ALL_ANALYZERS: 'true'
     steps:
       - name: Check out repository
         uses: actions/checkout@v5
